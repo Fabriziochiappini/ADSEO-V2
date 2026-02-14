@@ -21,21 +21,32 @@ export default function Home() {
   const [topic, setTopic] = useState('');
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [strategy, setStrategy] = useState<NetworkStrategy | null>(null);
 
   const handleGenerate = async () => {
     if (!topic || !description) return;
     setLoading(true);
+    setError(null);
+    setStrategy(null);
+
     try {
       const response = await fetch('/api/campaign/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ topic, businessDescription: description })
       });
+
       const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || `Error: ${response.statusText}`);
+      }
+
       setStrategy(data);
-    } catch (error) {
-      console.error('Failed to generate strategy:', error);
+    } catch (err: any) {
+      console.error('Failed to generate strategy:', err);
+      setError(err.message || 'An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -140,7 +151,31 @@ export default function Home() {
           {/* Right Column: Visualization & Results */}
           <div className="lg:col-span-7">
             <AnimatePresence mode="wait">
-              {!strategy && !loading && (
+              {error && (
+                <motion.div
+                  key="error"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  className="h-full min-h-[500px] flex flex-col items-center justify-center p-8 text-center bg-red-500/5 border-2 border-dashed border-red-500/20 rounded-3xl"
+                >
+                  <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mb-6">
+                    <Zap className="w-8 h-8 text-red-500" />
+                  </div>
+                  <h3 className="text-xl font-bold text-red-200">Generation Failed</h3>
+                  <p className="text-zinc-400 mt-2 max-w-sm mb-6">
+                    {error}
+                  </p>
+                  <button
+                    onClick={() => setError(null)}
+                    className="px-6 py-2 rounded-full bg-zinc-800 hover:bg-zinc-700 text-sm font-semibold transition-colors"
+                  >
+                    Try Again
+                  </button>
+                </motion.div>
+              )}
+
+              {!strategy && !loading && !error && (
                 <motion.div
                   key="empty"
                   initial={{ opacity: 0, y: 20 }}
