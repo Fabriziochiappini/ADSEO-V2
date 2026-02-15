@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
                 .from('campaigns')
                 .insert({
                     topic: topic,
-                    description: description, // Original description
+                    description: businessDescription, // Original description
                     app_id: appId
                 })
                 .select()
