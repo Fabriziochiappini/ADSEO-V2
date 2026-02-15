@@ -33,7 +33,7 @@ export class VercelService {
             method: 'POST',
             body: JSON.stringify({
                 name,
-                repository: {
+                gitRepository: {
                     type: 'github',
                     repo: repo, // e.g., "Fabriziochiappini/lander-template"
                 },
