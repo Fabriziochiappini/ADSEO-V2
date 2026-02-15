@@ -17,6 +17,7 @@ export interface SiteStrategy {
 export interface NetworkStrategy {
     main_topic: string;
     business_description: string;
+    sub_topics: string[];
     sites: SiteStrategy[];
     overall_strategy: string;
 }

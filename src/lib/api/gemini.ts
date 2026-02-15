@@ -13,15 +13,30 @@ export class AiService {
     });
   }
 
-  async analyzeTopic(topic: string, businessDescription: string, keywords: any[]): Promise<NetworkStrategy> {
-    const prompt = `Analyze the following topic: "${topic}" for a business described as: "${businessDescription}". 
-        Available keywords data: ${JSON.stringify(keywords)}.
+  async generateSubTopics(topic: string, businessDescription: string): Promise<{ sub_topics: string[] }> {
+    const prompt = `Analyze the topic "${topic}" and business description "${businessDescription}".
+    Identify 5-7 specific sub-topics, angles, or search contexts that are relevant for finding long-tail keywords (e.g., if topic is "moving", sub-topics could be "moving attics", "moving high floors", "moving north italy").
+    
+    Return a JSON object:
+    {
+      "sub_topics": string[]
+    }`;
+
+    const result = await this.model.generateContent(prompt);
+    const response = await result.response;
+    return JSON.parse(response.text());
+  }
+
+  async analyzeTopic(topic: string, subTopics: string[], businessDescription: string, keywords: any[]): Promise<NetworkStrategy> {
+    const prompt = `Analyze the following topic: "${topic}" and its sub-topics: ${JSON.stringify(subTopics)} for a business described as: "${businessDescription}". 
+        Available keywords data (gathered for these sub-topics): ${JSON.stringify(keywords)}.
         
         Suggest a strategy for a multi-domain SEO network (3-5 sites). 
         Return a JSON object following the NetworkStrategy interface:
         {
           "main_topic": string,
           "business_description": string,
+          "sub_topics": string[],
           "overall_strategy": string,
           "sites": [
             {
