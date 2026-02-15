@@ -130,6 +130,25 @@ export class AiService {
     }));
   }
 
+  async generateLandingPageContent(domain: string, keyword: string): Promise<any> {
+    const prompt = `Create landing page content for the domain "${domain}" focused on the primary keyword "${keyword}".
+    The target language is Italian.
+    
+    Return ONLY a JSON object with:
+    {
+      "brandName": "A catchy brand name",
+      "heroTitle": "Powerful H1 including the keyword",
+      "heroSubtitle": "Engaging H2 explaining the value propostition",
+      "serviceDescription": "A 2-3 sentence description of the service using money keywords like 'prezzo', 'preventivo', 'migliori'.",
+      "ctaText": "Short CTA (e.g., 'Richiedi Preventivo')"
+    }`;
+
+    const result = await this.model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text().replace(/```json/g, '').replace(/```/g, '').trim();
+    return JSON.parse(text);
+  }
+
   async generateDomainNames(topic: string, keywords: string[]): Promise<string[]> {
     const prompt = `Generate 20 creative, SEO-friendly domain name ideas for the topic: "${topic}".
     Context keywords: ${keywords.slice(0, 5).join(', ')}.

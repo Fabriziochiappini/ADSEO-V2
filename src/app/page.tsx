@@ -13,6 +13,8 @@ import {
   List
 } from 'lucide-react';
 import { TopicAnalysisResult } from '@/types';
+import DomainGenerator from '@/components/DomainGenerator';
+import ContentSetup from '@/components/ContentSetup';
 
 export default function Home() {
   const [topic, setTopic] = useState('');
@@ -20,12 +22,15 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<TopicAnalysisResult | null>(null);
+  const [currentStep, setCurrentStep] = useState<'analysis' | 'domains' | 'content'>('analysis');
+  const [selectedDomains, setSelectedDomains] = useState<string[]>([]);
 
   const handleGenerate = async () => {
     if (!topic || !description) return;
     setLoading(true);
     setError(null);
     setResult(null);
+    setCurrentStep('analysis');
 
     try {
       const response = await fetch('/api/campaign/analyze', {
@@ -41,12 +46,18 @@ export default function Home() {
       }
 
       setResult(data);
+      setCurrentStep('domains');
     } catch (err: any) {
       console.error('Failed to generate strategy:', err);
       setError(err.message || 'An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDomainsFinalized = (domains: string[]) => {
+    setSelectedDomains(domains);
+    setCurrentStep('content');
   };
 
   return (
@@ -74,209 +85,219 @@ export default function Home() {
       </header>
 
       <main className="max-w-7xl mx-auto px-6 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-
-          {/* Left Column: Input Panel */}
-          <div className="lg:col-span-4 space-y-8">
-            <div className="space-y-2">
-              <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-br from-white to-zinc-500 bg-clip-text text-transparent">
-                Long Tail Explorer
-              </h1>
-              <p className="text-zinc-400 text-lg">
-                Find low-competition "Long Long Tail" keywords for your niche.
-              </p>
-            </div>
-
-            <div className="space-y-6">
+        {currentStep === 'content' ? (
+          <ContentSetup
+            selectedDomains={selectedDomains}
+            keywords={result?.keywords || []}
+            onBack={() => setCurrentStep('domains')}
+          />
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+            {/* Left Column: Input Panel */}
+            <div className="lg:col-span-4 space-y-8">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-zinc-300 ml-1">Core Topic / Niche</label>
-                <div className="relative group">
-                  <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                    <Search className="w-4 h-4 text-zinc-500 group-focus-within:text-blue-500 transition-colors" />
-                  </div>
-                  <input
-                    type="text"
-                    value={topic}
-                    onChange={(e) => setTopic(e.target.value)}
-                    placeholder="e.g. Sgombero Torino"
-                    className="w-full h-14 pl-12 pr-4 bg-zinc-900/50 border border-zinc-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all text-white placeholder:text-zinc-600"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-zinc-300 ml-1">Business Description</label>
-                <textarea
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Describe services, locations, and specific offers..."
-                  rows={4}
-                  className="w-full p-4 bg-zinc-900/50 border border-zinc-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all text-white placeholder:text-zinc-600 resize-none"
-                />
-              </div>
-
-              <button
-                onClick={handleGenerate}
-                disabled={loading || !topic || !description}
-                className="w-full h-14 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-2xl transition-all flex items-center justify-center gap-2 group shadow-[0_0_20px_rgba(59,130,246,0.2)]"
-              >
-                {loading ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                ) : (
-                  <>
-                    <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-                    Analyze Keywords
-                  </>
-                )}
-              </button>
-            </div>
-
-            {/* Quick Tips */}
-            <div className="p-6 rounded-2xl bg-zinc-900/30 border border-zinc-800/50 flex gap-4">
-              <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center flex-shrink-0">
-                <TrendingUp className="w-5 h-5 text-zinc-400" />
-              </div>
-              <div>
-                <h4 className="text-sm font-semibold text-zinc-200">Tip</h4>
-                <p className="text-xs text-zinc-500 mt-1 leading-relaxed">
-                  Be specific in your description to get the best "Long Tail" results.
+                <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-br from-white to-zinc-500 bg-clip-text text-transparent">
+                  Long Tail Explorer
+                </h1>
+                <p className="text-zinc-400 text-lg">
+                  Find low-competition "Long Long Tail" keywords for your niche.
                 </p>
               </div>
+
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-zinc-300 ml-1">Core Topic / Niche</label>
+                  <div className="relative group">
+                    <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+                      <Search className="w-4 h-4 text-zinc-500 group-focus-within:text-blue-500 transition-colors" />
+                    </div>
+                    <input
+                      type="text"
+                      value={topic}
+                      onChange={(e) => setTopic(e.target.value)}
+                      placeholder="e.g. sgomberi milano"
+                      className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl py-4 pl-12 pr-4 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-white placeholder:text-zinc-600"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-zinc-300 ml-1">Business Description</label>
+                  <textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Describe your services, locations, and target audience..."
+                    rows={4}
+                    className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl p-4 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-white placeholder:text-zinc-600 resize-none"
+                  />
+                </div>
+
+                <button
+                  onClick={handleGenerate}
+                  disabled={loading || !topic || !description}
+                  className="w-full relative group overflow-hidden bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-4 rounded-2xl shadow-[0_0_20px_rgba(37,99,235,0.3)] hover:shadow-[0_0_30px_rgba(37,99,235,0.5)] transition-all flex items-center justify-center gap-3"
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>Analyzing Marketplace...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-5 h-5 group-hover:animate-pulse" />
+                      <span>Analyze Keywords</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-zinc-900/50 border border-zinc-800 flex gap-4">
+                <div className="w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center shrink-0">
+                  <TrendingUp className="w-5 h-5 text-blue-500" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-zinc-300">Tip</p>
+                  <p className="text-xs text-zinc-500 leading-relaxed">
+                    Be specific in your description to get the best "Long Tail" results.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column: Display Panel */}
+            <div className="lg:col-span-8">
+              <AnimatePresence mode="wait">
+                {!loading && !result && !error && (
+                  <motion.div
+                    key="placeholder"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="h-full min-h-[500px] border-2 border-dashed border-zinc-800 rounded-3xl flex flex-col items-center justify-center p-12 text-center space-y-4"
+                  >
+                    <div className="w-16 h-16 bg-zinc-900 rounded-2xl flex items-center justify-center mb-2">
+                      <Database className="w-8 h-8 text-zinc-700" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-zinc-400">Ready to Discover?</h3>
+                    <p className="text-zinc-600 max-w-sm">
+                      Enter your niche details to see an AI-driven strategy with live market metrics.
+                    </p>
+                  </motion.div>
+                )}
+
+                {!loading && error && (
+                  <motion.div
+                    key="error"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="h-full min-h-[500px] border-2 border-dashed border-red-900/30 bg-red-950/10 rounded-3xl flex flex-col items-center justify-center p-12 text-center"
+                  >
+                    <div className="w-16 h-16 bg-red-950/20 rounded-2xl flex items-center justify-center mb-6">
+                      <Zap className="w-8 h-8 text-red-500" />
+                    </div>
+                    <h3 className="text-xl font-bold text-red-200">Analysis Failed</h3>
+                    <p className="text-zinc-400 mt-2 max-w-sm mb-6 text-sm">
+                      {error}
+                    </p>
+                    <button
+                      onClick={handleGenerate}
+                      className="bg-zinc-800 hover:bg-zinc-700 text-white px-8 py-3 rounded-xl font-semibold transition-all border border-zinc-700"
+                    >
+                      Try Again
+                    </button>
+                  </motion.div>
+                )}
+
+                {loading && (
+                  <motion.div
+                    key="loading"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="h-full min-h-[500px] border border-zinc-800 bg-zinc-900/10 rounded-3xl flex flex-col items-center justify-center p-12 space-y-8"
+                  >
+                    <div className="relative">
+                      <div className="w-24 h-24 border-4 border-zinc-800 rounded-full" />
+                      <div className="w-24 h-24 border-4 border-blue-500 rounded-full absolute top-0 animate-spin border-t-transparent" />
+                    </div>
+                    <div className="text-center space-y-2">
+                      <h3 className="text-xl font-bold animate-pulse">Deep Analysis in Progress...</h3>
+                      <p className="text-zinc-500">
+                        1. AI Brainstorming Seed Keywords...<br />
+                        2. Mining DataForSEO Real-Time Metrics...<br />
+                        3. Filtering for Low Competition Gems...
+                      </p>
+                    </div>
+                  </motion.div>
+                )}
+
+                {result && !loading && (
+                  <motion.div
+                    key="result"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="space-y-6"
+                  >
+                    <div className="flex items-center justify-between">
+                      <h2 className="text-2xl font-bold flex items-center gap-3">
+                        {result.name}
+                        <span className="px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-sm font-normal border border-blue-500/20">
+                          {result.keywords.length} Results
+                        </span>
+                      </h2>
+                      <span className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-bold border border-emerald-500/20 flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3" /> Analysis Complete
+                      </span>
+                    </div>
+
+                    <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl overflow-hidden">
+                      <div className="max-h-[600px] overflow-y-auto">
+                        <table className="w-full text-left">
+                          <thead>
+                            <tr className="border-b border-slate-700 text-slate-400">
+                              <th className="pb-3 font-medium">Keywords Strategy ({result.keywords.length})</th>
+                              <th className="pb-3 font-medium">Vol</th>
+                              <th className="pb-3 font-medium">KD %</th>
+                              <th className="pb-3 font-medium">CPC</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-800">
+                            {result.keywords.map((k, i) => (
+                              <tr key={i} className="group hover:bg-slate-800/50 transition-colors">
+                                <td className="py-3 text-slate-200 group-hover:text-white transition-colors">
+                                  {k.keyword}
+                                </td>
+                                <td className="py-3 text-slate-400">{k.search_volume}</td>
+                                <td className="py-3">
+                                  <span className={`px-2 py-1 rounded text-xs font-medium ${k.competition_level === 'LOW' ? 'bg-green-500/20 text-green-400' :
+                                    k.competition_level === 'MEDIUM' ? 'bg-yellow-500/20 text-yellow-400' :
+                                      'bg-red-500/20 text-red-400'
+                                    }`}>
+                                    {(k.competition * 100).toFixed(0)}%
+                                  </span>
+                                </td>
+                                <td className="py-3 text-slate-400">${k.cpc.toFixed(2)}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    {/* STEP 2: Domain Generator Module */}
+                    <DomainGenerator
+                      topic={topic}
+                      keywords={result.keywords}
+                      onDomainsSelected={handleDomainsFinalized}
+                    />
+
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
-
-          {/* Right Column: Visualization & Results */}
-          <div className="lg:col-span-8">
-            <AnimatePresence mode="wait">
-              {error && (
-                <motion.div
-                  key="error"
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  className="h-full min-h-[500px] flex flex-col items-center justify-center p-8 text-center bg-red-500/5 border-2 border-dashed border-red-500/20 rounded-3xl"
-                >
-                  <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mb-6">
-                    <Zap className="w-8 h-8 text-red-500" />
-                  </div>
-                  <h3 className="text-xl font-bold text-red-200">Analysis Failed</h3>
-                  <p className="text-zinc-400 mt-2 max-w-sm mb-6 text-sm">
-                    {error}
-                  </p>
-                  <button
-                    onClick={() => setError(null)}
-                    className="px-6 py-2 rounded-full bg-zinc-800 hover:bg-zinc-700 text-sm font-semibold transition-colors"
-                  >
-                    Try Again
-                  </button>
-                </motion.div>
-              )}
-
-              {!result && !loading && !error && (
-                <motion.div
-                  key="empty"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  className="h-full min-h-[500px] flex flex-col items-center justify-center border-2 border-dashed border-zinc-800 rounded-3xl p-12 text-center"
-                >
-                  <div className="w-20 h-20 bg-zinc-900 rounded-full flex items-center justify-center mb-6">
-                    <Database className="w-10 h-10 text-zinc-700" />
-                  </div>
-                  <h3 className="text-xl font-bold text-zinc-300">Ready to Explore</h3>
-                  <p className="text-zinc-500 mt-2 max-w-sm">
-                    Enter your niche to discover high-value opportunities.
-                  </p>
-                </motion.div>
-              )}
-
-              {loading && (
-                <motion.div
-                  key="loading"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="h-full min-h-[500px] flex flex-col items-center justify-center space-y-8"
-                >
-                  <div className="relative">
-                    <div className="w-24 h-24 border-4 border-zinc-800 rounded-full" />
-                    <div className="w-24 h-24 border-4 border-blue-500 rounded-full absolute top-0 animate-spin border-t-transparent" />
-                  </div>
-                  <div className="text-center space-y-2">
-                    <h3 className="text-xl font-bold animate-pulse">Deep Analysis in Progress...</h3>
-                    <p className="text-zinc-500">
-                      1. AI Brainstorming Seed Keywords...<br />
-                      2. Mining DataForSEO Real-Time Metrics...<br />
-                      3. Filtering for Low Competition Gems...
-                    </p>
-                  </div>
-                </motion.div>
-              )}
-
-              {result && !loading && (
-                <motion.div
-                  key="result"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="space-y-6"
-                >
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-2xl font-bold flex items-center gap-3">
-                      {result.name}
-                      <span className="px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-sm font-normal border border-blue-500/20">
-                        {result.keywords.length} Results
-                      </span>
-                    </h2>
-                    <span className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-bold border border-emerald-500/20 flex items-center gap-1">
-                      <CheckCircle2 className="w-3 h-3" /> Analysis Complete
-                    </span>
-                  </div>
-
-                  <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl overflow-hidden">
-                    <div className="max-h-[600px] overflow-y-auto">
-                      <table className="w-full text-left">
-                        <thead>
-                          <tr className="border-b border-slate-700 text-slate-400">
-                            <th className="pb-3 font-medium">Keywords Strategy ({result.keywords.length})</th>
-                            <th className="pb-3 font-medium">Vol</th>
-                            <th className="pb-3 font-medium">KD %</th>
-                            <th className="pb-3 font-medium">CPC</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-800">
-                          {result.keywords.map((k, i) => (
-                            <tr key={i} className="group hover:bg-slate-800/50 transition-colors">
-                              <td className="py-3 text-slate-200 group-hover:text-white transition-colors">
-                                {k.keyword}
-                              </td>
-                              <td className="py-3 text-slate-400">{k.search_volume}</td>
-                              <td className="py-3">
-                                <span className={`px-2 py-1 rounded text-xs font-medium ${k.competition_level === 'LOW' ? 'bg-green-500/20 text-green-400' :
-                                  k.competition_level === 'MEDIUM' ? 'bg-yellow-500/20 text-yellow-400' :
-                                    'bg-red-500/20 text-red-400'
-                                  }`}>
-                                  {(k.competition * 100).toFixed(0)}%
-                                </span>
-                              </td>
-                              <td className="py-3 text-slate-400">${k.cpc.toFixed(2)}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-
-                  {/* STEP 2: Domain Generator Module */}
-                  <DomainGenerator topic={topic} keywords={result.keywords} />
-
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
+        )}
       </main>
     </div>
   );
 }
-
-import DomainGenerator from '@/components/DomainGenerator';

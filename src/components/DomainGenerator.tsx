@@ -7,9 +7,10 @@ import { Globe, Search, Check, X, Loader2, Sparkles, Server } from 'lucide-react
 interface DomainGeneratorProps {
     topic: string;
     keywords: any[];
+    onDomainsSelected: (domains: string[]) => void;
 }
 
-export default function DomainGenerator({ topic, keywords }: DomainGeneratorProps) {
+export default function DomainGenerator({ topic, keywords, onDomainsSelected }: DomainGeneratorProps) {
     const [step, setStep] = useState<'select-count' | 'generating' | 'selection'>('select-count');
     const [siteCount, setSiteCount] = useState<number>(1);
     const [generatedDomains, setGeneratedDomains] = useState<any[]>([]);
@@ -196,6 +197,7 @@ export default function DomainGenerator({ topic, keywords }: DomainGeneratorProp
 
                     <div className="mt-6 flex justify-end">
                         <button
+                            onClick={() => onDomainsSelected(selectedDomains)}
                             disabled={selectedDomains.length !== siteCount}
                             className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-blue-900/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                         >
