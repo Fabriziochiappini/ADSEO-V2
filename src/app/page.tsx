@@ -235,40 +235,30 @@ export default function Home() {
                   <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl overflow-hidden">
                     <div className="max-h-[600px] overflow-y-auto">
                       <table className="w-full text-left">
-                        <thead className="bg-zinc-900 text-zinc-400 text-xs font-bold uppercase tracking-wider sticky top-0 z-10">
-                          <tr>
-                            <th className="p-4 border-b border-zinc-800">Keyword</th>
-                            <th className="p-4 border-b border-zinc-800">Volume</th>
-                            <th className="p-4 border-b border-zinc-800">Competition</th>
-                            <th className="p-4 border-b border-zinc-800">CPC</th>
+                        <thead>
+                          <tr className="border-b border-slate-700 text-slate-400">
+                            <th className="pb-3 font-medium">Keywords Strategy ({result.keywords.length})</th>
+                            <th className="pb-3 font-medium">Vol</th>
+                            <th className="pb-3 font-medium">KD %</th>
+                            <th className="pb-3 font-medium">CPC</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-zinc-800">
+                        <tbody className="divide-y divide-slate-800">
                           {result.keywords.map((k, i) => (
-                            <tr key={i} className="group hover:bg-zinc-800/50 transition-colors">
-                              <td className="p-4">
-                                <div className="font-medium text-zinc-200 group-hover:text-blue-400 transition-colors">
-                                  {k.keyword}
-                                </div>
+                            <tr key={i} className="group hover:bg-slate-800/50 transition-colors">
+                              <td className="py-3 text-slate-200 group-hover:text-white transition-colors">
+                                {k.keyword}
                               </td>
-                              <td className="p-4 text-zinc-400">{k.search_volume}</td>
-                              <td className="p-4">
-                                <div className="flex items-center gap-2">
-                                  <div className={`w-2 h-2 rounded-full ${k.competition_level === 'LOW' ? 'bg-emerald-500' :
-                                      k.competition_level === 'MEDIUM' ? 'bg-yellow-500' :
-                                        'bg-red-500'
-                                    }`} />
-                                  <span className={`text-xs font-bold ${k.competition_level === 'LOW' ? 'text-emerald-400' :
-                                      k.competition_level === 'MEDIUM' ? 'text-yellow-400' :
-                                        'text-red-400'
-                                    }`}>
-                                    {k.competition.toFixed(2)}
-                                  </span>
-                                </div>
+                              <td className="py-3 text-slate-400">{k.search_volume}</td>
+                              <td className="py-3">
+                                <span className={`px-2 py-1 rounded text-xs font-medium ${k.competition_level === 'LOW' ? 'bg-green-500/20 text-green-400' :
+                                    k.competition_level === 'MEDIUM' ? 'bg-yellow-500/20 text-yellow-400' :
+                                      'bg-red-500/20 text-red-400'
+                                  }`}>
+                                  {(k.competition * 100).toFixed(0)}%
+                                </span>
                               </td>
-                              <td className="p-4 text-zinc-400 font-mono text-xs">
-                                ${k.cpc?.toFixed(2) || '0.00'}
-                              </td>
+                              <td className="py-3 text-slate-400">${k.cpc.toFixed(2)}</td>
                             </tr>
                           ))}
                         </tbody>

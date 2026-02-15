@@ -105,6 +105,51 @@ export async function POST(req: NextRequest) {
             keywords: top30
         };
 
+        // --- Save to Supabase (Foundation) ---
+        try {
+            const { supabase } = await import('@/lib/supabase');
+            const appId = 'adseo-v2';
+
+            // 1. Create Campaign
+            const { data: campaign, error: campaignError } = await supabase
+                .from('campaigns')
+                .insert({
+                    topic: topic,
+                    description: description, // Original description
+                    app_id: appId
+                })
+                .select()
+                .single();
+
+            if (campaignError) {
+                console.error('Supabase Campaign Save Error:', campaignError);
+            } else if (campaign) {
+                // 2. Save Keywords
+                const keywordsToInsert = top30.map(k => ({
+                    campaign_id: campaign.id,
+                    keyword: k.keyword,
+                    search_volume: k.search_volume,
+                    competition: k.competition,
+                    cpc: k.cpc,
+                    app_id: appId
+                }));
+
+                const { error: keywordsError } = await supabase
+                    .from('keywords')
+                    .insert(keywordsToInsert);
+
+                if (keywordsError) {
+                    console.error('Supabase Keywords Save Error:', keywordsError);
+                } else {
+                    console.log(`Saved campaign ${campaign.id} and ${keywordsToInsert.length} keywords to DB.`);
+                }
+            }
+        } catch (dbErr) {
+            console.error('Database operation failed:', dbErr);
+            // Don't block response even if DB fails
+        }
+        // -------------------------------------
+
         return NextResponse.json(result);
     } catch (error) {
         console.error('Analysis failed:', error);
