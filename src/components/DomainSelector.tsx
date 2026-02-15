@@ -32,6 +32,35 @@ export default function DomainSelector({ topic }: { topic: string }) {
         }
     };
 
+    const handleDeploy = async () => {
+        if (!result || !result.available) return;
+        setLoading(true); // Reuse loading state or add a new one
+
+        try {
+            const res = await fetch('/api/deploy', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    domain: result.domain,
+                    topic: topic
+                })
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                alert(`Project Created! \nURL: ${data.projectUrl}\n\nPlease point your Namecheap DNS for ${result.domain} to 76.76.21.21`);
+                window.open(data.dashboardUrl, '_blank');
+            } else {
+                alert('Deployment failed: ' + data.error);
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Deployment failed.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <div className="w-full bg-slate-900/50 p-6 rounded-xl border border-slate-800 mt-8">
             <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
@@ -79,8 +108,12 @@ export default function DomainSelector({ topic }: { topic: string }) {
                     {result.available && (
                         <div className="text-right">
                             <p className="text-xl font-bold text-white">${result.price}</p>
-                            <button className="text-xs bg-green-600 hover:bg-green-500 text-white px-3 py-1 rounded mt-1">
-                                Select & Deploy
+                            <button
+                                onClick={handleDeploy}
+                                disabled={loading}
+                                className="text-xs bg-green-600 hover:bg-green-500 text-white px-3 py-1 rounded mt-1 shadow-lg shadow-green-900/20"
+                            >
+                                {loading ? 'Deploying...' : 'Select & Deploy'}
                             </button>
                         </div>
                     )}
