@@ -3,6 +3,13 @@ export interface Keyword {
     search_volume: number;
     competition: number;
     cpc: number;
+    competition_level?: string;
+}
+
+export interface TopicAnalysisResult {
+    name: string; // e.g. "TOPIC 1"
+    description: string;
+    keywords: Keyword[];
 }
 
 export interface SiteStrategy {

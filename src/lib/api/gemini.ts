@@ -65,4 +65,17 @@ export class AiService {
     const response = await result.response;
     return response.text();
   }
+  async generateSeedKeywords(topic: string, businessDescription: string): Promise<string[]> {
+    const prompt = `Analyze the business topic "${topic}" and description "${businessDescription}".
+    Generate 10 specific, long-tail search phrases that potential customers would use to find these services.
+    Focus on specific intents (e.g., "costo sgombero", "ditta pulizie"), locations if mentioned in description, and long-tail variations.
+    Do NOT return generic single words.
+    
+    Return ONLY a JSON array of strings: ["phrase 1", "phrase 2", ...]`;
+
+    const result = await this.model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text().replace(/```json/g, '').replace(/```/g, '').trim();
+    return JSON.parse(text);
+  }
 }

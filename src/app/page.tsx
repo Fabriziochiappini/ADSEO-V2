@@ -5,30 +5,27 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search,
   Sparkles,
-  ChevronRight,
   Database,
   TrendingUp,
-  Globe,
-  Layout,
   Zap,
   Loader2,
-  CheckCircle2
+  CheckCircle2,
+  List
 } from 'lucide-react';
-import { NetworkVisualization } from '@/components/NetworkVisualization';
-import { NetworkStrategy } from '@/types';
+import { TopicAnalysisResult } from '@/types';
 
 export default function Home() {
   const [topic, setTopic] = useState('');
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [strategy, setStrategy] = useState<NetworkStrategy | null>(null);
+  const [result, setResult] = useState<TopicAnalysisResult | null>(null);
 
   const handleGenerate = async () => {
     if (!topic || !description) return;
     setLoading(true);
     setError(null);
-    setStrategy(null);
+    setResult(null);
 
     try {
       const response = await fetch('/api/campaign/analyze', {
@@ -43,7 +40,7 @@ export default function Home() {
         throw new Error(data.error || `Error: ${response.statusText}`);
       }
 
-      setStrategy(data);
+      setResult(data);
     } catch (err: any) {
       console.error('Failed to generate strategy:', err);
       setError(err.message || 'An unexpected error occurred. Please try again.');
@@ -80,13 +77,13 @@ export default function Home() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
 
           {/* Left Column: Input Panel */}
-          <div className="lg:col-span-5 space-y-8">
+          <div className="lg:col-span-4 space-y-8">
             <div className="space-y-2">
               <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-br from-white to-zinc-500 bg-clip-text text-transparent">
-                Generate your Network Strategy
+                Long Tail Explorer
               </h1>
               <p className="text-zinc-400 text-lg">
-                Enter your niche and business details to create a multi-domain SEO blueprint.
+                Find low-competition "Long Long Tail" keywords for your niche.
               </p>
             </div>
 
@@ -101,7 +98,7 @@ export default function Home() {
                     type="text"
                     value={topic}
                     onChange={(e) => setTopic(e.target.value)}
-                    placeholder="e.g. Vintage Watches, Sustainable Fashion..."
+                    placeholder="e.g. Sgombero Torino"
                     className="w-full h-14 pl-12 pr-4 bg-zinc-900/50 border border-zinc-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all text-white placeholder:text-zinc-600"
                   />
                 </div>
@@ -112,7 +109,7 @@ export default function Home() {
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Describe your business goal, target audience, and USP..."
+                  placeholder="Describe services, locations, and specific offers..."
                   rows={4}
                   className="w-full p-4 bg-zinc-900/50 border border-zinc-800 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all text-white placeholder:text-zinc-600 resize-none"
                 />
@@ -128,7 +125,7 @@ export default function Home() {
                 ) : (
                   <>
                     <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-                    Generate Blueprint
+                    Analyze Keywords
                   </>
                 )}
               </button>
@@ -140,16 +137,16 @@ export default function Home() {
                 <TrendingUp className="w-5 h-5 text-zinc-400" />
               </div>
               <div>
-                <h4 className="text-sm font-semibold text-zinc-200">Growth Hint</h4>
+                <h4 className="text-sm font-semibold text-zinc-200">Tip</h4>
                 <p className="text-xs text-zinc-500 mt-1 leading-relaxed">
-                  Start with a broad niche and let the AI suggest 3 specific sub-angles to minimize cannibalization.
+                  Be specific in your description to get the best "Long Tail" results.
                 </p>
               </div>
             </div>
           </div>
 
           {/* Right Column: Visualization & Results */}
-          <div className="lg:col-span-7">
+          <div className="lg:col-span-8">
             <AnimatePresence mode="wait">
               {error && (
                 <motion.div
@@ -162,7 +159,7 @@ export default function Home() {
                   <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mb-6">
                     <Zap className="w-8 h-8 text-red-500" />
                   </div>
-                  <h3 className="text-xl font-bold text-red-200">Generation Failed</h3>
+                  <h3 className="text-xl font-bold text-red-200">Analysis Failed</h3>
                   <p className="text-zinc-400 mt-2 max-w-sm mb-6">
                     {error}
                   </p>
@@ -175,7 +172,7 @@ export default function Home() {
                 </motion.div>
               )}
 
-              {!strategy && !loading && !error && (
+              {!result && !loading && !error && (
                 <motion.div
                   key="empty"
                   initial={{ opacity: 0, y: 20 }}
@@ -186,9 +183,9 @@ export default function Home() {
                   <div className="w-20 h-20 bg-zinc-900 rounded-full flex items-center justify-center mb-6">
                     <Database className="w-10 h-10 text-zinc-700" />
                   </div>
-                  <h3 className="text-xl font-bold text-zinc-300">No Blueprint Active</h3>
+                  <h3 className="text-xl font-bold text-zinc-300">Ready to Explore</h3>
                   <p className="text-zinc-500 mt-2 max-w-sm">
-                    Fill in the details on the left to generate your multi-domain SEO network strategy.
+                    Enter your niche to discover high-value opportunities.
                   </p>
                 </motion.div>
               )}
@@ -206,55 +203,77 @@ export default function Home() {
                     <div className="w-24 h-24 border-4 border-blue-500 rounded-full absolute top-0 animate-spin border-t-transparent" />
                   </div>
                   <div className="text-center space-y-2">
-                    <h3 className="text-xl font-bold animate-pulse">Analyzing Niche Data...</h3>
-                    <p className="text-zinc-500">Fetching Keyword Ideas and Generating Strategy</p>
+                    <h3 className="text-xl font-bold animate-pulse">Deep Analysis in Progress...</h3>
+                    <p className="text-zinc-500">
+                      1. AI Brainstorming Seed Keywords...<br />
+                      2. Mining DataForSEO Real-Time Metrics...<br />
+                      3. Filtering for Low Competition Gems...
+                    </p>
                   </div>
                 </motion.div>
               )}
 
-              {strategy && !loading && (
+              {result && !loading && (
                 <motion.div
                   key="result"
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  className="space-y-8"
+                  className="space-y-6"
                 >
                   <div className="flex items-center justify-between">
-                    <h2 className="text-2xl font-bold">Network Architecture</h2>
+                    <h2 className="text-2xl font-bold flex items-center gap-3">
+                      {result.name}
+                      <span className="px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-sm font-normal border border-blue-500/20">
+                        {result.keywords.length} Results
+                      </span>
+                    </h2>
                     <span className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-bold border border-emerald-500/20 flex items-center gap-1">
                       <CheckCircle2 className="w-3 h-3" /> Analysis Complete
                     </span>
                   </div>
 
-                  <NetworkVisualization sites={strategy.sites} />
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {strategy.sites.map((site) => (
-                      <div key={site.id} className="p-5 rounded-2xl bg-zinc-900 border border-zinc-800 hover:border-zinc-700 transition-colors">
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="w-10 h-10 rounded-lg bg-zinc-800 flex items-center justify-center">
-                            <Globe className="w-5 h-5 text-zinc-400" />
-                          </div>
-                          <ChevronRight className="w-4 h-4 text-zinc-600" />
-                        </div>
-                        <h4 className="font-bold text-zinc-200">{site.domain}</h4>
-                        <p className="text-xs text-zinc-500 mt-1 italic">Niche: {site.niche}</p>
-                        <div className="mt-4 flex flex-wrap gap-2">
-                          {site.target_keywords.slice(0, 3).map((kw, i) => (
-                            <span key={i} className="text-[10px] px-2 py-1 rounded-md bg-zinc-800 text-zinc-400">
-                              {kw}
-                            </span>
+                  <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl overflow-hidden">
+                    <div className="max-h-[600px] overflow-y-auto">
+                      <table className="w-full text-left">
+                        <thead className="bg-zinc-900 text-zinc-400 text-xs font-bold uppercase tracking-wider sticky top-0 z-10">
+                          <tr>
+                            <th className="p-4 border-b border-zinc-800">Keyword</th>
+                            <th className="p-4 border-b border-zinc-800">Volume</th>
+                            <th className="p-4 border-b border-zinc-800">Competition</th>
+                            <th className="p-4 border-b border-zinc-800">CPC</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-zinc-800">
+                          {result.keywords.map((k, i) => (
+                            <tr key={i} className="group hover:bg-zinc-800/50 transition-colors">
+                              <td className="p-4">
+                                <div className="font-medium text-zinc-200 group-hover:text-blue-400 transition-colors">
+                                  {k.keyword}
+                                </div>
+                              </td>
+                              <td className="p-4 text-zinc-400">{k.search_volume}</td>
+                              <td className="p-4">
+                                <div className="flex items-center gap-2">
+                                  <div className={`w-2 h-2 rounded-full ${k.competition_level === 'LOW' ? 'bg-emerald-500' :
+                                      k.competition_level === 'MEDIUM' ? 'bg-yellow-500' :
+                                        'bg-red-500'
+                                    }`} />
+                                  <span className={`text-xs font-bold ${k.competition_level === 'LOW' ? 'text-emerald-400' :
+                                      k.competition_level === 'MEDIUM' ? 'text-yellow-400' :
+                                        'text-red-400'
+                                    }`}>
+                                    {k.competition.toFixed(2)}
+                                  </span>
+                                </div>
+                              </td>
+                              <td className="p-4 text-zinc-400 font-mono text-xs">
+                                ${k.cpc?.toFixed(2) || '0.00'}
+                              </td>
+                            </tr>
                           ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="p-6 rounded-2xl bg-blue-600/5 border border-blue-500/20">
-                    <h4 className="text-sm font-bold text-blue-400 mb-2 uppercase tracking-wide">Overall Strategy</h4>
-                    <p className="text-zinc-300 text-sm leading-relaxed">
-                      {strategy.overall_strategy}
-                    </p>
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 </motion.div>
               )}

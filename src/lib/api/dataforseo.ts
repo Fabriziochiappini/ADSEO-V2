@@ -15,7 +15,7 @@ export class DataForSeoService {
         return `Basic ${Buffer.from(`${this.config.username}:${this.config.password}`).toString('base64')}`;
     }
 
-    async getKeywordSuggestions(topic: string, locationCode: number = 2380): Promise<any> {
+    async getKeywordSuggestions(keywords: string[], locationCode: number = 2380): Promise<any> {
         const response = await fetch(`${this.config.baseUrl}/v3/keywords_data/google/keyword_ideas/live`, {
             method: 'POST',
             headers: {
@@ -23,11 +23,11 @@ export class DataForSeoService {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify([{
-                keywords: [topic],
+                keywords: keywords,
                 location_code: locationCode,
                 language_code: "it", // Defaulting to Italian based on user language
                 include_seed_keyword: true,
-                limit: 10
+                limit: 100
             }])
         });
 
