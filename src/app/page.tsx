@@ -160,7 +160,7 @@ export default function Home() {
                     <Zap className="w-8 h-8 text-red-500" />
                   </div>
                   <h3 className="text-xl font-bold text-red-200">Analysis Failed</h3>
-                  <p className="text-zinc-400 mt-2 max-w-sm mb-6">
+                  <p className="text-zinc-400 mt-2 max-w-sm mb-6 text-sm">
                     {error}
                   </p>
                   <button
@@ -252,8 +252,8 @@ export default function Home() {
                               <td className="py-3 text-slate-400">{k.search_volume}</td>
                               <td className="py-3">
                                 <span className={`px-2 py-1 rounded text-xs font-medium ${k.competition_level === 'LOW' ? 'bg-green-500/20 text-green-400' :
-                                    k.competition_level === 'MEDIUM' ? 'bg-yellow-500/20 text-yellow-400' :
-                                      'bg-red-500/20 text-red-400'
+                                  k.competition_level === 'MEDIUM' ? 'bg-yellow-500/20 text-yellow-400' :
+                                    'bg-red-500/20 text-red-400'
                                   }`}>
                                   {(k.competition * 100).toFixed(0)}%
                                 </span>
@@ -265,6 +265,10 @@ export default function Home() {
                       </table>
                     </div>
                   </div>
+
+                  {/* STEP 2: Domain Generator Module */}
+                  <DomainGenerator topic={topic} keywords={result.keywords} />
+
                 </motion.div>
               )}
             </AnimatePresence>
@@ -274,3 +278,5 @@ export default function Home() {
     </div>
   );
 }
+
+import DomainGenerator from '@/components/DomainGenerator';

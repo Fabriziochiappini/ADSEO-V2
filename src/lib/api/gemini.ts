@@ -98,4 +98,22 @@ export class AiService {
     const text = response.text().replace(/```json/g, '').replace(/```/g, '').trim();
     return JSON.parse(text);
   }
+
+  async generateDomainNames(topic: string, keywords: string[]): Promise<string[]> {
+    const prompt = `Generate 20 creative, SEO-friendly domain name ideas for the topic: "${topic}".
+    Context keywords: ${keywords.slice(0, 5).join(', ')}.
+    
+    CRITICAL INSTRUCTIONS:
+    1. Extensions: Mix of .com, .it, .net, .org, .online.
+    2. Style: Short, memorable, brandable OR exact-match keywords.
+    3. Language: Italian (since the topic is Italian).
+    4. Format: Return ONLY the domain name (e.g. "sgomberorapido.it").
+    
+    Return ONLY a JSON array of strings: ["domain1.com", "domain2.it", ...]`;
+
+    const result = await this.model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text().replace(/```json/g, '').replace(/```/g, '').trim();
+    return JSON.parse(text);
+  }
 }
