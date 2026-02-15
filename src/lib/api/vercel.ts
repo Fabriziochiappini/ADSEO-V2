@@ -67,3 +67,5 @@ export class VercelService {
         return this.fetchVercel(`/v6/domains/${domain}/config`);
     }
 }
+
+export const vercel = new VercelService(process.env.VERCEL_API_TOKEN || process.env.VERCEL_TOKEN || '', process.env.VERCEL_TEAM_ID);

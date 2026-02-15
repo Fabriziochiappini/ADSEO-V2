@@ -14,9 +14,10 @@ export async function POST(req: Request) {
         // 1. Create Vercel Project
         // Normalize project name: lowercase, replace spaces with dashes, remove special chars
         const projectName = `adseo-${topic.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${Date.now().toString().slice(-4)}`;
+        const templateRepo = process.env.LANDER_TEMPLATE_REPO || 'Fabriziochiappini/lander-template';
 
         console.log(`Creating Vercel project: ${projectName}...`);
-        const project = await vercel.createProject(projectName);
+        const project = await vercel.createProject(projectName, templateRepo);
         const projectId = project.id;
         console.log(`Project created. ID: ${projectId}`);
 
