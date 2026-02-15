@@ -20,10 +20,11 @@ interface SiteContent {
 interface ContentSetupProps {
     selectedDomains: string[];
     keywords: any[];
+    campaignId: string;
     onBack: () => void;
 }
 
-export default function ContentSetup({ selectedDomains, keywords, onBack }: ContentSetupProps) {
+export default function ContentSetup({ selectedDomains, keywords, campaignId, onBack }: ContentSetupProps) {
     const [sites, setSites] = useState<SiteContent[]>([]);
     const [isLaunching, setIsLaunching] = useState(false);
 
@@ -35,6 +36,7 @@ export default function ContentSetup({ selectedDomains, keywords, onBack }: Cont
                 domain,
                 keyword: keywordObj.keyword,
                 brandName: '',
+                brandTagline: '',
                 heroTitle: '',
                 heroSubtitle: '',
                 serviceDescription: '',
@@ -89,6 +91,7 @@ export default function ContentSetup({ selectedDomains, keywords, onBack }: Cont
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
+                    campaignId: campaignId,
                     sites: sites.filter(s => s.status === 'ready' || s.status === 'deploying')
                 })
             });
@@ -152,8 +155,8 @@ export default function ContentSetup({ selectedDomains, keywords, onBack }: Cont
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: idx * 0.1 }}
                         className={`bg-slate-900/50 border rounded-2xl overflow-hidden transition-colors ${site.status === 'deployed' ? 'border-green-500/50 bg-green-950/5' :
-                                site.status === 'error' ? 'border-red-500/50 bg-red-950/5' :
-                                    'border-slate-800'
+                            site.status === 'error' ? 'border-red-500/50 bg-red-950/5' :
+                                'border-slate-800'
                             }`}
                     >
                         <div className="p-4 bg-slate-800/50 border-b border-slate-800 flex justify-between items-center">

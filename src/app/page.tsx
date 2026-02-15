@@ -24,6 +24,7 @@ export default function Home() {
   const [result, setResult] = useState<TopicAnalysisResult | null>(null);
   const [currentStep, setCurrentStep] = useState<'analysis' | 'domains' | 'content'>('analysis');
   const [selectedDomains, setSelectedDomains] = useState<string[]>([]);
+  const [campaignId, setCampaignId] = useState<string | null>(null);
 
   const handleGenerate = async () => {
     if (!topic || !description) return;
@@ -46,6 +47,7 @@ export default function Home() {
       }
 
       setResult(data);
+      if (data.campaignId) setCampaignId(data.campaignId);
       setCurrentStep('domains');
     } catch (err: any) {
       console.error('Failed to generate strategy:', err);
@@ -89,6 +91,7 @@ export default function Home() {
           <ContentSetup
             selectedDomains={selectedDomains}
             keywords={result?.keywords || []}
+            campaignId={campaignId || ''}
             onBack={() => setCurrentStep('domains')}
           />
         ) : (

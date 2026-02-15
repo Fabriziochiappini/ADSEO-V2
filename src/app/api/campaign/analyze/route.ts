@@ -42,6 +42,7 @@ export async function POST(req: NextRequest) {
         };
 
         // --- Save to Supabase (Foundation) ---
+        let campaignId: string | null = null;
         try {
             const { supabase } = await import('@/lib/supabase');
             const appId = 'adseo-v2';
@@ -59,6 +60,7 @@ export async function POST(req: NextRequest) {
             if (campaignError) {
                 console.error('Supabase Campaign Save Error:', campaignError);
             } else if (campaign) {
+                campaignId = campaign.id;
                 const keywordsToInsert = analyzedKeywords.map(k => ({
                     campaign_id: campaign.id,
                     keyword: k.keyword,
@@ -80,7 +82,7 @@ export async function POST(req: NextRequest) {
             console.error('Database operation failed:', dbErr);
         }
 
-        return NextResponse.json(result);
+        return NextResponse.json({ ...result, campaignId });
     } catch (error: any) {
         console.error('Analysis failed:', error);
         return NextResponse.json(

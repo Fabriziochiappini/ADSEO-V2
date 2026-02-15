@@ -137,10 +137,41 @@ export class AiService {
     Return ONLY a JSON object with:
     {
       "brandName": "A catchy brand name",
+      "brandTagline": "A short tagline (2 words max)",
       "heroTitle": "Powerful H1 including the keyword",
       "heroSubtitle": "Engaging H2 explaining the value propostition",
       "serviceDescription": "A 2-3 sentence description of the service using money keywords like 'prezzo', 'preventivo', 'migliori'.",
       "ctaText": "Short CTA (e.g., 'Richiedi Preventivo')"
+    }`;
+
+    const result = await this.model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text().replace(/```json/g, '').replace(/```/g, '').trim();
+    return JSON.parse(text);
+  }
+
+  async generateLongFormArticle(keyword: string): Promise<any> {
+    const prompt = `Write a professional, SEO-optimized article in Italian for the keyword: "${keyword}".
+    Length: 1500-2000 words.
+    Structure:
+    - Catchy title (H1)
+    - Detailed excerpt (meta description style)
+    - Introduction
+    - At least 5 sections with descriptive H2 titles
+    - Bullet points and lists where appropriate
+    - Conclusion with a soft CTA
+    
+    Avoid keyword stuffing. Target a high E-E-A-T score.
+    
+    Return ONLY a JSON object with:
+    {
+      "title": "Article Title",
+      "slug": "url-friendly-slug",
+      "excerpt": "Short summary for cards",
+      "content": "Full HTML-formatted content (use <p>, <h2>, <ul>, <li>, <strong>)",
+      "category": "One of: Strategia, Tecnologia, Design, Business",
+      "tags": ["tag1", "tag2", "tag3"],
+      "imageSearchTerm": "English term for a relevant Unsplash image"
     }`;
 
     const result = await this.model.generateContent(prompt);
