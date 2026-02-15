@@ -99,6 +99,37 @@ export class AiService {
     return JSON.parse(text);
   }
 
+  async generateKeywordsWithMetrics(topic: string, businessDescription: string): Promise<any[]> {
+    const prompt = `Analyze the business topic "${topic}" and description "${businessDescription}".
+    Generate a list of 30 high-intent, SEO-sensitive "long-tail" keywords in Italian.
+    
+    For EACH keyword, PROVIDE ESTIMATED METRICS based on your knowledge of the market:
+    1. search_volume (monthly)
+    2. competition (0.0 to 1.0)
+    3. cpc (in USD)
+    
+    CRITICAL:
+    - Keywords MUST be in Italian.
+    - Metrics should be realistic (not all 0, not all same).
+    - Competition level: <0.3 LOW, <0.7 MEDIUM, >0.7 HIGH.
+    
+    Return ONLY a JSON array of objects:
+    [
+      { "keyword": "...", "search_volume": 1200, "competition": 0.2, "cpc": 1.5 },
+      ...
+    ]`;
+
+    const result = await this.model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text().replace(/```json/g, '').replace(/```/g, '').trim();
+    const keywords = JSON.parse(text);
+
+    return keywords.map((k: any) => ({
+      ...k,
+      competition_level: k.competition < 0.3 ? 'LOW' : k.competition < 0.7 ? 'MEDIUM' : 'HIGH'
+    }));
+  }
+
   async generateDomainNames(topic: string, keywords: string[]): Promise<string[]> {
     const prompt = `Generate 20 creative, SEO-friendly domain name ideas for the topic: "${topic}".
     Context keywords: ${keywords.slice(0, 5).join(', ')}.
