@@ -15,8 +15,7 @@ export async function POST(req: Request) {
         }
 
         // Call Namecheap Service
-        // Note: If creds are missing, this returns false or logs error
-        const isAvailable = await namecheap.checkAvailability(domain);
+        const result = await namecheap.checkAvailability(domain);
 
         // Mock response for dev if no keys provided yet
         if (!process.env.NAMECHEAP_USER) {
@@ -32,11 +31,9 @@ export async function POST(req: Request) {
 
         return NextResponse.json({
             domain,
-            available: isAvailable,
-            // Price fetching would require a different command (domains.getList or similar), 
-            // for "check" basic XML often just says "Available". 
-            // We'll assume a standard price or implementing detailed pricing fetch later.
-            price: isAvailable ? 10.00 : 0,
+            available: result.available,
+            error: result.error, // Pass error to frontend
+            price: result.available ? 10.00 : 0,
             currency: 'USD'
         });
 

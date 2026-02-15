@@ -38,10 +38,10 @@ export class NamecheapService {
         return url.toString();
     }
 
-    async checkAvailability(domain: string): Promise<boolean> {
+    async checkAvailability(domain: string): Promise<{ available: boolean, error?: string }> {
         if (!this.user || !this.key) {
             console.warn('Namecheap credentials missing');
-            return false; // Or throw
+            return { available: false, error: 'Credentials Missing' };
         }
 
         const startUrl = this.buildUrl('namecheap.domains.check', {
@@ -49,21 +49,34 @@ export class NamecheapService {
         });
 
         try {
+            console.log(`Checking availability for: ${domain}`);
             const response = await fetch(startUrl);
             const text = await response.text();
 
             const parser = new XMLParser({ ignoreAttributes: false });
             const jsonObj = parser.parse(text);
 
-            // Parse XML response logic here (Namecheap returns XML)
-            // Example path: ApiResponse.CommandResponse.DomainCheckResult.@_Available
-            const result = jsonObj?.ApiResponse?.CommandResponse?.DomainCheckResult;
-            const isAvailable = result?.['@_Available'] === 'true';
+            // 1. Check for API Errors (e.g., IP not whitelisted)
+            const errors = jsonObj?.ApiResponse?.Errors?.Error;
+            if (errors) {
+                const errorMsg = typeof errors === 'string' ? errors : (Array.isArray(errors) ? errors[0]['#text'] : (errors['#text'] || 'API Error'));
+                console.error(`Namecheap API Error for ${domain}:`, errorMsg);
+                return { available: false, error: errorMsg };
+            }
 
-            return isAvailable;
-        } catch (error) {
-            console.error('Namecheap check failed:', error);
-            return false;
+            // 2. Parse Result
+            const commandResponse = jsonObj?.ApiResponse?.CommandResponse;
+            const result = commandResponse?.DomainCheckResult;
+
+            // Note: result can be an array if multiple domains were checked
+            const domainResult = Array.isArray(result) ? result[0] : result;
+            const isAvailable = domainResult?.['@_Available'] === 'true';
+
+            console.log(`Domain ${domain} availability:`, isAvailable);
+            return { available: isAvailable };
+        } catch (error: any) {
+            console.error('Namecheap fetch error:', error);
+            return { available: false, error: error.message };
         }
     }
 

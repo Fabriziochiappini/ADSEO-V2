@@ -29,7 +29,7 @@ export default function DomainGenerator({ topic, keywords }: DomainGeneratorProp
             const res = await fetch('/api/domain/generate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ topic, keywords: topKeywords }) // We'll need this route
+                body: JSON.stringify({ topic, keywords: topKeywords })
             });
 
             const data = await res.json();
@@ -38,14 +38,13 @@ export default function DomainGenerator({ topic, keywords }: DomainGeneratorProp
             const initialDomains = data.domains.map((d: string) => ({
                 name: d,
                 available: null, // null = unchecked, true, false
-                price: 0
+                price: 0,
+                error: null
             }));
 
             setGeneratedDomains(initialDomains);
             setStep('selection');
 
-            // Trigger availability check automatically or manually? 
-            // Let's do it automatically for better UX
             checkAvailabilityBatch(initialDomains);
 
         } catch (err) {
@@ -59,10 +58,6 @@ export default function DomainGenerator({ topic, keywords }: DomainGeneratorProp
 
     // 2. Check Availability (Batch or Single)
     const checkAvailabilityBatch = async (domains: any[]) => {
-        // In a real app, we might parallelize this or use a bulk endpoint.
-        // For now, let's check one by one to show progress or small batches.
-
-        // Create new array to update state
         const domainsToCheck = [...domains];
 
         for (let i = 0; i < domainsToCheck.length; i++) {
@@ -77,6 +72,7 @@ export default function DomainGenerator({ topic, keywords }: DomainGeneratorProp
                 // Update state item
                 domainsToCheck[i].available = result.available;
                 domainsToCheck[i].price = result.price;
+                domainsToCheck[i].error = result.error;
 
                 // Update UI incrementally
                 setGeneratedDomains([...domainsToCheck]);
@@ -165,8 +161,8 @@ export default function DomainGenerator({ topic, keywords }: DomainGeneratorProp
                                 key={i}
                                 onClick={() => d.available ? toggleSelection(d.name) : null}
                                 className={`p-3 rounded-lg border flex justify-between items-center transition-all cursor-pointer ${selectedDomains.includes(d.name)
-                                        ? 'bg-blue-600/20 border-blue-500'
-                                        : 'bg-slate-800/50 border-slate-800 hover:border-slate-600'
+                                    ? 'bg-blue-600/20 border-blue-500'
+                                    : 'bg-slate-800/50 border-slate-800 hover:border-slate-600'
                                     } ${!d.available && d.available !== null ? 'opacity-50 cursor-not-allowed bg-red-900/10' : ''}`}
                             >
                                 <div className="flex items-center gap-3">
@@ -179,9 +175,16 @@ export default function DomainGenerator({ topic, keywords }: DomainGeneratorProp
                                     ) : (
                                         <X className="w-4 h-4 text-red-500" />
                                     )}
-                                    <span className={`font-medium ${selectedDomains.includes(d.name) ? 'text-blue-200' : 'text-slate-300'}`}>
-                                        {d.name}
-                                    </span>
+                                    <div className="flex flex-col">
+                                        <span className={`font-medium ${selectedDomains.includes(d.name) ? 'text-blue-200' : 'text-slate-300'}`}>
+                                            {d.name}
+                                        </span>
+                                        {d.error && (
+                                            <span className="text-[10px] text-red-400 leading-tight truncate max-w-[180px]">
+                                                {d.error}
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
 
                                 {d.available && (
