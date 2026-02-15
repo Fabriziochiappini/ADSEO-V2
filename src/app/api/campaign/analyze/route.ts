@@ -45,60 +45,89 @@ export async function POST(req: NextRequest) {
         console.log('Fetching metrics from DataForSEO Search Volume...');
         const rawData = await dataForSeo.getSearchVolume(generatedKeywords);
 
-        // 3. Process and Filter Data
-        const processedKeywords: Keyword[] = rawData.map((item: any) => {
-            const vol = item.keyword_info?.search_volume || 0;
-            // Handle null competition/cpc if missing
-            const competition = item.keyword_info?.competition_level || 0;
-            const cpc = item.keyword_info?.cpc || 0;
+        // 3. Process Round 1 Data
+        let processedKeywords: Keyword[] = processRawData(rawData);
 
-            return {
-                keyword: item.keyword,
-                search_volume: vol,
-                competition: competition,
-                cpc: cpc,
-                competition_level: competition < 0.3 ? 'LOW' : competition < 0.7 ? 'MEDIUM' : 'HIGH'
-            };
-        }).filter((k: Keyword) => {
-            // FILTER: 
-            // 1. Keep keywords even with 0 volume if they look good?
-            // User wants "posizionarsi", so ideally > 0.
-            // But let's be less strict than before. If volume is null, maybe it is VERY long tail.
-            // Let's filter only if word count is low, but Gemini already ensures long tail.
-            // Let's keep items with volume > 0 OR if volume is 0 but it's a long phrase (4+ words).
-            // Actually, let's stick to volume > 0 to ensure traffic potential, but minimal traffic is OK.
-            // If DataForSEO returns null volume, it effectively means "no data".
-            // Let's treat null as 0.
+        // 4. Check if we need enrichment (Round 2)
+        const validCount = processedKeywords.filter(k => k.search_volume > 0).length;
+        console.log(`Round 1 Valid (Vol > 0): ${validCount}/${processedKeywords.length}`);
 
+        if (validCount < 15) {
+            console.log('Low volume results. Triggering Round 2 (Broadening)...');
+
+            // Get keywords with 0 volume to broadenc
+            const zeroVolumeKeywords = processedKeywords
+                .filter(k => k.search_volume === 0)
+                .map(k => k.keyword)
+                .slice(0, 20); // Take top 20 failed ones
+
+            if (zeroVolumeKeywords.length > 0) {
+                const broaderKeywords = await gemini.generateBroadVariations(zeroVolumeKeywords);
+                console.log(`Gemini generated ${broaderKeywords.length} broader variations.`);
+
+                if (broaderKeywords.length > 0) {
+                    const rawDataRound2 = await dataForSeo.getSearchVolume(broaderKeywords);
+                    const processedRound2 = processRawData(rawDataRound2);
+
+                    // Merge results
+                    processedKeywords = [...processedKeywords, ...processedRound2];
+                }
+            }
+        }
+
+        // 5. Final Filter, Dedupe, and Sort
+        // De-duplicate by keyword
+        const seen = new Set();
+        const uniqueKeywords = processedKeywords.filter(k => {
+            const duplicate = seen.has(k.keyword);
+            seen.add(k.keyword);
+            return !duplicate;
+        });
+
+        const finalKeywords = uniqueKeywords.filter((k: Keyword) => {
+            // Keep if Volume > 0 OR if it's long tail (4+ words) even with 0 vol
             return k.search_volume > 0 || (k.keyword.split(' ').length >= 4);
         });
 
-        // 4. Sort
-        // Primary: Traffic (Volume) DESC? Or Competition ASC?
-        // User wants "Low Competition".
-        const sortedKeywords = processedKeywords.sort((a: Keyword, b: Keyword) => {
-            // If competition is available, sort by it (Low -> High)
-            if (a.competition > 0 && b.competition > 0 && a.competition !== b.competition) {
-                return a.competition - b.competition;
+        const sortedKeywords = finalKeywords.sort((a: Keyword, b: Keyword) => {
+            // Prioritize Volume first now, as we want to ensure traffic
+            if (b.search_volume !== a.search_volume) {
+                return b.search_volume - a.search_volume;
             }
-            // Fallback to volume (High -> Low)
-            return b.search_volume - a.search_volume;
+            return a.competition - b.competition;
         });
 
         const top30 = sortedKeywords.slice(0, 30);
 
         const result: TopicAnalysisResult = {
             name: "TOPIC 1",
-            description: `Drafted from analysis of "${topic}"`,
+            description: `Broadened analysis of "${topic}"`,
             keywords: top30
         };
 
         return NextResponse.json(result);
-
-    } catch (error: any) {
-        console.error('Analysis error:', error);
-        return NextResponse.json({
-            error: error.message || 'An unexpected error occurred during analysis.'
-        }, { status: 500 });
+    } catch (error) {
+        console.error('Analysis failed:', error);
+        return NextResponse.json(
+            { error: 'Failed to analyze campaign', details: error instanceof Error ? error.message : 'Unknown error' },
+            { status: 500 }
+        );
     }
+}
+
+// Helper to map DataForSEO response to Keyword interface
+function processRawData(rawData: any[]): Keyword[] {
+    return rawData.map((item: any) => {
+        const vol = item.keyword_info?.search_volume || 0;
+        const competition = item.keyword_info?.competition_level || 0;
+        const cpc = item.keyword_info?.cpc || 0;
+
+        return {
+            keyword: item.keyword,
+            search_volume: vol,
+            competition: competition,
+            cpc: cpc,
+            competition_level: competition < 0.3 ? 'LOW' : competition < 0.7 ? 'MEDIUM' : 'HIGH'
+        };
+    });
 }

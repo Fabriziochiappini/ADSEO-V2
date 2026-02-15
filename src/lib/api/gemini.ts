@@ -83,4 +83,19 @@ export class AiService {
     const text = response.text().replace(/```json/g, '').replace(/```/g, '').trim();
     return JSON.parse(text);
   }
+
+  async generateBroadVariations(keywords: string[]): Promise<string[]> {
+    const prompt = `Here is a list of specific long-tail keywords that had 0 search volume:
+    ${JSON.stringify(keywords)}
+    
+    Generate 20 broader, more common variations of these keywords that users actually search for.
+    Keep the core intent (e.g. if "sgombero cantina gratis torino" has no volume, try "sgombero cantine torino" or "ditta sgomberi torino").
+    
+    Return ONLY a JSON array of strings: ["broad keyword 1", "broad keyword 2", ...]`;
+
+    const result = await this.model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text().replace(/```json/g, '').replace(/```/g, '').trim();
+    return JSON.parse(text);
+  }
 }
