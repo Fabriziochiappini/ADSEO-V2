@@ -65,13 +65,18 @@ export class AiService {
     const response = await result.response;
     return response.text();
   }
-  async generateSeedKeywords(topic: string, businessDescription: string): Promise<string[]> {
+  async generateLongTailKeywords(topic: string, businessDescription: string): Promise<string[]> {
     const prompt = `Analyze the business topic "${topic}" and description "${businessDescription}".
-    Generate 10 specific, long-tail search phrases that potential customers would use to find these services.
-    Focus on specific intents (e.g., "costo sgombero", "ditta pulizie"), locations if mentioned in description, and long-tail variations.
-    Do NOT return generic single words.
+    Generate 40 specific, "long-tail" search phrases that potential customers would use.
     
-    Return ONLY a JSON array of strings: ["phrase 1", "phrase 2", ...]`;
+    CRITICAL INSTRUCTIONS:
+    1. Keywords MUST be in Italian.
+    2. Focus on "Money Keywords" (high intent): "prezzi", "costo", "preventivo", "ditta", "migliori".
+    3. Include location-specific variations if a location is mentioned in the description (e.g. "Torino", "Piemonte", "Roma").
+    4. Include specific service variations (e.g. "sgombero cantine gratis", "pulizia solai", "traslochi piano alto").
+    5. Length: Most keywords should be 3-6 words long.
+    
+    Return ONLY a JSON array of strings: ["keyword 1", "keyword 2", ...]`;
 
     const result = await this.model.generateContent(prompt);
     const response = await result.response;
