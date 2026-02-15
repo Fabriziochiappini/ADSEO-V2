@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Edit3, Check, Loader2, Rocket, Layout, ArrowLeft } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Edit3, Check, Loader2, Rocket, Layout, ArrowLeft, ExternalLink, AlertCircle } from 'lucide-react';
 
 interface SiteContent {
     domain: string;
@@ -12,7 +12,9 @@ interface SiteContent {
     heroSubtitle: string;
     serviceDescription: string;
     ctaText: string;
-    status: 'pending' | 'generating' | 'ready' | 'error';
+    status: 'pending' | 'generating' | 'ready' | 'error' | 'deploying' | 'deployed';
+    deploymentUrl?: string;
+    errorMessage?: string;
 }
 
 interface ContentSetupProps {
@@ -28,7 +30,6 @@ export default function ContentSetup({ selectedDomains, keywords, onBack }: Cont
     useEffect(() => {
         // Initialize sites based on selected domains
         const initialSites = selectedDomains.map(domain => {
-            // Find a relevant keyword for this domain (simplification: pick one by index or random)
             const keywordObj = keywords[Math.floor(Math.random() * Math.min(10, keywords.length))];
             return {
                 domain,
@@ -48,6 +49,8 @@ export default function ContentSetup({ selectedDomains, keywords, onBack }: Cont
         const updatedSites = [...sites];
 
         for (let i = 0; i < updatedSites.length; i++) {
+            if (updatedSites[i].status === 'ready' || updatedSites[i].status === 'deployed') continue;
+
             updatedSites[i].status = 'generating';
             setSites([...updatedSites]);
 
@@ -77,11 +80,41 @@ export default function ContentSetup({ selectedDomains, keywords, onBack }: Cont
 
     const handleLaunch = async () => {
         setIsLaunching(true);
-        // TODO: Implement actual deployment logic call
-        setTimeout(() => {
-            alert('Launching deployment for all sites... Check Vercel Dashboard!');
+
+        // Mark all as deploying
+        setSites(prev => prev.map(s => ({ ...s, status: s.status === 'ready' ? 'deploying' : s.status })));
+
+        try {
+            const res = await fetch('/api/campaign/deploy', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    sites: sites.filter(s => s.status === 'ready' || s.status === 'deploying')
+                })
+            });
+
+            const data = await res.json();
+
+            if (data.results) {
+                setSites(prev => prev.map(s => {
+                    const result = data.results.find((r: any) => r.domain === s.domain);
+                    if (result) {
+                        return {
+                            ...s,
+                            status: result.status === 'deployed' ? 'deployed' : 'error',
+                            deploymentUrl: result.url,
+                            errorMessage: result.error
+                        };
+                    }
+                    return s;
+                }));
+            }
+        } catch (err) {
+            console.error('Launch failed:', err);
+            alert('Global deployment failed. Check logs.');
+        } finally {
             setIsLaunching(false);
-        }, 2000);
+        }
     };
 
     return (
@@ -90,7 +123,8 @@ export default function ContentSetup({ selectedDomains, keywords, onBack }: Cont
                 <div className="flex items-center gap-4">
                     <button
                         onClick={onBack}
-                        className="p-2 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors"
+                        disabled={isLaunching}
+                        className="p-2 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors disabled:opacity-30"
                     >
                         <ArrowLeft className="w-5 h-5" />
                     </button>
@@ -102,7 +136,7 @@ export default function ContentSetup({ selectedDomains, keywords, onBack }: Cont
 
                 <button
                     onClick={generateAllContent}
-                    disabled={sites.some(s => s.status === 'generating')}
+                    disabled={sites.some(s => s.status === 'generating') || isLaunching}
                     className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-xl font-medium transition-all disabled:opacity-50"
                 >
                     <Loader2 className={`w-4 h-4 ${sites.some(s => s.status === 'generating') ? 'animate-spin' : 'hidden'}`} />
@@ -117,20 +151,38 @@ export default function ContentSetup({ selectedDomains, keywords, onBack }: Cont
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: idx * 0.1 }}
-                        className="bg-slate-900/50 border border-slate-800 rounded-2xl overflow-hidden"
+                        className={`bg-slate-900/50 border rounded-2xl overflow-hidden transition-colors ${site.status === 'deployed' ? 'border-green-500/50 bg-green-950/5' :
+                                site.status === 'error' ? 'border-red-500/50 bg-red-950/5' :
+                                    'border-slate-800'
+                            }`}
                     >
                         <div className="p-4 bg-slate-800/50 border-b border-slate-800 flex justify-between items-center">
                             <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20">
-                                    <Layout className="w-4 h-4 text-indigo-400" />
+                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center border ${site.status === 'deployed' ? 'bg-green-500/10 border-green-500/20' : 'bg-indigo-500/10 border-indigo-500/20'
+                                    }`}>
+                                    <Layout className={`w-4 h-4 ${site.status === 'deployed' ? 'text-green-400' : 'text-indigo-400'}`} />
                                 </div>
-                                <span className="font-mono text-indigo-400 text-sm font-semibold">{site.domain}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span className="text-xs text-slate-500">Target Keyword:</span>
-                                <span className="text-xs font-medium text-slate-300 px-2 py-1 bg-slate-800 rounded-md">
-                                    {site.keyword}
+                                <span className={`font-mono text-sm font-semibold ${site.status === 'deployed' ? 'text-green-400' : 'text-indigo-400'}`}>
+                                    {site.domain}
                                 </span>
+                            </div>
+                            <div className="flex items-center gap-4">
+                                {site.status === 'deployed' && (
+                                    <a
+                                        href={site.deploymentUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center gap-1 text-xs text-green-400 hover:underline"
+                                    >
+                                        <ExternalLink className="w-3 h-3" /> Dashboard
+                                    </a>
+                                )}
+                                <div className="flex items-center gap-2">
+                                    <span className="text-xs text-slate-500">Target:</span>
+                                    <span className="text-xs font-medium text-slate-300 px-2 py-1 bg-slate-800 rounded-md">
+                                        {site.keyword}
+                                    </span>
+                                </div>
                             </div>
                         </div>
 
@@ -142,10 +194,18 @@ export default function ContentSetup({ selectedDomains, keywords, onBack }: Cont
                                     </div>
                                     <p className="text-slate-400 text-sm">Waiting to generate content...</p>
                                 </div>
-                            ) : site.status === 'generating' ? (
+                            ) : (site.status === 'generating' || site.status === 'deploying') ? (
                                 <div className="flex flex-col items-center justify-center py-8">
                                     <Loader2 className="w-8 h-8 text-blue-500 animate-spin mb-4" />
-                                    <p className="text-slate-400 text-sm">AI is writing your landing page...</p>
+                                    <p className="text-slate-400 text-sm">
+                                        {site.status === 'generating' ? 'AI is writing your landing page...' : 'Provisioning on Vercel...'}
+                                    </p>
+                                </div>
+                            ) : site.status === 'error' ? (
+                                <div className="flex flex-col items-center justify-center py-8 text-center">
+                                    <AlertCircle className="w-8 h-8 text-red-500 mb-2" />
+                                    <p className="text-red-400 text-sm font-medium">Deployment Failed</p>
+                                    <p className="text-slate-500 text-xs mt-1">{site.errorMessage || 'Unknown error'}</p>
                                 </div>
                             ) : (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -172,7 +232,9 @@ export default function ContentSetup({ selectedDomains, keywords, onBack }: Cont
                                         </div>
                                         <div>
                                             <label className="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-1 block">Primary CTA</label>
-                                            <div className="inline-flex items-center px-4 py-2 bg-indigo-600 rounded-lg text-sm font-bold text-white">
+                                            <div className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-bold text-white ${site.status === 'deployed' ? 'bg-green-600' : 'bg-indigo-600'
+                                                }`}>
+                                                {site.status === 'deployed' ? <Check className="w-4 h-4 mr-2" /> : null}
                                                 {site.ctaText}
                                             </div>
                                         </div>
@@ -187,7 +249,7 @@ export default function ContentSetup({ selectedDomains, keywords, onBack }: Cont
             <div className="mt-12 flex flex-col items-center">
                 <button
                     onClick={handleLaunch}
-                    disabled={sites.some(s => s.status !== 'ready') || isLaunching}
+                    disabled={sites.some(s => s.status !== 'ready') || isLaunching || sites.every(s => s.status === 'deployed')}
                     className="group relative flex items-center gap-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-12 py-4 rounded-2xl font-black text-xl shadow-2xl shadow-blue-900/40 transition-all disabled:opacity-30 disabled:grayscale"
                 >
                     {isLaunching ? (
@@ -195,10 +257,13 @@ export default function ContentSetup({ selectedDomains, keywords, onBack }: Cont
                     ) : (
                         <Rocket className="w-6 h-6 group-hover:scale-110 transition-transform" />
                     )}
-                    LAUNCH ALL CAMPAIGNS
+                    {sites.every(s => s.status === 'deployed') ? 'ALL CAMPAIGNS LIVE!' : 'LAUNCH ALL CAMPAIGNS'}
                 </button>
                 <p className="mt-4 text-slate-500 text-sm">
-                    This will create Projects on Vercel and assign domains via Namecheap.
+                    {sites.every(s => s.status === 'deployed')
+                        ? 'Projects created and domains assigned. Check your email/Vercel dashboard.'
+                        : 'This will create Projects on Vercel and assign domains via Namecheap.'
+                    }
                 </p>
             </div>
         </div>

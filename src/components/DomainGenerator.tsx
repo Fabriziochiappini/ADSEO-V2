@@ -181,9 +181,27 @@ export default function DomainGenerator({ topic, keywords, onDomainsSelected }: 
                                             {d.name}
                                         </span>
                                         {d.error && (
-                                            <span className="text-[10px] text-red-400 leading-tight truncate max-w-[180px]">
-                                                {d.error}
-                                            </span>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-[10px] text-red-400 leading-tight truncate max-w-[150px]">
+                                                    {d.error}
+                                                </span>
+                                                {d.error.includes('.') && (
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            const ip = d.error.split(':').pop()?.trim();
+                                                            if (ip) {
+                                                                navigator.clipboard.writeText(ip);
+                                                                alert(`IP ${ip} copied to clipboard! Paste it in Namecheap.`);
+                                                            }
+                                                        }}
+                                                        className="p-1 h-5 w-5 rounded bg-red-500/10 hover:bg-red-500/20 text-red-500 transition-colors flex items-center justify-center shrink-0"
+                                                        title="Copy IP to whitelist"
+                                                    >
+                                                        <Sparkles className="w-3 h-3" />
+                                                    </button>
+                                                )}
+                                            </div>
                                         )}
                                     </div>
                                 </div>
