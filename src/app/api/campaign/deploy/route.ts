@@ -56,7 +56,13 @@ export async function POST(req: Request) {
                     { key: 'NEXT_PUBLIC_SUPABASE_ANON_KEY', value: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY! }
                 ]);
 
-                // 4. Generate 5 Pillars (Cornerstone Content)
+                // 4. Trigger Initial Deployment
+                if (project.link?.repoId) {
+                    console.log(`Triggering initial deployment for ${site.domain}...`);
+                    await vercel.createDeployment(project.id, project.link.repoId);
+                }
+
+                // 5. Generate 5 Pillars (Cornerstone Content)
                 const pillarKeywords = keywords.slice(0, 5);
                 const articleQueue = keywords.slice(5, 30);
 

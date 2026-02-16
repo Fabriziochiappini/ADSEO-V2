@@ -40,16 +40,24 @@ async function run() {
         if (!p) { console.log('No projects'); return; }
 
         console.log(`\nProject: ${p.name} (${p.id})`);
+        console.log('Link details:', JSON.stringify(p.link, null, 2));
 
         const deploymentsData = await fetchVercel(`/v6/deployments?projectId=${p.id}&limit=1`);
         const d = deploymentsData.deployments?.[0];
 
-        if (!d) { console.log('No deployments found'); return; }
-
-        console.log(`Deployment ID: ${d.uid}`);
-        console.log(`State: ${d.state}`);
-        console.log(`Error Code:`, d.errorCode || 'None');
-        console.log(`Error Message:`, d.errorMessage || 'None'); // Might be in other fields
+        if (d) {
+            console.log(`[VERCEL_RESULT_START]`);
+            console.log(`STATE=${d.readyState || d.state}`);
+            console.log(`URL=${d.url || 'N/A'}`);
+            console.log(`ERROR_CODE=${d.errorCode || 'NONE'}`);
+            console.log(`ERROR_MSG=${d.errorMessage || 'NONE'}`);
+            if (d.readyState === 'ERROR' || d.readyState === 'CANCELED') {
+                console.log(`BUILD_LOG_SHORT=${d.error?.message || 'N/A'}`);
+            }
+            console.log(`[VERCEL_RESULT_END]`);
+        } else {
+            console.log('[VERCEL_RESULT_EMPTY]');
+        }
 
         // Fetch build logs if possible (requires different endpoint usually)
         // Or inspect deployment details

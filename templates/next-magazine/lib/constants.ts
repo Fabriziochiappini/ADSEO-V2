@@ -14,7 +14,8 @@ const getDynamicContent = () => {
 
 const dynamic = getDynamicContent();
 
-export const DOMAIN = dynamic?.domain || 'https://sitowebprofessionale.online';
+const rawDomain = dynamic?.domain || 'https://sitowebprofessionale.online';
+export const DOMAIN = rawDomain.startsWith('http') ? rawDomain : `https://${rawDomain}`;
 export const BRAND_NAME = dynamic?.brandName || 'SitoWeb';
 export const BRAND_TAGLINE = dynamic?.brandTagline || 'Professionale';
 export const HERO_TITLE = dynamic?.heroTitle || 'Crea la tua Eccellenza Digitale Professionale.';

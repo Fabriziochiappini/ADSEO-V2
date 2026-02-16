@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 import { Article } from '../lib/types';
 import Link from 'next/link';

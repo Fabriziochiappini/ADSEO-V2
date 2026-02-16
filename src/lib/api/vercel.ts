@@ -73,16 +73,15 @@ export class VercelService {
         return this.fetchVercel(`/v6/domains/${domain}/config`);
     }
 
-    async createDeployment(projectId: string, name: string) {
+    async createDeployment(projectId: string, repoId: number | string, ref: string = 'main') {
         return this.fetchVercel('/v13/deployments', {
             method: 'POST',
             body: JSON.stringify({
-                name,
                 project: projectId,
                 gitSource: {
                     type: 'github',
-                    repoId: projectId, // Vercel often uses project ID or internal repo ID
-                    ref: 'main'
+                    repoId: repoId,
+                    ref: ref
                 }
             }),
         });
