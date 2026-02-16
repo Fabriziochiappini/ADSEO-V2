@@ -38,6 +38,17 @@ export async function POST(req: Request) {
 
         for (const site of sites) {
             try {
+                // Check if site has minimum required content from ContentSetup
+                if (!site.brandName || !site.heroTitle) {
+                    console.warn(`Skipping site ${site.domain} due to missing branding content.`);
+                    deploymentResults.push({
+                        domain: site.domain,
+                        status: 'error',
+                        error: 'Missing branding content. Please generate content before launching.'
+                    });
+                    continue;
+                }
+
                 // 2. Initial Branding Content
                 const contentJson = JSON.stringify({
                     brandName: site.brandName,

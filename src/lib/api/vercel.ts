@@ -79,6 +79,7 @@ export class VercelService {
             body: JSON.stringify({
                 name,
                 project: projectId,
+                target: 'production',
                 gitSource: {
                     type: 'github',
                     repoId: repoId,
