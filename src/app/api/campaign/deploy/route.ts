@@ -38,11 +38,7 @@ export async function POST(req: Request) {
 
         for (const site of sites) {
             try {
-                // 2. Create Project
-                const projectName = site.domain.replace(/\./g, '-').toLowerCase();
-                const project = await vercel.createProject(projectName, templateRepo);
-
-                // 3. Initial Branding Content
+                // 2. Initial Branding Content
                 const contentJson = JSON.stringify({
                     brandName: site.brandName,
                     brandTagline: site.brandTagline || 'Eccellenza Digitale',
@@ -52,9 +48,13 @@ export async function POST(req: Request) {
                     campaignId: campaignId
                 });
 
-                await vercel.setEnvVariable(project.id, 'SITE_CONTENT', contentJson);
-                await vercel.setEnvVariable(project.id, 'NEXT_PUBLIC_SUPABASE_URL', process.env.NEXT_PUBLIC_SUPABASE_URL!);
-                await vercel.setEnvVariable(project.id, 'NEXT_PUBLIC_SUPABASE_ANON_KEY', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
+                // 3. Create Project with ENV VARS (to avoid race condition)
+                const projectName = site.domain.replace(/\./g, '-').toLowerCase();
+                const project = await vercel.createProject(projectName, templateRepo, [
+                    { key: 'SITE_CONTENT', value: contentJson },
+                    { key: 'NEXT_PUBLIC_SUPABASE_URL', value: process.env.NEXT_PUBLIC_SUPABASE_URL! },
+                    { key: 'NEXT_PUBLIC_SUPABASE_ANON_KEY', value: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY! }
+                ]);
 
                 // 4. Generate 5 Pillars (Cornerstone Content)
                 const pillarKeywords = keywords.slice(0, 5);

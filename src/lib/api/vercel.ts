@@ -28,16 +28,22 @@ export class VercelService {
         return res.json();
     }
 
-    async createProject(name: string, repo: string) {
+    async createProject(name: string, repo: string, envVars: { key: string, value: string }[] = []) {
         return this.fetchVercel('/v9/projects', {
             method: 'POST',
             body: JSON.stringify({
                 name,
                 gitRepository: {
                     type: 'github',
-                    repo: repo, // e.g., "Fabriziochiappini/lander-template"
+                    repo: repo,
                 },
                 framework: 'nextjs',
+                environmentVariables: envVars.map(v => ({
+                    key: v.key,
+                    value: v.value,
+                    type: 'plain',
+                    target: ['production', 'preview', 'development'],
+                })),
             }),
         });
     }
@@ -65,6 +71,21 @@ export class VercelService {
 
     async getDomainConfig(domain: string) {
         return this.fetchVercel(`/v6/domains/${domain}/config`);
+    }
+
+    async createDeployment(projectId: string, name: string) {
+        return this.fetchVercel('/v13/deployments', {
+            method: 'POST',
+            body: JSON.stringify({
+                name,
+                project: projectId,
+                gitSource: {
+                    type: 'github',
+                    repoId: projectId, // Vercel often uses project ID or internal repo ID
+                    ref: 'main'
+                }
+            }),
+        });
     }
 }
 
