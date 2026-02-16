@@ -4,14 +4,24 @@ import Link from 'next/link';
 
 interface MagazineHeroProps {
   article: Article;
+  onSelect?: (article: Article) => void;
 }
 
-const MagazineHero: React.FC<MagazineHeroProps> = ({ article }) => {
+const MagazineHero: React.FC<MagazineHeroProps> = ({ article, onSelect }) => {
   return (
-    <Link href={`/article/${article.slug}`}>
+    <Link
+      href={`/article/${article.slug}`}
+      onClick={(e) => {
+        if (onSelect) {
+          e.preventDefault();
+          onSelect(article);
+        }
+      }}
+    >
       <article
         className="group relative h-[600px] w-full overflow-hidden rounded-3xl cursor-pointer bg-zinc-900 shadow-2xl"
       >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={article.image}
           alt={article.alt}

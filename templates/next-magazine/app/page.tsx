@@ -1,13 +1,9 @@
-"use client";
-
 import React from 'react';
 import JsonLd from '@/components/JsonLd';
 import MagazineHero from '@/components/MagazineHero';
 import ArticleGrid from '@/components/ArticleGrid';
 import ServiceSection from '@/components/ServiceSection';
 import {
-  BRAND_NAME,
-  BRAND_TAGLINE,
   HERO_TITLE,
   HERO_SUBTITLE,
   SERVICES,

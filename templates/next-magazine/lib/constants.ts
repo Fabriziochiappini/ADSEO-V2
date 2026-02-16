@@ -23,8 +23,8 @@ export const CAMPAIGN_ID = dynamic?.campaignId || null;
 
 // Initialize Supabase client
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://example.supabase.co',
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder'
 );
 
 // Function to fetch articles from DB
@@ -41,6 +41,7 @@ export async function getLiveArticles(): Promise<Article[]> {
     if (error) throw error;
     if (!data || data.length === 0) return ARTICLES;
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return data.map((a: any) => ({
       id: a.id,
       slug: a.slug,

@@ -62,6 +62,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
             </header>
 
             <div className="relative rounded-[2rem] overflow-hidden mb-16 shadow-2xl bg-zinc-100">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={article.image} alt={article.alt} className="w-full aspect-[16/9] object-cover" />
             </div>
 
@@ -77,7 +78,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
             <footer className="mt-24 pt-10 border-t border-zinc-100">
                 <p className="text-zinc-500 italic mb-8">
-                    Ogni progetto è un'opportunità per ridefinire gli standard.
+                    Ogni progetto è un&apos;opportunità per ridefinire gli standard.
                     Con Next.js, non stiamo solo costruendo un sito, stiamo costruendo un vantaggio competitivo reale e misurabile.
                 </p>
             </footer>

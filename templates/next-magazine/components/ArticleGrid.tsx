@@ -4,18 +4,26 @@ import Link from 'next/link';
 
 interface ArticleGridProps {
   articles: Article[];
+  onSelect?: (article: Article) => void;
 }
 
-const ArticleGrid: React.FC<ArticleGridProps> = ({ articles }) => {
+const ArticleGrid: React.FC<ArticleGridProps> = ({ articles, onSelect }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 my-12">
       {articles.map((article) => (
         <Link
           key={article.id}
           href={`/article/${article.slug}`}
+          onClick={(e) => {
+            if (onSelect) {
+              e.preventDefault();
+              onSelect(article);
+            }
+          }}
           className="flex flex-col cursor-pointer group animate-in"
         >
           <div className="overflow-hidden rounded-2xl mb-6 aspect-[4/3] shadow-lg bg-zinc-100">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={article.image}
               alt={article.alt}
