@@ -68,9 +68,13 @@ export async function POST(req: Request) {
                 ]);
 
                 // 4. Trigger Initial Deployment
+                let deploymentUrl = `https://${projectName}.vercel.app`;
                 if (project.link?.repoId) {
                     console.log(`Triggering initial deployment for ${site.domain}...`);
-                    await vercel.createDeployment(project.id, projectName, project.link.repoId);
+                    const deployment = await vercel.createDeployment(project.id, projectName, project.link.repoId);
+                    if (deployment && deployment.url) {
+                        deploymentUrl = `https://${deployment.url}`;
+                    }
                 }
 
                 // 5. Generate 5 Pillars (Cornerstone Content)
@@ -92,7 +96,7 @@ export async function POST(req: Request) {
                     });
                 }
 
-                // 5. Queue 25 Articles (Drip Feed)
+                // 6. Queue 25 Articles (Drip Feed)
                 const queueToInsert = articleQueue.map((kw, index) => ({
                     campaign_id: campaignId,
                     keyword: kw.keyword,
@@ -104,14 +108,14 @@ export async function POST(req: Request) {
                     await supabase.from('article_queue').insert(queueToInsert);
                 }
 
-                // 6. Add Domain
+                // 7. Add Domain
                 await vercel.addDomain(project.id, site.domain);
 
                 deploymentResults.push({
                     domain: site.domain,
                     projectId: project.id,
                     status: 'deployed',
-                    url: `https://${site.domain}`
+                    url: deploymentUrl
                 });
             } catch (err: any) {
                 console.error(`Deployment failed for ${site.domain}:`, err);
