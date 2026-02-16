@@ -59,7 +59,7 @@ export async function POST(req: Request) {
                 // 4. Trigger Initial Deployment
                 if (project.link?.repoId) {
                     console.log(`Triggering initial deployment for ${site.domain}...`);
-                    await vercel.createDeployment(project.id, project.link.repoId);
+                    await vercel.createDeployment(project.id, projectName, project.link.repoId);
                 }
 
                 // 5. Generate 5 Pillars (Cornerstone Content)
