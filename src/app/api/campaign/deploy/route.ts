@@ -3,6 +3,8 @@ import { VercelService } from '@/lib/api/vercel';
 import { AiService } from '@/lib/api/gemini';
 import { supabase } from '@/lib/supabase';
 
+export const maxDuration = 300; // 5 min for full campaign deployment
+
 export async function POST(req: Request) {
     try {
         const { sites, campaignId } = await req.json();
