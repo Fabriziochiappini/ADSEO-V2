@@ -65,7 +65,17 @@ export default function ContentSetup({ selectedDomains, keywords, campaignId, on
                         keyword: updatedSites[i].keyword
                     })
                 });
+
+                if (!res.ok) {
+                    const errorData = await res.json();
+                    throw new Error(errorData.error || `Server Error ${res.status}`);
+                }
+
                 const data = await res.json();
+
+                if (!data.brandName || !data.heroTitle) {
+                    throw new Error('AI returned empty or invalid branding data');
+                }
 
                 updatedSites[i] = {
                     ...updatedSites[i],
@@ -73,8 +83,13 @@ export default function ContentSetup({ selectedDomains, keywords, campaignId, on
                     status: 'ready'
                 };
                 setSites([...updatedSites]);
-            } catch (err) {
+
+                // Small delay between requests to be gentle on APIs
+                await new Promise(r => setTimeout(r, 800));
+            } catch (err: any) {
+                console.error(`Generation failed for ${updatedSites[i].domain}:`, err);
                 updatedSites[i].status = 'error';
+                updatedSites[i].errorMessage = err.message;
                 setSites([...updatedSites]);
             }
         }

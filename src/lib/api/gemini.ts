@@ -144,10 +144,23 @@ export class AiService {
       "ctaText": "Short CTA (e.g., 'Richiedi Preventivo')"
     }`;
 
-    const result = await this.model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text().replace(/```json/g, '').replace(/```/g, '').trim();
-    return JSON.parse(text);
+    try {
+      const result = await this.model.generateContent(prompt);
+      const response = await result.response;
+      let text = response.text().trim();
+
+      // Remove any markdown code block artifacts
+      text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+
+      const parsed = JSON.parse(text);
+      if (!parsed.brandName || !parsed.heroTitle) {
+        throw new Error('AI response missing required fields');
+      }
+      return parsed;
+    } catch (error: any) {
+      console.error('Gemini generateLandingPageContent Error:', error);
+      throw new Error(`AI Generation failed: ${error.message}`);
+    }
   }
 
   async generateLongFormArticle(keyword: string): Promise<any> {
