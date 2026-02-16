@@ -14,57 +14,7 @@ if (fs.existsSync(envPath)) {
     }
 }
 
-async function main() {
-    const token = process.env.VERCEL_API_TOKEN;
-    if (!token) {
-        console.error('No VERCEL_API_TOKEN found');
-        return;
-    }
-
-    const vercel = new VercelService(token, process.env.VERCEL_TEAM_ID);
-
-    try {
-        console.log('Fetching projects...');
-        const projectsData = await vercel.fetchVercel('/v9/projects?limit=5');
-        const projects = projectsData.projects || [];
-
-        console.log(`Found ${projects.length} recent projects:`);
-
-        for (const p of projects) {
-            console.log(`\nProject: ${p.name}`);
-            console.log(`ID: ${p.id}`);
-            console.log(`Created: ${new Date(p.createdAt).toLocaleString()}`);
-
-            const deploymentsData = await vercel.fetchVercel(`/v6/deployments?projectId=${p.id}&limit=1`);
-            const deployments = deploymentsData.deployments || [];
-
-            if (deployments.length === 0) {
-                console.log('Status: NO DEPLOYMENTS FOUND');
-            } else {
-                const d = deployments[0];
-                console.log(`Latest Deployment: ${d.state}`);
-                console.log(`Url: https://${d.url}`);
-                if (d.state === 'ERROR' || d.state === 'FAILED') {
-                    console.log(`Inspecing error...`);
-                    // Try to get more info if possible logic limits allow
-                }
-            }
-        }
-
-    } catch (e: any) {
-        console.error('Error fetching Vercel data:', e.message);
-        if (e.response) {
-            console.error('Response:', await e.response.text());
-        }
-    }
-}
-
-// Add fetchVercel method to class prototype hack or just copy logic?
-// We imported VercelService but its `fetchVercel` is private.
-// We can use the public methods or cast to any to access private.
-// Actually VercelService has public methods but not "list projects".
-// I will just use fetch directly in the script for simplicity instead of relying on the class private method.
-
+// Direct fetch helper to avoid private method access issues
 async function fetchVercelDirect(endpoint: string, token: string, teamId?: string) {
     const url = new URL(`https://api.vercel.com${endpoint}`);
     if (teamId) url.searchParams.append('teamId', teamId);
