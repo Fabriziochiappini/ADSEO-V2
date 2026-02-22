@@ -76,17 +76,7 @@ export async function POST(req: Request) {
                     { key: 'NEXT_PUBLIC_SUPABASE_ANON_KEY', value: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY! }
                 ]);
 
-                // 4. Trigger Initial Deployment
-                let deploymentUrl = `https://${projectName}.vercel.app`;
-                if (project.link?.repoId) {
-                    console.log(`Triggering initial deployment for ${site.domain}...`);
-                    const deployment = await vercel.createDeployment(project.id, projectName, project.link.repoId);
-                    if (deployment && deployment.url) {
-                        deploymentUrl = `https://${deployment.url}`;
-                    }
-                }
-
-                // 5. Generate 5 Pillars (Cornerstone Content)
+                // 4. Generate 5 Pillars (Cornerstone Content) BEFORE Deployment
                 const pillarKeywords = keywords.slice(0, 5);
                 const articleQueue = keywords.slice(5, 30);
 
@@ -103,6 +93,16 @@ export async function POST(req: Request) {
                         image_url: `https://source.unsplash.com/featured/?${article.imageSearchTerm}`,
                         published_at: new Date().toISOString()
                     });
+                }
+
+                // 5. Trigger Initial Deployment (now that DB has content)
+                let deploymentUrl = `https://${projectName}.vercel.app`;
+                if (project.link?.repoId) {
+                    console.log(`Triggering initial deployment for ${site.domain}...`);
+                    const deployment = await vercel.createDeployment(project.id, projectName, project.link.repoId);
+                    if (deployment && deployment.url) {
+                        deploymentUrl = `https://${deployment.url}`;
+                    }
                 }
 
                 // 6. Queue 25 Articles (Drip Feed)
