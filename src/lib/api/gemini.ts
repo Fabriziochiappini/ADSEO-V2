@@ -8,7 +8,7 @@ export class AiService {
   constructor(apiKey: string) {
     this.genAI = new GoogleGenerativeAI(apiKey);
     this.model = this.genAI.getGenerativeModel({
-      model: "gemini-2.0-flash",
+      model: "gemini-1.5-flash",
       generationConfig: { responseMimeType: "application/json" }
     });
   }
@@ -134,15 +134,17 @@ export class AiService {
     const prompt = `Create landing page content for the domain "${domain}" focused on the primary keyword "${keyword}".
     The target language is Italian.
     
-    Return ONLY a JSON object with:
+    You must return a valid JSON object matching EXACTLY this structure, with no markdown formatting around it:
     {
-      "brandName": "A catchy brand name",
-      "brandTagline": "A short tagline (2 words max)",
-      "heroTitle": "Powerful H1 including the keyword",
-      "heroSubtitle": "Engaging H2 explaining the value propostition",
-      "serviceDescription": "A 2-3 sentence description of the service using money keywords like 'prezzo', 'preventivo', 'migliori'.",
-      "ctaText": "Short CTA (e.g., 'Richiedi Preventivo')"
-    }`;
+      "brandName": "A catchy brand name (string)",
+      "brandTagline": "A short tagline (2 words max) (string)",
+      "heroTitle": "Powerful H1 including the keyword (string)",
+      "heroSubtitle": "Engaging H2 explaining the value proposition (string)",
+      "serviceDescription": "A 2-3 sentence description of the service using money keywords like 'prezzo', 'preventivo', 'migliori' (string).",
+      "ctaText": "Short CTA like 'Richiedi Preventivo' (string)"
+    }
+    
+    CRITICAL: Ensure the keys match exactly (brandName, brandTagline, heroTitle, heroSubtitle, serviceDescription, ctaText).`;
 
     try {
       const result = await this.model.generateContent(prompt);
@@ -150,11 +152,19 @@ export class AiService {
       let text = response.text().trim();
 
       // Remove any markdown code block artifacts
-      text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+      text = text.replace(/```json/g, '').replace(/```/gi, '').trim();
 
-      const parsed = JSON.parse(text);
+      let parsed: any = {};
+      try {
+        parsed = JSON.parse(text);
+      } catch (parseError) {
+        console.error('[Gemini] Failed to parse JSON. Raw text:', text);
+        throw new Error('Invalid JSON format from AI');
+      }
+
       if (!parsed.brandName || !parsed.heroTitle) {
-        throw new Error('AI response missing required fields');
+        console.error('[Gemini] Missing required fields. Parsed object:', parsed);
+        throw new Error('AI response missing required fields (brandName or heroTitle)');
       }
       return parsed;
     } catch (error: any) {
