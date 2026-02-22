@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search,
@@ -74,8 +75,8 @@ export default function Home() {
             <span className="text-xl font-bold tracking-tight">ADSEO<span className="text-blue-500">2</span></span>
           </div>
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-400">
-            <a href="#" className="hover:text-white transition-colors">Analyzer</a>
-            <a href="#" className="hover:text-white transition-colors">History</a>
+            <Link href="/" className="text-white font-semibold">Analyzer</Link>
+            <Link href="/dashboard" className="hover:text-white transition-colors">Dashboard</Link>
             <a href="#" className="hover:text-white transition-colors">Settings</a>
           </nav>
           <div className="flex items-center gap-4">
