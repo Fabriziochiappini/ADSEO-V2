@@ -3,6 +3,7 @@ import { VercelService } from '@/lib/api/vercel';
 import { AiService } from '@/lib/api/gemini';
 import { supabase } from '@/lib/supabase';
 import { namecheap } from '@/lib/api/namecheap';
+import { github } from '@/lib/api/github';
 
 export const maxDuration = 300; // 5 min for full campaign deployment
 
@@ -17,7 +18,9 @@ export async function POST(req: Request) {
         const vercelToken = process.env.VERCEL_API_TOKEN;
         const teamId = process.env.VERCEL_TEAM_ID;
         const geminiKey = process.env.GEMINI_API_KEY;
-        const templateRepo = process.env.LANDER_TEMPLATE_REPO || 'Fabriziochiappini/lander-template';
+        // Template source (GitHub user/repo)
+        const templateRepoFull = process.env.LANDER_TEMPLATE_REPO || 'Fabriziochiappini/lander-template';
+        const [templateOwner, templateName] = templateRepoFull.split('/');
 
         if (!vercelToken || !geminiKey) {
             return NextResponse.json({ error: 'Missing API configuration (Vercel or Gemini)' }, { status: 500 });
@@ -68,15 +71,25 @@ export async function POST(req: Request) {
                     campaignId: campaignId
                 });
 
-                // 3. Create Project with ENV VARS (to avoid race condition)
-                const projectName = site.domain.replace(/\./g, '-').toLowerCase();
-                const project = await vercel.createProject(projectName, templateRepo, [
+                // 3. Create NEW REPO for this site (Cloning Template)
+                const sanitizedDomain = site.domain.replace(/[^a-zA-Z0-9-]/g, '-').toLowerCase();
+                const newRepoName = `adseo-${sanitizedDomain}`; // e.g. adseo-sgomberofrosinone-it
+                
+                console.log(`Creating dedicated repo for ${site.domain}: ${newRepoName}...`);
+                const repo = await github.createRepoFromTemplate(templateOwner, templateName, newRepoName, true); // Private repo
+                const newRepoFullName = repo.full_name; // e.g. Fabriziochiappini/adseo-sgomberofrosinone-it
+
+                // 4. Create Project linked to the NEW REPO
+                const projectName = sanitizedDomain;
+                console.log(`Creating Vercel project ${projectName} linked to ${newRepoFullName}...`);
+                
+                const project = await vercel.createProject(projectName, newRepoFullName, [
                     { key: 'SITE_CONTENT', value: contentJson },
                     { key: 'NEXT_PUBLIC_SUPABASE_URL', value: process.env.NEXT_PUBLIC_SUPABASE_URL! },
                     { key: 'NEXT_PUBLIC_SUPABASE_ANON_KEY', value: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY! }
                 ]);
 
-                // 4. Generate 5 Pillars (Cornerstone Content) BEFORE Deployment
+                // 5. Generate 5 Pillars (Cornerstone Content) BEFORE Deployment
                 const pillarKeywords = keywords.slice(0, 5);
                 const articleQueue = keywords.slice(5, 30);
 
@@ -95,7 +108,7 @@ export async function POST(req: Request) {
                     });
                 }
 
-                // 5. Trigger Initial Deployment (now that DB has content)
+                // 6. Trigger Initial Deployment (now that DB has content)
                 let deploymentUrl = `https://${projectName}.vercel.app`;
                 if (project.link?.repoId) {
                     console.log(`Triggering initial deployment for ${site.domain}...`);
@@ -105,7 +118,7 @@ export async function POST(req: Request) {
                     }
                 }
 
-                // 6. Queue 25 Articles (Drip Feed)
+                // 7. Queue 25 Articles (Drip Feed)
                 const queueToInsert = articleQueue.map((kw, index) => ({
                     campaign_id: campaignId,
                     keyword: kw.keyword,
@@ -117,10 +130,10 @@ export async function POST(req: Request) {
                     await supabase.from('article_queue').insert(queueToInsert);
                 }
 
-                // 7. Add Domain to Vercel
+                // 8. Add Domain to Vercel
                 await vercel.addDomain(project.id, site.domain);
 
-                // 8. Purchase and link via Namecheap
+                // 9. Purchase and link via Namecheap
                 if (connectDomain) {
                     console.log(`Attempting to register and link domain: ${site.domain}`);
                     const registered = await namecheap.registerDomain(site.domain);
@@ -138,7 +151,8 @@ export async function POST(req: Request) {
                     domain: site.domain,
                     projectId: project.id,
                     status: 'deployed',
-                    url: deploymentUrl
+                    url: deploymentUrl,
+                    repo: newRepoFullName // Track which repo was created
                 });
             } catch (err: any) {
                 console.error(`Deployment failed for ${site.domain}:`, err);
