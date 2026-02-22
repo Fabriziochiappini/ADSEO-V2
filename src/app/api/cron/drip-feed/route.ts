@@ -4,11 +4,18 @@ import { AiService } from '@/lib/api/gemini';
 export async function GET(req: Request) {
     try {
         const authHeader = req.headers.get('authorization');
-        if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+        const userAgent = req.headers.get('user-agent');
+        
+        // Allow if secret matches OR if it's Vercel Cron internal scheduler
+        const isVercelCron = userAgent === 'vercel-cron/1.0';
+        const isAuthorized = authHeader === `Bearer ${process.env.CRON_SECRET}`;
+
+        if (!isVercelCron && !isAuthorized) {
             return new Response(JSON.stringify({ error: 'Unauthorized' }), {
                 status: 401,
             });
         }
+        
         const geminiKey = process.env.GEMINI_API_KEY;
         if (!geminiKey) throw new Error('Missing GEMINI_API_KEY');
 
