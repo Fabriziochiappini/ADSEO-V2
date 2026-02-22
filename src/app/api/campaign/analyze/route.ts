@@ -45,15 +45,15 @@ export async function POST(req: NextRequest) {
                     // 3. Sort by "Efficiency" (Volume / Competition) or just Volume if Competition is low
                     
                     analyzedKeywords = rawResults
-                        .filter(k => k.search_volume >= 10) // Filter no-volume
-                        .filter(k => k.keyword.split(' ').length >= 2) // Filter generic single words
-                        .map(k => ({
+                        .filter((k: Keyword) => k.search_volume >= 10) // Filter no-volume
+                        .filter((k: Keyword) => k.keyword.split(' ').length >= 2) // Filter generic single words
+                        .map((k: Keyword) => ({
                             ...k,
                             competition_level: k.competition_level || (k.competition < 0.3 ? 'LOW' : k.competition < 0.7 ? 'MEDIUM' : 'HIGH')
                         }))
                         // Sort: Prioritize High Volume + Low Competition
                         // Simple score: Volume * (1 - Competition)
-                        .sort((a, b) => {
+                        .sort((a: Keyword, b: Keyword) => {
                             const scoreA = a.search_volume * (1 - a.competition);
                             const scoreB = b.search_volume * (1 - b.competition);
                             return scoreB - scoreA;
