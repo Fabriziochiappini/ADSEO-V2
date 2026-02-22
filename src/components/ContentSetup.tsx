@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Edit3, Check, Loader2, Rocket, Layout, ArrowLeft, ExternalLink, AlertCircle, Play } from 'lucide-react';
+import ArticleTestPanel from '@/components/ArticleTestPanel';
 
 interface SiteContent {
     domain: string;
@@ -158,26 +159,6 @@ export default function ContentSetup({ selectedDomains, keywords, campaignId, on
                 </div>
 
                 <div className="flex gap-3">
-                    <button
-                        onClick={async () => {
-                            try {
-                                setIsTestingFeed(true);
-                                const res = await fetch('/api/cron/trigger-test', { method: 'POST' });
-                                const data = await res.json();
-                                if (!res.ok) throw new Error(data.error);
-                                alert(data.message);
-                            } catch (e: any) {
-                                alert(`Test failed: ${e.message}`);
-                            } finally {
-                                setIsTestingFeed(false);
-                            }
-                        }}
-                        disabled={isTestingFeed || isLaunching}
-                        className="flex items-center gap-2 bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-400 border border-emerald-500/20 px-4 py-2 rounded-xl font-medium transition-all disabled:opacity-50"
-                    >
-                        {isTestingFeed ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
-                        Force Drip Test
-                    </button>
                     <button
                         onClick={generateAllContent}
                         disabled={sites.some(s => s.status === 'generating') || isLaunching}
@@ -346,6 +327,53 @@ export default function ContentSetup({ selectedDomains, keywords, campaignId, on
                         : 'This will create Projects on Vercel and assign domains via Namecheap.'
                     }
                 </p>
+
+                {/* Dashboard Post-Lancio */}
+                {sites.every(s => s.status === 'deployed') && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="w-full mt-12 border-t border-slate-800 pt-12"
+                    >
+                        <div className="flex items-center gap-4 mb-6">
+                            <div className="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center">
+                                <Rocket className="w-6 h-6 text-emerald-400" />
+                            </div>
+                            <div>
+                                <h3 className="text-2xl font-bold text-white">Campaign Live Dashboard</h3>
+                                <p className="text-slate-400">Manage your live campaigns and test content generation.</p>
+                            </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6">
+                                <h4 className="text-lg font-semibold text-white mb-4">Deployment Status</h4>
+                                <div className="space-y-4">
+                                    {sites.map(site => (
+                                        <div key={site.domain} className="flex items-center justify-between p-3 bg-slate-800/30 rounded-xl border border-slate-700/50">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-8 h-8 bg-green-500/10 rounded-lg flex items-center justify-center">
+                                                    <Check className="w-4 h-4 text-green-400" />
+                                                </div>
+                                                <div>
+                                                    <p className="font-medium text-white">{site.domain}</p>
+                                                    <a href={site.deploymentUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-400 hover:underline flex items-center gap-1">
+                                                        Visit Site <ExternalLink className="w-3 h-3" />
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <span className="px-2 py-1 bg-green-500/10 text-green-400 text-xs font-bold rounded">LIVE</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <ArticleTestPanel campaignId={campaignId} />
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
             </div>
         </div>
     );
