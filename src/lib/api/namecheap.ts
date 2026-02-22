@@ -3,7 +3,8 @@ import { XMLParser } from 'fast-xml-parser';
 const NAMECHEAP_USER = process.env.NAMECHEAP_USER;
 const NAMECHEAP_KEY = process.env.NAMECHEAP_KEY;
 const NAMECHEAP_IP = process.env.NAMECHEAP_CLIENT_IP || '0.0.0.0'; // Caller IP
-const IS_SANDBOX = process.env.NODE_ENV === 'development'; // Use sandbox in dev? Or param.
+// Allow forcing production mode via env var, otherwise default to sandbox in dev
+const IS_SANDBOX = process.env.NAMECHEAP_ENV === 'sandbox' || (process.env.NODE_ENV === 'development' && process.env.NAMECHEAP_ENV !== 'production');
 
 // Namecheap API Base URLs
 const SANDBOX_URL = 'https://api.sandbox.namecheap.com/xml.response';
