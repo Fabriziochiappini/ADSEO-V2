@@ -234,7 +234,9 @@ export class NamecheapService {
 
         // Command: namecheap.domains.dns.setCustom
         // SLD/TLD separation needed
-        const [sld, tld] = domain.split('.');
+        const parts = domain.split('.');
+        const sld = parts[0];
+        const tld = parts.slice(1).join('.');
 
         const clientIp = await this.getDynamicIp();
         const startUrl = this.buildUrl('namecheap.domains.dns.setCustom', clientIp, {
@@ -251,6 +253,35 @@ export class NamecheapService {
         } catch (e) {
             console.error('DNS set failed', e);
             return false;
+        }
+    }
+
+    async getDomainInfo(domain: string): Promise<any> {
+        if (!this.user || !this.key) return null;
+
+        const clientIp = await this.getDynamicIp();
+        const startUrl = this.buildUrl('namecheap.domains.getinfo', clientIp, {
+            DomainName: domain
+        });
+
+        try {
+            const response = await this.fetchApi(startUrl);
+            const text = await response.text();
+            const parser = new XMLParser({ ignoreAttributes: false });
+            const jsonObj = parser.parse(text);
+
+            const errors = jsonObj?.ApiResponse?.Errors?.Error;
+            if (errors) {
+                 const errorMsg = typeof errors === 'string' ? errors : (Array.isArray(errors) ? errors[0]['#text'] : (errors?.['#text'] || 'API Error'));
+                 console.error(`Namecheap GetInfo Error for ${domain}:`, errorMsg);
+                 return { error: errorMsg };
+            }
+
+            const domainDetails = jsonObj?.ApiResponse?.CommandResponse?.DomainGetInfoResult;
+            return domainDetails;
+        } catch (e) {
+            console.error('GetInfo failed:', e);
+            return null;
         }
     }
 }

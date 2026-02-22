@@ -16,44 +16,56 @@ export class DataForSeoService {
     }
 
     /**
-     * Fetch keyword ideas using the strategies verified in debug-ideas.js
-     * Defaults to the "Standard: Loc 2380 (Italy), Lang 'it'" payload which worked best.
+     * Fetch keyword ideas using DataForSEO Labs (Live)
+     * This provides real search volume, CPC, and competition data.
      */
     async getKeywordIdeas(seeds: string[], locationCode: number = 2380, languageCode: string = 'it'): Promise<any> {
-        // Using the "Standard" payload structure from debug-ideas.js
-        const postData = [{
-            keywords: seeds,
+        // DataForSEO Labs Keyword Suggestions takes a single "keyword" per task.
+        // We will create a task for each seed (limit to first 3 to avoid excessive costs if many seeds provided)
+        const tasks = seeds.slice(0, 3).map(seed => ({
+            keyword: seed,
             location_code: locationCode,
             language_code: languageCode,
             include_seed_keyword: true,
-            limit: 10 // Keeping it small as per debug script, or increase as needed for production? 
-            // The debug script used 10, but initially we might want more. 
-            // Let's stick to a reasonable default or the debug value. 
-            // The original code had 100. Let's try 20 to start safe, or user can request more.
-        }];
+            limit: 30 // Get top 30 suggestions per seed
+        }));
 
         try {
-            const response = await fetch(`${this.baseUrl}/keywords_data/google/keyword_ideas/live`, {
+            // Using DataForSEO Labs API (Cheaper & Better for "Ideas")
+            const response = await fetch(`${this.baseUrl}/dataforseo_labs/google/keyword_suggestions/live`, {
                 method: 'POST',
                 headers: {
                     'Authorization': this.authHeader,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(postData)
+                body: JSON.stringify(tasks)
             });
 
             if (!response.ok) {
                 const errorText = await response.text();
-                throw new Error(`DataForSEO API Policy Error: ${response.status} ${response.statusText} - ${errorText}`);
+                throw new Error(`DataForSEO API Error: ${response.status} ${response.statusText} - ${errorText}`);
             }
 
             const data = await response.json();
 
-            if (data.tasks?.[0]?.status_message !== 'Ok') {
-                console.warn('DataForSEO Task Status:', data.tasks?.[0]?.status_message);
+            // Collect all items from all tasks
+            let allItems: any[] = [];
+            if (data.tasks) {
+                data.tasks.forEach((task: any) => {
+                    if (task.result && task.result[0] && task.result[0].items) {
+                        allItems = [...allItems, ...task.result[0].items];
+                    }
+                });
             }
 
-            return data.tasks?.[0]?.result || [];
+            // Map to our generic format
+            return allItems.map(item => ({
+                keyword: item.keyword,
+                search_volume: item.keyword_info?.search_volume || 0,
+                competition: item.keyword_info?.competition || 0,
+                cpc: item.keyword_info?.cpc || 0,
+                competition_level: item.keyword_info?.competition_level || 'UNKNOWN'
+            }));
 
         } catch (error) {
             console.error('DataForSEO getKeywordIdeas failed:', error);
@@ -62,20 +74,18 @@ export class DataForSeoService {
     }
 
     /**
-     * Fetch related keywords using the strategy verified in debug-related.js
+     * Fetch related keywords (Semantic)
      */
-    async getRelatedKeywords(seed: string, locationCode: number = 2380, languageCode: string = 'it', depth: number = 1): Promise<any> {
-        // Using the payload structure from debug-related.js
+    async getRelatedKeywords(seed: string, locationCode: number = 2380, languageCode: string = 'it'): Promise<any> {
         const postData = [{
             keyword: seed,
             location_code: locationCode,
             language_code: languageCode,
-            depth: depth,
-            limit: 20 // Reasonable limit
+            limit: 20
         }];
 
         try {
-            const response = await fetch(`${this.baseUrl}/keywords_data/google/related_keywords/live`, {
+            const response = await fetch(`${this.baseUrl}/dataforseo_labs/google/related_keywords/live`, {
                 method: 'POST',
                 headers: {
                     'Authorization': this.authHeader,
@@ -86,17 +96,18 @@ export class DataForSeoService {
 
             if (!response.ok) {
                 const errorText = await response.text();
-                throw new Error(`DataForSEO Related Keywords API Error: ${response.status} ${response.statusText} - ${errorText}`);
+                throw new Error(`DataForSEO Related API Error: ${response.status} ${response.statusText} - ${errorText}`);
             }
 
             const data = await response.json();
-            if (data.tasks?.[0]?.status_message !== 'Ok') {
-                console.warn('DataForSEO Task Status:', data.tasks?.[0]?.status_message);
-            }
-
-            // The result structure for related_keywords is tasks[0].result.items
-            const result = data.tasks?.[0]?.result;
-            return result?.items || null;
+            const items = data.tasks?.[0]?.result?.[0]?.items || [];
+            
+            return items.map((item: any) => ({
+                keyword: item.keyword,
+                search_volume: item.keyword_data?.keyword_info?.search_volume || 0,
+                competition: item.keyword_data?.keyword_info?.competition || 0,
+                cpc: item.keyword_data?.keyword_info?.cpc || 0
+            }));
 
         } catch (error) {
             console.error('DataForSEO getRelatedKeywords failed:', error);
