@@ -28,7 +28,23 @@ export class VercelService {
         return res.json();
     }
 
+    async getProject(name: string) {
+        try {
+            return await this.fetchVercel(`/v9/projects/${name}`);
+        } catch (e) {
+            return null;
+        }
+    }
+
     async createProject(name: string, repo: string, envVars: { key: string, value: string }[] = []) {
+        // Check if exists first
+        const existing = await this.getProject(name);
+        if (existing) {
+            console.log(`[Vercel] Project ${name} already exists. Using existing.`);
+            // If needed, we could update env vars here, but for now we assume it's fine.
+            return existing;
+        }
+
         return this.fetchVercel('/v9/projects', {
             method: 'POST',
             body: JSON.stringify({
