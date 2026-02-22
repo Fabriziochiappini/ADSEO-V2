@@ -156,7 +156,7 @@ export default function Home() {
               </div>
 
               {/* Pannello Test Articoli */}
-              <ArticleTestPanel campaignId={campaignId} />
+              <ArticleTestPanel campaignId={campaignId || undefined} />
 
               <div className="p-4 rounded-2xl bg-zinc-900/50 border border-zinc-800 flex gap-4">
                 <div className="w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center shrink-0">

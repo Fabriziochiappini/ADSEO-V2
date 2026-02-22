@@ -32,7 +32,11 @@ export async function POST(req: Request) {
             }), { status: 200 });
         }
 
-        const results = {
+        const results: {
+            processed: number;
+            failed: number;
+            articles: Array<{id: any; title: any; keyword: any}>;
+        } = {
             processed: 0,
             failed: 0,
             articles: []
