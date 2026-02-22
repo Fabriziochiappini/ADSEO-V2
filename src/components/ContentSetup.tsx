@@ -283,8 +283,10 @@ export default function ContentSetup({ selectedDomains, keywords, campaignId, on
                         disabled={isLaunching || sites.every(s => s.status === 'deployed')}
                         className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-white appearance-none text-center font-medium disabled:opacity-50"
                     >
+                        <option value="1m">Every Minute (Turbo Test)</option>
                         <option value="5m">Every 5 Minutes (Fast Test)</option>
                         <option value="1d">1 Article Per Day</option>
+                        <option value="3d">1 Article Every 3 Days</option>
                         <option value="7d">1 Article Per Week</option>
                         <option value="30d">1 Article Per Month</option>
                     </select>
