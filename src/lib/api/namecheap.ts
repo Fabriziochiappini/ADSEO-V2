@@ -1,4 +1,5 @@
 import { XMLParser } from 'fast-xml-parser';
+import { ProxyAgent } from 'undici';
 
 const NAMECHEAP_USER = process.env.NAMECHEAP_USER;
 const NAMECHEAP_KEY = process.env.NAMECHEAP_KEY;
@@ -39,13 +40,21 @@ export class NamecheapService {
         return url.toString();
     }
 
+    private async fetchApi(url: string) {
+        const options: any = {};
+        if (process.env.PROXY_URL) {
+            options.dispatcher = new ProxyAgent(process.env.PROXY_URL);
+        }
+        return fetch(url, options);
+    }
+
     private async getDynamicIp(): Promise<string> {
         // If ENV var is set and not default, use it
         if (this.clientIp && this.clientIp !== '0.0.0.0') return this.clientIp;
         
         try {
-            // Auto-detect public IP of the Vercel function
-            const res = await fetch('https://api.ipify.org?format=json');
+            // Auto-detect public IP of the Vercel function (via Proxy if set)
+            const res = await this.fetchApi('https://api.ipify.org?format=json');
             const data = await res.json();
             console.log(`[Namecheap] Detected Public IP: ${data.ip}`);
             return data.ip;
@@ -67,7 +76,7 @@ export class NamecheapService {
         });
 
         try {
-            const response = await fetch(startUrl);
+            const response = await this.fetchApi(startUrl);
             const text = await response.text();
 
             const parser = new XMLParser({ ignoreAttributes: false });
@@ -111,7 +120,7 @@ export class NamecheapService {
 
         try {
             console.log(`Checking availability for: ${domain}`);
-            const response = await fetch(startUrl);
+            const response = await this.fetchApi(startUrl);
             const text = await response.text();
 
             const parser = new XMLParser({ ignoreAttributes: false });
@@ -198,7 +207,7 @@ export class NamecheapService {
         });
 
         try {
-            const response = await fetch(startUrl);
+            const response = await this.fetchApi(startUrl);
             const text = await response.text();
 
             // Check for success or error
@@ -235,7 +244,7 @@ export class NamecheapService {
         });
 
         try {
-            const response = await fetch(startUrl);
+            const response = await this.fetchApi(startUrl);
             const text = await response.text();
             // Check success in XML
             return text.includes('CommandResponse') && !text.includes('Error');
