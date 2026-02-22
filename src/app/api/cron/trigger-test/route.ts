@@ -9,11 +9,11 @@ export async function POST(req: Request) {
         const gemini = new AiService(geminiKey);
 
         // Fetch articles due for publication (limit 1 for testing)
+        // For testing: include both pending articles and articles with scheduled_at in the past
         const { data: queue, error: queueError } = await supabase
             .from('article_queue')
             .select('*')
-            .eq('status', 'pending')
-            // Don't check scheduled_at for manual test so we force processing
+            .or('status.eq.pending,and(scheduled_at.lte.' + new Date().toISOString() + ',status.eq.pending)')
             .limit(1);
 
         if (queueError) throw queueError;

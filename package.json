@@ -6,7 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:drip-feed": "node scripts/test-drip-feed.js",
+    "test:drip-loop": "node scripts/test-drip-feed.js 5",
+    "test:populate-queue": "node scripts/populate-test-queue.js",
+    "test:drip-complete": "node scripts/test-complete-drip.js",
+    "test:force-drip": "node scripts/test-complete-drip.js --force --limit 3",
+    "test:quick-setup": "node scripts/test-complete-drip.js --populate 5 --force --loop 5"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

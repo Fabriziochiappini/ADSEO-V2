@@ -15,6 +15,7 @@ import {
 import { TopicAnalysisResult } from '@/types';
 import DomainGenerator from '@/components/DomainGenerator';
 import ContentSetup from '@/components/ContentSetup';
+import ArticleTestPanel from '@/components/ArticleTestPanel';
 
 export default function Home() {
   const [topic, setTopic] = useState('');
@@ -153,6 +154,9 @@ export default function Home() {
                   )}
                 </button>
               </div>
+
+              {/* Pannello Test Articoli */}
+              <ArticleTestPanel campaignId={campaignId} />
 
               <div className="p-4 rounded-2xl bg-zinc-900/50 border border-zinc-800 flex gap-4">
                 <div className="w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center shrink-0">
