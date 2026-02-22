@@ -3,18 +3,28 @@ import { AiService } from '@/lib/api/gemini';
 
 export async function POST(req: Request) {
     try {
+        const body = await req.json().catch(() => ({}));
+        const { campaignId } = body;
+
         const geminiKey = process.env.GEMINI_API_KEY;
         if (!geminiKey) throw new Error('Missing GEMINI_API_KEY');
 
         const gemini = new AiService(geminiKey);
 
         // Fetch articles due for publication (limit 1 for testing)
-        // For testing: include both pending articles and articles with scheduled_at in the past
-        const { data: queue, error: queueError } = await supabase
+        let query = supabase
             .from('article_queue')
-            .select('*')
-            .or('status.eq.pending,and(scheduled_at.lte.' + new Date().toISOString() + ',status.eq.pending)')
-            .limit(1);
+            .select('*');
+
+        if (campaignId) {
+            // Targeted test: Process specific campaign queue items (ignoring schedule time for instant test)
+            query = query.eq('campaign_id', campaignId).eq('status', 'pending');
+        } else {
+            // General test: Standard logic based on schedule or pending status
+            query = query.or('status.eq.pending,and(scheduled_at.lte.' + new Date().toISOString() + ',status.eq.pending)');
+        }
+
+        const { data: queue, error: queueError } = await query.limit(1);
 
         if (queueError) throw queueError;
         if (!queue || queue.length === 0) {

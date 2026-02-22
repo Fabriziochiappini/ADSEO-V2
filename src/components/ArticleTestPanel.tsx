@@ -31,7 +31,8 @@ export default function ArticleTestPanel({ campaignId }: ArticleTestPanelProps) 
     try {
       const response = await fetch('/api/cron/trigger-test', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ campaignId })
       });
 
       const data = await response.json();
@@ -79,7 +80,8 @@ export default function ArticleTestPanel({ campaignId }: ArticleTestPanelProps) 
       // Poi triggera il drip feed
       const response = await fetch('/api/cron/trigger-test', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ campaignId })
       });
 
       const data = await response.json();
