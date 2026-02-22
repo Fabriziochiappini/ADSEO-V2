@@ -24,21 +24,41 @@ export async function POST(req: NextRequest) {
         const gemini = new AiService(geminiKey);
         let analyzedKeywords: any[] = [];
 
-        // 1. Try DataForSEO First (Real Data)
+        // 1. Try DataForSEO First (Real Data) with Gemini Seeds
         if (dfsUser && dfsPass) {
-            console.log(`Attempting DataForSEO analysis for topic: ${topic}`);
+            console.log(`Starting Hybrid Analysis (Gemini + DataForSEO) for topic: ${topic}`);
             try {
+                // A. Gemini generates "Smart Seeds"
+                const seeds = await gemini.generateSeedKeywords(topic, businessDescription);
+                console.log(`Gemini generated seeds: ${JSON.stringify(seeds)}`);
+
+                // B. DataForSEO expands these seeds
                 const dfs = new DataForSeoService({ username: dfsUser, password: dfsPass });
-                // Use topic as the seed keyword
-                analyzedKeywords = await dfs.getKeywordIdeas([topic]);
+                const rawResults = await dfs.getKeywordIdeas(seeds);
                 
-                if (analyzedKeywords && analyzedKeywords.length > 0) {
-                    console.log(`DataForSEO returned ${analyzedKeywords.length} keywords.`);
-                    // Ensure competition_level is set
-                    analyzedKeywords = analyzedKeywords.map(k => ({
-                        ...k,
-                        competition_level: k.competition_level || (k.competition < 0.3 ? 'LOW' : k.competition < 0.7 ? 'MEDIUM' : 'HIGH')
-                    }));
+                if (rawResults && rawResults.length > 0) {
+                    console.log(`DataForSEO returned ${rawResults.length} raw ideas.`);
+                    
+                    // C. Filter & Rank
+                    // 1. Remove low volume trash (< 10)
+                    // 2. Remove too short keywords (1 word)
+                    // 3. Sort by "Efficiency" (Volume / Competition) or just Volume if Competition is low
+                    
+                    analyzedKeywords = rawResults
+                        .filter(k => k.search_volume >= 10) // Filter no-volume
+                        .filter(k => k.keyword.split(' ').length >= 2) // Filter generic single words
+                        .map(k => ({
+                            ...k,
+                            competition_level: k.competition_level || (k.competition < 0.3 ? 'LOW' : k.competition < 0.7 ? 'MEDIUM' : 'HIGH')
+                        }))
+                        // Sort: Prioritize High Volume + Low Competition
+                        // Simple score: Volume * (1 - Competition)
+                        .sort((a, b) => {
+                            const scoreA = a.search_volume * (1 - a.competition);
+                            const scoreB = b.search_volume * (1 - b.competition);
+                            return scoreB - scoreA;
+                        })
+                        .slice(0, 50); // Take top 50
                 }
             } catch (dfsError) {
                 console.error('DataForSEO analysis failed, falling back to Gemini:', dfsError);

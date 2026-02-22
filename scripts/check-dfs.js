@@ -14,7 +14,7 @@ const auth = Buffer.from(`${username}:${password}`).toString('base64');
 // 1. Check User Balance
 const userOptions = {
     hostname: 'api.dataforseo.com',
-    path: '/v3/merchant/user',
+    path: '/v3/appendix/user_data',
     method: 'GET',
     headers: {
         'Authorization': `Basic ${auth}`,

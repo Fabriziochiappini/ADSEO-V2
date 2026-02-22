@@ -114,6 +114,27 @@ export class AiService {
     return this.cleanAndParseJson(response.text());
   }
 
+  async generateSeedKeywords(topic: string, businessDescription: string): Promise<string[]> {
+    const prompt = `Analyze the business topic "${topic}" and description "${businessDescription}".
+    Generate 5 distinct "Seed Keywords" to be used in a Keyword Research Tool (like DataForSEO or SEMrush).
+    
+    CRITICAL INSTRUCTIONS:
+    1. Keywords MUST be in Italian.
+    2. These seeds should be broad enough to generate many suggestions, but specific enough to be relevant.
+    3. Cover different angles:
+       - Core service (e.g. "Sgombero")
+       - Service + Location type (e.g. "Sgombero Cantine")
+       - Problem/Solution (e.g. "Ritiro mobili usati")
+       - Commercial intent (e.g. "Ditta sgomberi")
+       - Niche variation (e.g. "Pulizia solai")
+    
+    Return ONLY a JSON array of strings: ["seed 1", "seed 2", ...]`;
+
+    const result = await this.model.generateContent(prompt);
+    const response = await result.response;
+    return this.cleanAndParseJson(response.text());
+  }
+
   async generateBroadVariations(keywords: string[]): Promise<string[]> {
     const prompt = `Here is a list of specific long-tail keywords that had 0 search volume:
     ${JSON.stringify(keywords)}
