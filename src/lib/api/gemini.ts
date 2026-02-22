@@ -174,12 +174,28 @@ export class AiService {
   }
 
   async generateLongFormArticle(keyword: string): Promise<any> {
-    const prompt = `Write a professional, SEO-optimized article in Italian for the keyword: "${keyword}".
+    const angles = [
+      "I falsi miti e gli errori da evitare",
+      "Analisi dei costi e come risparmiare",
+      "Consigli pratici e segreti degli esperti",
+      "Tutto quello che c'è da sapere prima di iniziare",
+      "Guida passo-passo ma fuori dagli schemi convenzionali",
+      "Il parere della redazione e recensioni reali",
+      "I trucchi del mestiere che nessuno ti dice"
+    ];
+    const randomAngle = angles[Math.floor(Math.random() * angles.length)];
+
+    const prompt = `Write a professional, SEO-optimized article in Italian for the exact keyword: "${keyword}".
     Length: 1500-2000 words.
+    
+    CRITICAL CREATIVITY RULE:
+    You MUST adopt this specific angle/tone for the article: "${randomAngle}".
+    Produce a highly creative, unique Title (H1) and Excerpt. DO NOT use generic phrases like "Guida Completa per..." or "Tutto quello che devi sapere su...". Differentiate!
+    
     Structure:
-    - Catchy title (H1)
-    - Detailed excerpt (meta description style)
-    - Introduction
+    - Highly creative and catchy title (H1) incorporating the keyword naturally
+    - Detailed excerpt (meta description style, max 160 chars) - make it unique!
+    - Introduction focusing on the specific angle
     - At least 5 sections with descriptive H2 titles
     - Bullet points and lists where appropriate
     - Conclusion with a soft CTA
@@ -194,7 +210,7 @@ export class AiService {
       "content": "Full HTML-formatted content (use <p>, <h2>, <ul>, <li>, <strong>)",
       "category": "One of: Strategia, Tecnologia, Design, Business",
       "tags": ["tag1", "tag2", "tag3"],
-      "imageSearchTerm": "English term for a relevant Unsplash image"
+      "imageSearchTerm": "English term for a relevant Unsplash image (e.g., 'professional moving', 'cardboard boxes')"
     }`;
 
     const result = await this.model.generateContent(prompt);
