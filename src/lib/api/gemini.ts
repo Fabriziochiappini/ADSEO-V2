@@ -13,6 +13,38 @@ export class AiService {
     });
   }
 
+  private cleanAndParseJson(text: string): any {
+    // Rimuovi blocchi markdown
+    let cleanText = text.replace(/```json/g, '').replace(/```/g, '').trim();
+    
+    // Trova l'inizio e la fine del JSON (oggetto o array)
+    const firstBrace = cleanText.indexOf('{');
+    const firstBracket = cleanText.indexOf('[');
+    
+    let startIndex = -1;
+    let endIndex = -1;
+
+    // Determina se inizia prima con { o [
+    if (firstBrace !== -1 && (firstBracket === -1 || firstBrace < firstBracket)) {
+      startIndex = firstBrace;
+      endIndex = cleanText.lastIndexOf('}');
+    } else if (firstBracket !== -1 && (firstBrace === -1 || firstBracket < firstBrace)) {
+      startIndex = firstBracket;
+      endIndex = cleanText.lastIndexOf(']');
+    }
+
+    if (startIndex !== -1 && endIndex !== -1) {
+      cleanText = cleanText.substring(startIndex, endIndex + 1);
+    }
+
+    try {
+      return JSON.parse(cleanText);
+    } catch (e) {
+      console.error('JSON Parse Error. Raw text:', text, 'Cleaned text:', cleanText);
+      throw new Error('Failed to parse AI response as JSON');
+    }
+  }
+
   async generateSubTopics(topic: string, businessDescription: string): Promise<{ sub_topics: string[] }> {
     const prompt = `Analyze the topic "${topic}" and business description "${businessDescription}".
     Identify 5-7 specific sub-topics, angles, or search contexts that are relevant for finding long-tail keywords (e.g., if topic is "moving", sub-topics could be "moving attics", "moving high floors", "moving north italy").
@@ -24,7 +56,7 @@ export class AiService {
 
     const result = await this.model.generateContent(prompt);
     const response = await result.response;
-    return JSON.parse(response.text());
+    return this.cleanAndParseJson(response.text());
   }
 
   async analyzeTopic(topic: string, subTopics: string[], businessDescription: string, keywords: any[]): Promise<NetworkStrategy> {
@@ -52,8 +84,7 @@ export class AiService {
 
     const result = await this.model.generateContent(prompt);
     const response = await result.response;
-    const text = response.text();
-    return JSON.parse(text);
+    return this.cleanAndParseJson(response.text());
   }
 
   async generateArticle(keyword: string, brief: string): Promise<string> {
@@ -80,8 +111,7 @@ export class AiService {
 
     const result = await this.model.generateContent(prompt);
     const response = await result.response;
-    const text = response.text().replace(/```json/g, '').replace(/```/g, '').trim();
-    return JSON.parse(text);
+    return this.cleanAndParseJson(response.text());
   }
 
   async generateBroadVariations(keywords: string[]): Promise<string[]> {
@@ -95,8 +125,7 @@ export class AiService {
 
     const result = await this.model.generateContent(prompt);
     const response = await result.response;
-    const text = response.text().replace(/```json/g, '').replace(/```/g, '').trim();
-    return JSON.parse(text);
+    return this.cleanAndParseJson(response.text());
   }
 
   async generateKeywordsWithMetrics(topic: string, businessDescription: string): Promise<any[]> {
@@ -121,8 +150,7 @@ export class AiService {
 
     const result = await this.model.generateContent(prompt);
     const response = await result.response;
-    const text = response.text().replace(/```json/g, '').replace(/```/g, '').trim();
-    const keywords = JSON.parse(text);
+    const keywords = this.cleanAndParseJson(response.text());
 
     return keywords.map((k: any) => ({
       ...k,
@@ -149,18 +177,7 @@ export class AiService {
     try {
       const result = await this.model.generateContent(prompt);
       const response = await result.response;
-      let text = response.text().trim();
-
-      // Remove any markdown code block artifacts
-      text = text.replace(/```json/g, '').replace(/```/gi, '').trim();
-
-      let parsed: any = {};
-      try {
-        parsed = JSON.parse(text);
-      } catch (parseError) {
-        console.error('[Gemini] Failed to parse JSON. Raw text:', text);
-        throw new Error('Invalid JSON format from AI');
-      }
+      const parsed = this.cleanAndParseJson(response.text());
 
       if (!parsed.brandName || !parsed.heroTitle) {
         console.error('[Gemini] Missing required fields. Parsed object:', parsed);
@@ -215,8 +232,7 @@ export class AiService {
 
     const result = await this.model.generateContent(prompt);
     const response = await result.response;
-    const text = response.text().replace(/```json/g, '').replace(/```/g, '').trim();
-    return JSON.parse(text);
+    return this.cleanAndParseJson(response.text());
   }
 
   async generateDomainNames(topic: string, keywords: string[]): Promise<string[]> {
@@ -233,7 +249,6 @@ export class AiService {
 
     const result = await this.model.generateContent(prompt);
     const response = await result.response;
-    const text = response.text().replace(/```json/g, '').replace(/```/g, '').trim();
-    return JSON.parse(text);
+    return this.cleanAndParseJson(response.text());
   }
 }
