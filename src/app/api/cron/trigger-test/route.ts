@@ -1,0 +1,62 @@
+import { supabase } from '@/lib/supabase';
+import { AiService } from '@/lib/api/gemini';
+
+export async function POST(req: Request) {
+    try {
+        const geminiKey = process.env.GEMINI_API_KEY;
+        if (!geminiKey) throw new Error('Missing GEMINI_API_KEY');
+
+        const gemini = new AiService(geminiKey);
+
+        // Fetch articles due for publication (limit 1 for testing)
+        const { data: queue, error: queueError } = await supabase
+            .from('article_queue')
+            .select('*')
+            .eq('status', 'pending')
+            // Don't check scheduled_at for manual test so we force processing
+            .limit(1);
+
+        if (queueError) throw queueError;
+        if (!queue || queue.length === 0) {
+            return new Response(JSON.stringify({ message: 'No pending articles found in queue' }), { status: 200 });
+        }
+
+        const item = queue[0];
+        try {
+            // Update status to processing
+            await supabase.from('article_queue').update({ status: 'processing' }).eq('id', item.id);
+
+            // Generate sequence
+            const article = await gemini.generateLongFormArticle(item.keyword);
+
+            // Insert into articles table
+            const { error: insertError } = await supabase.from('articles').insert({
+                campaign_id: item.campaign_id,
+                title: article.title,
+                slug: article.slug,
+                excerpt: article.excerpt,
+                content: article.content,
+                category: article.category,
+                tags: article.tags,
+                image_url: `https://source.unsplash.com/featured/?${article.imageSearchTerm}`,
+                published_at: new Date().toISOString()
+            });
+
+            if (insertError) throw insertError;
+
+            // Mark as completed
+            await supabase.from('article_queue').update({ status: 'completed' }).eq('id', item.id);
+
+            return new Response(JSON.stringify({ message: 'Success: 1 article processed manually', title: article.title }), { status: 200 });
+
+        } catch (err: any) {
+            console.error(`Failed manual queue item ${item.id}:`, err);
+            await supabase.from('article_queue').update({ status: 'failed' }).eq('id', item.id);
+            throw err;
+        }
+
+    } catch (error: any) {
+        console.error('Manual feed test error:', error);
+        return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+    }
+}

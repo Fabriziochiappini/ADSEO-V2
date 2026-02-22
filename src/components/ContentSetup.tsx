@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Edit3, Check, Loader2, Rocket, Layout, ArrowLeft, ExternalLink, AlertCircle } from 'lucide-react';
+import { Edit3, Check, Loader2, Rocket, Layout, ArrowLeft, ExternalLink, AlertCircle, Play } from 'lucide-react';
 
 interface SiteContent {
     domain: string;
@@ -29,6 +29,7 @@ export default function ContentSetup({ selectedDomains, keywords, campaignId, on
     const [isLaunching, setIsLaunching] = useState(false);
     const [publishingFrequency, setPublishingFrequency] = useState('1d');
     const [connectDomain, setConnectDomain] = useState(true);
+    const [isTestingFeed, setIsTestingFeed] = useState(false);
 
     useEffect(() => {
         // Initialize sites based on selected domains
@@ -156,14 +157,36 @@ export default function ContentSetup({ selectedDomains, keywords, campaignId, on
                     </div>
                 </div>
 
-                <button
-                    onClick={generateAllContent}
-                    disabled={sites.some(s => s.status === 'generating') || isLaunching}
-                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-xl font-medium transition-all disabled:opacity-50"
-                >
-                    <Loader2 className={`w-4 h-4 ${sites.some(s => s.status === 'generating') ? 'animate-spin' : 'hidden'}`} />
-                    Auto-Generate All
-                </button>
+                <div className="flex gap-3">
+                    <button
+                        onClick={async () => {
+                            try {
+                                setIsTestingFeed(true);
+                                const res = await fetch('/api/cron/trigger-test', { method: 'POST' });
+                                const data = await res.json();
+                                if (!res.ok) throw new Error(data.error);
+                                alert(data.message);
+                            } catch (e: any) {
+                                alert(`Test failed: ${e.message}`);
+                            } finally {
+                                setIsTestingFeed(false);
+                            }
+                        }}
+                        disabled={isTestingFeed || isLaunching}
+                        className="flex items-center gap-2 bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-400 border border-emerald-500/20 px-4 py-2 rounded-xl font-medium transition-all disabled:opacity-50"
+                    >
+                        {isTestingFeed ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
+                        Force Drip Test
+                    </button>
+                    <button
+                        onClick={generateAllContent}
+                        disabled={sites.some(s => s.status === 'generating') || isLaunching}
+                        className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-xl font-medium transition-all disabled:opacity-50"
+                    >
+                        <Loader2 className={`w-4 h-4 ${sites.some(s => s.status === 'generating') ? 'animate-spin' : 'hidden'}`} />
+                        Auto-Generate All
+                    </button>
+                </div>
             </div>
 
             <div className="space-y-6">
