@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 
 export async function GET(req: Request) {
-    const { data: articles } = await supabase.from('articles').select('campaign_id, title, keyword, created_at').order('created_at', { ascending: false }).limit(20);
-    const { data: queue } = await supabase.from('article_queue').select('campaign_id, keyword, status, scheduled_at').order('created_at', { ascending: false }).limit(10);
-    return NextResponse.json({ articles, queue });
+    const { data: articles, error: e1 } = await supabase.from('articles').select('*').order('created_at', { ascending: false }).limit(6);
+    const { data: queue, error: e2 } = await supabase.from('article_queue').select('*').order('created_at', { ascending: false }).limit(6);
+    return NextResponse.json({ articles, queue, e1, e2 });
 }
