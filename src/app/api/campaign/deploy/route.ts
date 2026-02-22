@@ -2,12 +2,13 @@ import { NextResponse } from 'next/server';
 import { VercelService } from '@/lib/api/vercel';
 import { AiService } from '@/lib/api/gemini';
 import { supabase } from '@/lib/supabase';
+import { namecheap } from '@/lib/api/namecheap';
 
 export const maxDuration = 300; // 5 min for full campaign deployment
 
 export async function POST(req: Request) {
     try {
-        const { sites, campaignId } = await req.json();
+        const { sites, campaignId, publishingFrequency = '1d', connectDomain = false } = await req.json();
 
         if (!campaignId) {
             return NextResponse.json({ error: 'Missing Campaign ID' }, { status: 400 });
@@ -35,6 +36,12 @@ export async function POST(req: Request) {
         if (kwError || !keywords) {
             throw new Error('Failed to fetch campaign keywords for content engine');
         }
+
+        // Determine Interval in MS
+        let intervalMs = 24 * 60 * 60 * 1000; // default 1d
+        if (publishingFrequency === '5m') intervalMs = 5 * 60 * 1000;
+        else if (publishingFrequency === '7d') intervalMs = 7 * 24 * 60 * 60 * 1000;
+        else if (publishingFrequency === '30d') intervalMs = 30 * 24 * 60 * 60 * 1000;
 
         const deploymentResults = [];
 
@@ -102,7 +109,7 @@ export async function POST(req: Request) {
                 const queueToInsert = articleQueue.map((kw, index) => ({
                     campaign_id: campaignId,
                     keyword: kw.keyword,
-                    scheduled_at: new Date(Date.now() + (index + 1) * 24 * 60 * 60 * 1000).toISOString(),
+                    scheduled_at: new Date(Date.now() + (index + 1) * intervalMs).toISOString(),
                     status: 'pending'
                 }));
 
@@ -110,8 +117,22 @@ export async function POST(req: Request) {
                     await supabase.from('article_queue').insert(queueToInsert);
                 }
 
-                // 7. Add Domain
+                // 7. Add Domain to Vercel
                 await vercel.addDomain(project.id, site.domain);
+
+                // 8. Purchase and link via Namecheap
+                if (connectDomain) {
+                    console.log(`Attempting to register and link domain: ${site.domain}`);
+                    const registered = await namecheap.registerDomain(site.domain);
+                    if (registered) {
+                        // Sleep a bit before setting DNS
+                        await new Promise(resolve => setTimeout(resolve, 3000));
+                        const dnsSuccess = await namecheap.setVercelDNS(site.domain);
+                        console.log(`DNS configuration for ${site.domain}:`, dnsSuccess ? 'Success' : 'Failed');
+                    } else {
+                        console.warn(`Failed to register domain ${site.domain}`);
+                    }
+                }
 
                 deploymentResults.push({
                     domain: site.domain,

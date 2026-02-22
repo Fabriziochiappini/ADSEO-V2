@@ -38,7 +38,49 @@ export class NamecheapService {
         return url.toString();
     }
 
-    async checkAvailability(domain: string): Promise<{ available: boolean, error?: string }> {
+    async getDomainPrice(tld: string): Promise<number | null> {
+        if (!this.user || !this.key) return null;
+
+        const startUrl = this.buildUrl('namecheap.users.getPricing', {
+            ProductType: 'DOMAIN',
+            ProductCategory: 'REGISTER',
+            ActionName: 'REGISTER',
+            ProductName: tld.toUpperCase()
+        });
+
+        try {
+            const response = await fetch(startUrl);
+            const text = await response.text();
+
+            const parser = new XMLParser({ ignoreAttributes: false });
+            const jsonObj = parser.parse(text);
+
+            const errors = jsonObj?.ApiResponse?.Errors?.Error;
+            if (errors) return null;
+
+            const productType = jsonObj?.ApiResponse?.CommandResponse?.UserGetPricingResult?.ProductType;
+            const category = Array.isArray(productType) ? productType[0]?.ProductCategory : productType?.ProductCategory;
+            const product = Array.isArray(category) ? category[0]?.Product : category?.Product;
+
+            const prices = Array.isArray(product) ? product[0]?.Price : product?.Price;
+
+            if (Array.isArray(prices)) {
+                const oneYear = prices.find((p: any) => p['@_Duration'] === '1' && p['@_DurationType'] === 'YEAR');
+                if (oneYear && oneYear['@_Price']) {
+                    return parseFloat(oneYear['@_Price']);
+                }
+            } else if (prices && prices['@_Duration'] === '1' && prices['@_Price']) {
+                return parseFloat(prices['@_Price']);
+            }
+
+            return null;
+        } catch (e) {
+            console.error('Error fetching domain price API:', e);
+            return null;
+        }
+    }
+
+    async checkAvailability(domain: string): Promise<{ available: boolean, error?: string, price?: number }> {
         if (!this.user || !this.key) {
             console.warn('Namecheap credentials missing');
             return { available: false, error: 'Credentials Missing' };
@@ -70,38 +112,91 @@ export class NamecheapService {
 
             // Note: result can be an array if multiple domains were checked
             const domainResult = Array.isArray(result) ? result[0] : result;
-            const isAvailable = domainResult?.['@_Available'] === 'true';
+            const isAvailable = domainResult?.['@_Available'] === 'true' || domainResult?.['@_Available'] === true;
 
-            console.log(`Domain ${domain} availability:`, isAvailable);
-            return { available: isAvailable };
+            let price: number | undefined = undefined;
+            if (isAvailable) {
+                const isPremium = domainResult?.['@_IsPremiumName'] === 'true' || domainResult?.['@_IsPremiumName'] === true;
+                if (isPremium && domainResult?.['@_PremiumRegistrationPrice']) {
+                    price = parseFloat(domainResult['@_PremiumRegistrationPrice']);
+                } else {
+                    const tld = domain.split('.').pop();
+                    if (tld) {
+                        const basePrice = await this.getDomainPrice(tld);
+                        if (basePrice !== null) {
+                            price = basePrice;
+                        }
+                    }
+                }
+            }
+
+            console.log(`Domain ${domain} availability:`, isAvailable, 'price:', price);
+            return { available: isAvailable, price };
         } catch (error: any) {
             console.error('Namecheap fetch error:', error);
             return { available: false, error: error.message };
         }
     }
 
-    // 2. Register Domain
     async registerDomain(domain: string): Promise<boolean> {
         if (!this.user || !this.key) return false;
 
-        // Note: Real registration requires MANY params (Address, City, Phone, Email, etc.)
-        // For this MVP we will hardcode the user's "Default Profile" or passed params.
-        // Namecheap API command: namecheap.domains.create
-        // SIMPLIFICATION: We assume we are using a "Topic" variable for other data or just basic validation.
+        console.log(`[NAMECHEAP] Attempting to register domain ${domain}...`);
 
-        // WARNING: This assumes specific AUX billing info is not strictly validated in Sandbox or user provides it.
-        // In reality, you need a full form. We will create a MOCK function here for safety unless explicitly asked ONLY for code.
-        // Given the user wants to see "what to whitelist", we'll verify connection first.
+        // Generate contact details required by Namecheap (fallback to env vars or safe defaults)
+        const contactDefault = {
+            FirstName: process.env.NAMECHEAP_FIRST_NAME || 'Domain',
+            LastName: process.env.NAMECHEAP_LAST_NAME || 'Admin',
+            Address1: process.env.NAMECHEAP_ADDRESS || '123 Tech Street',
+            City: process.env.NAMECHEAP_CITY || 'San Francisco',
+            StateProvince: process.env.NAMECHEAP_STATE || 'CA',
+            PostalCode: process.env.NAMECHEAP_ZIP || '94105',
+            Country: process.env.NAMECHEAP_COUNTRY || 'US',
+            Phone: process.env.NAMECHEAP_PHONE || '+1.5555555555',
+            EmailAddress: process.env.NAMECHEAP_EMAIL || 'admin@example.com'
+        };
+
+        const contactParams: Record<string, string> = {};
+        const roles = ['Registrant', 'Tech', 'Admin', 'AuxBilling'];
+
+        roles.forEach(role => {
+            contactParams[`${role}FirstName`] = contactDefault.FirstName;
+            contactParams[`${role}LastName`] = contactDefault.LastName;
+            contactParams[`${role}Address1`] = contactDefault.Address1;
+            contactParams[`${role}City`] = contactDefault.City;
+            contactParams[`${role}StateProvince`] = contactDefault.StateProvince;
+            contactParams[`${role}PostalCode`] = contactDefault.PostalCode;
+            contactParams[`${role}Country`] = contactDefault.Country;
+            contactParams[`${role}Phone`] = contactDefault.Phone;
+            contactParams[`${role}EmailAddress`] = contactDefault.EmailAddress;
+        });
 
         const startUrl = this.buildUrl('namecheap.domains.create', {
             DomainName: domain,
             Years: '1',
-            // ... lots of contact params required here normally
+            ...contactParams
         });
 
-        // Mocking success for safety until params are gathered
-        console.log(`[MOCK] Registering domain ${domain} via Namecheap...`);
-        return true;
+        try {
+            const response = await fetch(startUrl);
+            const text = await response.text();
+
+            // Check for success or error
+            if (text.includes('<Error>')) {
+                const parser = new XMLParser({ ignoreAttributes: false });
+                const jsonObj = parser.parse(text);
+                const errors = jsonObj?.ApiResponse?.Errors?.Error;
+                const errorMsg = typeof errors === 'string' ? errors : (Array.isArray(errors) ? errors[0]['#text'] : (errors?.['#text'] || 'API Error'));
+                console.error(`Namecheap registration error for ${domain}:`, errorMsg);
+                return false;
+            }
+
+            console.log(`[NAMECHEAP] Domain ${domain} successfully registered.`);
+            return true;
+        } catch (e) {
+            console.error('Registration failed via API:', e);
+            return false;
+        }
     }
 
     // 3. Set DNS to Vercel

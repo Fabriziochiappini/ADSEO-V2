@@ -27,6 +27,8 @@ interface ContentSetupProps {
 export default function ContentSetup({ selectedDomains, keywords, campaignId, onBack }: ContentSetupProps) {
     const [sites, setSites] = useState<SiteContent[]>([]);
     const [isLaunching, setIsLaunching] = useState(false);
+    const [publishingFrequency, setPublishingFrequency] = useState('1d');
+    const [connectDomain, setConnectDomain] = useState(true);
 
     useEffect(() => {
         // Initialize sites based on selected domains
@@ -107,6 +109,8 @@ export default function ContentSetup({ selectedDomains, keywords, campaignId, on
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     campaignId: campaignId,
+                    publishingFrequency: publishingFrequency,
+                    connectDomain: connectDomain,
                     sites: sites.filter(s => s.status === 'ready' || s.status === 'deploying')
                 })
             });
@@ -265,6 +269,42 @@ export default function ContentSetup({ selectedDomains, keywords, campaignId, on
             </div>
 
             <div className="mt-12 flex flex-col items-center">
+                <div className="mb-6 w-full max-w-md">
+                    <label className="block text-sm font-medium text-slate-300 mb-2 text-center">
+                        Article Publishing Frequency (Drip Feed)
+                    </label>
+                    <select
+                        value={publishingFrequency}
+                        onChange={(e) => setPublishingFrequency(e.target.value)}
+                        disabled={isLaunching || sites.every(s => s.status === 'deployed')}
+                        className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-white appearance-none text-center font-medium disabled:opacity-50"
+                    >
+                        <option value="5m">Every 5 Minutes (Fast Test)</option>
+                        <option value="1d">1 Article Per Day</option>
+                        <option value="7d">1 Article Per Week</option>
+                        <option value="30d">1 Article Per Month</option>
+                    </select>
+                </div>
+
+                <div className="mb-6 w-full max-w-md bg-slate-800/50 p-4 rounded-xl border border-slate-700 flex items-start gap-3">
+                    <input
+                        type="checkbox"
+                        id="connectDomain"
+                        checked={connectDomain}
+                        onChange={(e) => setConnectDomain(e.target.checked)}
+                        className="mt-1 w-5 h-5 rounded border-slate-600 text-blue-500 focus:ring-blue-500 bg-slate-900"
+                        disabled={isLaunching || sites.every(s => s.status === 'deployed')}
+                    />
+                    <div>
+                        <label htmlFor="connectDomain" className="text-white font-bold cursor-pointer">
+                            COLLEGA DOMINIO AUTOMATICAMENTE
+                        </label>
+                        <p className="text-xs text-slate-400 mt-1">
+                            Se attivato, acquista automaticamente il dominio tramite Namecheap e configura i DNS verso Vercel. Il costo del dominio verrà addebitato sul tuo account Namecheap.
+                        </p>
+                    </div>
+                </div>
+
                 <button
                     onClick={handleLaunch}
                     disabled={sites.some(s => s.status !== 'ready') || isLaunching || sites.every(s => s.status === 'deployed')}

@@ -33,7 +33,7 @@ export async function POST(req: Request) {
             domain,
             available: result.available,
             error: result.error, // Pass error to frontend
-            price: result.available ? 10.00 : 0,
+            price: result.price ?? (result.available ? 10.00 : 0),
             currency: 'USD'
         });
 
