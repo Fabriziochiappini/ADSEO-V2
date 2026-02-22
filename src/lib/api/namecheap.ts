@@ -24,12 +24,12 @@ export class NamecheapService {
     }
 
     // Helper to build URL with common params
-    private buildUrl(command: string, params: Record<string, string>): string {
+    private buildUrl(command: string, clientIp: string, params: Record<string, string>): string {
         const url = new URL(BASE_URL);
         url.searchParams.append('ApiUser', this.user);
         url.searchParams.append('ApiKey', this.key);
         url.searchParams.append('UserName', this.user);
-        url.searchParams.append('ClientIp', this.clientIp);
+        url.searchParams.append('ClientIp', clientIp);
         url.searchParams.append('Command', command);
 
         Object.entries(params).forEach(([key, value]) => {
@@ -39,10 +39,27 @@ export class NamecheapService {
         return url.toString();
     }
 
+    private async getDynamicIp(): Promise<string> {
+        // If ENV var is set and not default, use it
+        if (this.clientIp && this.clientIp !== '0.0.0.0') return this.clientIp;
+        
+        try {
+            // Auto-detect public IP of the Vercel function
+            const res = await fetch('https://api.ipify.org?format=json');
+            const data = await res.json();
+            console.log(`[Namecheap] Detected Public IP: ${data.ip}`);
+            return data.ip;
+        } catch (e) {
+            console.warn('[Namecheap] Failed to detect IP, using fallback 127.0.0.1');
+            return '127.0.0.1';
+        }
+    }
+
     async getDomainPrice(tld: string): Promise<number | null> {
         if (!this.user || !this.key) return null;
 
-        const startUrl = this.buildUrl('namecheap.users.getPricing', {
+        const clientIp = await this.getDynamicIp();
+        const startUrl = this.buildUrl('namecheap.users.getPricing', clientIp, {
             ProductType: 'DOMAIN',
             ProductCategory: 'REGISTER',
             ActionName: 'REGISTER',
@@ -87,7 +104,8 @@ export class NamecheapService {
             return { available: false, error: 'Credentials Missing' };
         }
 
-        const startUrl = this.buildUrl('namecheap.domains.check', {
+        const clientIp = await this.getDynamicIp();
+        const startUrl = this.buildUrl('namecheap.domains.check', clientIp, {
             DomainList: domain
         });
 
@@ -102,7 +120,7 @@ export class NamecheapService {
             // 1. Check for API Errors (e.g., IP not whitelisted)
             const errors = jsonObj?.ApiResponse?.Errors?.Error;
             if (errors) {
-                const errorMsg = typeof errors === 'string' ? errors : (Array.isArray(errors) ? errors[0]['#text'] : (errors['#text'] || 'API Error'));
+                const errorMsg = typeof errors === 'string' ? errors : (Array.isArray(errors) ? errors[0]['#text'] : (errors?.['#text'] || 'API Error'));
                 console.error(`Namecheap API Error for ${domain}:`, errorMsg);
                 return { available: false, error: errorMsg };
             }
@@ -172,7 +190,8 @@ export class NamecheapService {
             contactParams[`${role}EmailAddress`] = contactDefault.EmailAddress;
         });
 
-        const startUrl = this.buildUrl('namecheap.domains.create', {
+        const clientIp = await this.getDynamicIp();
+        const startUrl = this.buildUrl('namecheap.domains.create', clientIp, {
             DomainName: domain,
             Years: '1',
             ...contactParams
@@ -208,7 +227,8 @@ export class NamecheapService {
         // SLD/TLD separation needed
         const [sld, tld] = domain.split('.');
 
-        const startUrl = this.buildUrl('namecheap.domains.dns.setCustom', {
+        const clientIp = await this.getDynamicIp();
+        const startUrl = this.buildUrl('namecheap.domains.dns.setCustom', clientIp, {
             SLD: sld,
             TLD: tld,
             Nameservers: 'ns1.vercel-dns.com,ns2.vercel-dns.com'
