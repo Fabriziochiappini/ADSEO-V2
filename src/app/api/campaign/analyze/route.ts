@@ -59,6 +59,21 @@ export async function POST(req: NextRequest) {
                             return scoreB - scoreA;
                         })
                         .slice(0, 50); // Take top 50
+
+                    // D. Fallback if result count is too low (e.g. niche topic)
+                    if (analyzedKeywords.length < 10) {
+                        console.log(`DataForSEO returned only ${analyzedKeywords.length} valid keywords. Falling back to Gemini to fill the gap.`);
+                        try {
+                             const geminiKeywords = await gemini.generateKeywordsWithMetrics(topic, businessDescription);
+                             // Add Gemini keywords that are not already present
+                             const existingKeywords = new Set(analyzedKeywords.map(k => k.keyword));
+                             const newKeywords = geminiKeywords.filter(k => !existingKeywords.has(k.keyword));
+                             
+                             analyzedKeywords = [...analyzedKeywords, ...newKeywords].slice(0, 30);
+                        } catch (geminiErr) {
+                            console.error('Gemini fallback failed:', geminiErr);
+                        }
+                    }
                 }
             } catch (dfsError) {
                 console.error('DataForSEO analysis failed, falling back to Gemini:', dfsError);
