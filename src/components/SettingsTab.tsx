@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Save, Loader2, CheckCircle2, AlertCircle, Link2 } from 'lucide-react';
 
 interface SettingsTabProps {
@@ -79,6 +79,11 @@ export default function SettingsTab({ campaignId, sites }: SettingsTabProps) {
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
+
+  // Sync with fresh data from server when navigating back
+  useEffect(() => {
+    setGaId(sites?.[0]?.ga_id || '');
+  }, [sites]);
 
   const handleSave = async () => {
     setSaving(true);
