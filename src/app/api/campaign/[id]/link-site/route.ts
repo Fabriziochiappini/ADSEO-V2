@@ -33,7 +33,6 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
                 campaign_id: campaignId,
                 domain: domain.trim().toLowerCase().replace(/^https?:\/\//, ''),
                 vercel_project_id: vercelProjectId?.trim() || null,
-                deployment_url: `https://${domain.trim().toLowerCase().replace(/^https?:\/\//, '')}`
             })
             .select()
             .single();
