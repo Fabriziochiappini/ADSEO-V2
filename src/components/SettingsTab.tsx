@@ -48,11 +48,10 @@ export default function SettingsTab({ campaignId, sites }: SettingsTabProps) {
       <div className="bg-yellow-900/20 border border-yellow-900/50 rounded-2xl p-6 flex items-start gap-4">
         <AlertCircle className="w-6 h-6 text-yellow-500 shrink-0 mt-0.5" />
         <div>
-          <h3 className="text-yellow-500 font-semibold">Configuration Required</h3>
+          <h3 className="text-yellow-500 font-semibold">Nessun sito collegato</h3>
           <p className="text-yellow-400/80 mt-1 text-sm">
-            This campaign doesn't have any linked sites in the new database structure. 
-            If you created this campaign before the "Zoro Update", you might need to redeploy or manually link the site.
-            Future deployments will appear here automatically.
+            Questa campagna non ha ancora siti registrati nel database.
+            Lancia un deployment dalla tab principale per collegare automaticamente i siti.
           </p>
         </div>
       </div>
@@ -66,7 +65,7 @@ export default function SettingsTab({ campaignId, sites }: SettingsTabProps) {
           <span className="w-1 h-6 bg-blue-500 rounded-full"></span>
           Analytics & Tracking
         </h3>
-        
+
         <div className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-zinc-400 mb-2">
@@ -101,10 +100,8 @@ export default function SettingsTab({ campaignId, sites }: SettingsTabProps) {
               </button>
             </div>
             <p className="text-xs text-zinc-500 mt-3 leading-relaxed">
-              Enter your GA4 Measurement ID (e.g., <span className="font-mono text-zinc-400">G-12345678</span>). 
-              This will automatically:
-              <br/>1. Update the <code className="bg-zinc-800 px-1 py-0.5 rounded mx-1 text-zinc-300 border border-zinc-700">NEXT_PUBLIC_GA_ID</code> environment variable on Vercel.
-              <br/>2. Trigger a redeploy for all connected sites ({sites.length}) to apply the changes.
+              Inserisci il tuo GA4 Measurement ID (es. <span className="font-mono text-zinc-400">G-12345678</span>).
+              <br />Il tracking si attiva automaticamente su tutti i siti collegati ({sites.length}) senza redeploy.
             </p>
           </div>
 
@@ -114,33 +111,33 @@ export default function SettingsTab({ campaignId, sites }: SettingsTabProps) {
               <p>{error}</p>
             </div>
           )}
-          
+
           {success && (
             <div className="p-4 bg-green-900/20 border border-green-900/50 rounded-xl text-green-400 text-sm flex items-start gap-3">
               <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5" />
-              <p>Settings saved successfully! Redeployment triggered.</p>
+              <p>GA ID salvato! Lo script Analytics è ora attivo su tutti i siti collegati.</p>
             </div>
           )}
         </div>
       </div>
-      
+
       {/* List of connected sites */}
       <div className="bg-zinc-900/30 border border-zinc-800 rounded-2xl p-6">
         <h4 className="text-sm font-semibold text-zinc-400 mb-4 uppercase tracking-wider">Connected Sites</h4>
         <div className="space-y-2">
-            {sites.map(site => (
-                <div key={site.id} className="flex items-center justify-between p-3 bg-zinc-900 rounded-lg border border-zinc-800/50">
-                    <span className="text-white font-medium">{site.domain}</span>
-                    <div className="flex items-center gap-3">
-                        <span className="text-xs text-zinc-500 font-mono">{site.vercel_project_id || 'No Project ID'}</span>
-                        {site.ga_id ? (
-                            <span className="text-xs bg-green-900/30 text-green-400 px-2 py-0.5 rounded-full border border-green-900/50">GA Active</span>
-                        ) : (
-                            <span className="text-xs bg-zinc-800 text-zinc-500 px-2 py-0.5 rounded-full">No GA</span>
-                        )}
-                    </div>
-                </div>
-            ))}
+          {sites.map(site => (
+            <div key={site.id} className="flex items-center justify-between p-3 bg-zinc-900 rounded-lg border border-zinc-800/50">
+              <span className="text-white font-medium">{site.domain}</span>
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-zinc-500 font-mono">{site.vercel_project_id || 'No Project ID'}</span>
+                {site.ga_id ? (
+                  <span className="text-xs bg-green-900/30 text-green-400 px-2 py-0.5 rounded-full border border-green-900/50">GA Active</span>
+                ) : (
+                  <span className="text-xs bg-zinc-800 text-zinc-500 px-2 py-0.5 rounded-full">No GA</span>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>

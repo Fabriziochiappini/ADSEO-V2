@@ -1,10 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
-import { VercelService } from '@/lib/api/vercel';
-
-const vercelToken = process.env.VERCEL_API_TOKEN!;
-const teamId = process.env.VERCEL_TEAM_ID;
-const vercel = new VercelService(vercelToken, teamId);
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
@@ -28,39 +23,22 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         }
 
         if (!sites || sites.length === 0) {
-            return NextResponse.json({ error: 'No sites found for this campaign. Ensure "sites" table is populated.' }, { status: 404 });
+            return NextResponse.json({ error: 'No sites found for this campaign.' }, { status: 404 });
         }
 
         const results = [];
 
         for (const site of sites) {
-            if (!site.vercel_project_id) {
-                results.push({ domain: site.domain, status: 'skipped', reason: 'Missing Vercel Project ID' });
-                continue;
-            }
+            // Save GA ID to DB — the lander template reads it dynamically on every request
+            const { error: updateErr } = await supabase
+                .from('sites')
+                .update({ ga_id: gaId })
+                .eq('id', site.id);
 
-            // 2. Update DB
-            await supabase.from('sites').update({ ga_id: gaId }).eq('id', site.id);
-
-            // 3. Update Vercel Env Var
-            try {
-                await vercel.setEnvVariable(site.vercel_project_id, 'NEXT_PUBLIC_GA_ID', gaId);
-                
-                // 4. Trigger Redeploy
-                // Fetch project to get repoId
-                // The getProject method supports ID or Name
-                const project = await vercel.getProject(site.vercel_project_id);
-                
-                if (project && project.link?.repoId) {
-                     await vercel.createDeployment(site.vercel_project_id, project.name, project.link.repoId);
-                     results.push({ domain: site.domain, status: 'updated_and_redeploying' });
-                } else {
-                     results.push({ domain: site.domain, status: 'updated_env_only', reason: 'Repo link not found' });
-                }
-
-            } catch (vErr: any) {
-                console.error(vErr);
-                results.push({ domain: site.domain, status: 'error', error: vErr.message });
+            if (updateErr) {
+                results.push({ domain: site.domain, status: 'error', error: updateErr.message });
+            } else {
+                results.push({ domain: site.domain, status: 'updated' });
             }
         }
 

@@ -76,7 +76,7 @@ export async function POST(req: Request) {
                 // 3. Create NEW REPO for this site (Cloning Template)
                 const sanitizedDomain = site.domain.replace(/[^a-zA-Z0-9-]/g, '-').toLowerCase();
                 const newRepoName = `adseo-${sanitizedDomain}`; // e.g. adseo-sgomberofrosinone-it
-                
+
                 console.log(`Creating dedicated repo for ${site.domain}: ${newRepoName}...`);
                 const repo = await github.createRepoFromTemplate(templateOwner, templateName, newRepoName, true); // Private repo
                 const newRepoFullName = repo.full_name; // e.g. Fabriziochiappini/adseo-sgomberofrosinone-it
@@ -84,11 +84,12 @@ export async function POST(req: Request) {
                 // 4. Create Project linked to the NEW REPO
                 const projectName = sanitizedDomain;
                 console.log(`Creating Vercel project ${projectName} linked to ${newRepoFullName}...`);
-                
+
                 const project = await vercel.createProject(projectName, newRepoFullName, [
                     { key: 'SITE_CONTENT', value: contentJson },
                     { key: 'NEXT_PUBLIC_SUPABASE_URL', value: process.env.NEXT_PUBLIC_SUPABASE_URL! },
-                    { key: 'NEXT_PUBLIC_SUPABASE_ANON_KEY', value: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY! }
+                    { key: 'NEXT_PUBLIC_SUPABASE_ANON_KEY', value: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY! },
+                    { key: 'ADSEO_API_URL', value: process.env.ADSEO_API_URL || '' }
                 ]);
 
                 // 5. Generate 5 Pillars (Cornerstone Content) BEFORE Deployment
@@ -142,7 +143,7 @@ export async function POST(req: Request) {
                     if (registered) {
                         // Sleep a bit before setting DNS
                         await new Promise(resolve => setTimeout(resolve, 3000));
-                        
+
                         let dnsSuccess = false;
                         if (dnsMethod === 'records') {
                             console.log(`Setting DNS Records (A/CNAME) for ${site.domain}...`);
@@ -151,7 +152,7 @@ export async function POST(req: Request) {
                             console.log(`Setting Nameservers (NS) for ${site.domain}...`);
                             dnsSuccess = await namecheap.setVercelDNS(site.domain);
                         }
-                        
+
                         console.log(`DNS configuration for ${site.domain}:`, dnsSuccess ? 'Success' : 'Failed');
                     } else {
                         console.warn(`Failed to register domain ${site.domain}`);

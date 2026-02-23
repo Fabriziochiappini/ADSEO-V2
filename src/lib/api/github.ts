@@ -9,7 +9,7 @@ export class GithubService {
 
     private async fetchGithub(endpoint: string, options: any = {}) {
         const url = `https://api.github.com${endpoint}`;
-        
+
         const res = await fetch(url, {
             ...options,
             headers: {
@@ -36,13 +36,13 @@ export class GithubService {
      * @param isPrivate Se il nuovo repo deve essere privato (default true)
      */
     async createRepoFromTemplate(
-        templateOwner: string, 
-        templateRepo: string, 
-        newRepoName: string, 
+        templateOwner: string,
+        templateRepo: string,
+        newRepoName: string,
         isPrivate: boolean = true
     ) {
         console.log(`[GitHub] Creating repo ${newRepoName} from template ${templateOwner}/${templateRepo}...`);
-        
+
         // Sanitize repo name (solo lettere, numeri, trattini)
         const sanitizedName = newRepoName.replace(/[^a-zA-Z0-9-]/g, '-').toLowerCase();
 
@@ -78,6 +78,41 @@ export class GithubService {
             console.error(`[GitHub] Failed to create repo:`, error);
             throw error;
         }
+    }
+    /**
+     * Crea o aggiorna un file in un repo esistente (PUT /contents/{path})
+     * @param owner Owner del repo
+     * @param repo Nome del repo
+     * @param path Path del file nel repo (es. 'app/layout.tsx')
+     * @param content Contenuto del file (stringa)
+     * @param message Commit message
+     */
+    async commitFile(
+        owner: string,
+        repo: string,
+        path: string,
+        content: string,
+        message: string
+    ) {
+        // Get current file SHA (required for update)
+        let sha: string | undefined;
+        try {
+            const existing = await this.fetchGithub(`/repos/${owner}/${repo}/contents/${path}`);
+            sha = existing.sha;
+        } catch {
+            // File doesn't exist yet — create it
+        }
+
+        const body: any = {
+            message,
+            content: Buffer.from(content).toString('base64'),
+        };
+        if (sha) body.sha = sha;
+
+        return this.fetchGithub(`/repos/${owner}/${repo}/contents/${path}`, {
+            method: 'PUT',
+            body: JSON.stringify(body),
+        });
     }
 }
 
