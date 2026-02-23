@@ -13,10 +13,17 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: 'Missing domain parameter' }, { status: 400 });
     }
 
+    // Normalize: lowercase, strip protocol and trailing slash
+    // (SITE_CONTENT may have mixed-case domains like 'RumeniLatina.online')
+    const normalizedDomain = domain
+        .toLowerCase()
+        .replace(/^https?:\/\//, '')
+        .replace(/\/$/, '');
+
     const { data, error } = await supabase
         .from('sites')
         .select('ga_id')
-        .eq('domain', domain)
+        .eq('domain', normalizedDomain)
         .single();
 
     if (error || !data) {
