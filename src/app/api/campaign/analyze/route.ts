@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
                         .slice(0, 50); // Take top 50
 
                     // D. Fallback if result count is too low (e.g. niche topic)
-                    if (analyzedKeywords.length < 10) {
+                    if (analyzedKeywords.length < 30) {
                         console.log(`DataForSEO returned only ${analyzedKeywords.length} valid keywords. Falling back to Gemini to fill the gap.`);
                         try {
                              const geminiKeywords = await gemini.generateKeywordsWithMetrics(topic, businessDescription);
@@ -72,7 +72,11 @@ export async function POST(req: NextRequest) {
                                 .filter(k => !existingKeywords.has(k.keyword))
                                 .map(k => ({ ...k, source: 'Gemini (Est.)' })); // Mark source
                              
-                             analyzedKeywords = [...analyzedKeywords, ...newKeywords].slice(0, 30);
+                             // Fill up to 30
+                             const needed = 30 - analyzedKeywords.length;
+                             const toAdd = newKeywords.slice(0, needed);
+                             
+                             analyzedKeywords = [...analyzedKeywords, ...toAdd];
                         } catch (geminiErr) {
                             console.error('Gemini fallback failed:', geminiErr);
                         }
