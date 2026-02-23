@@ -173,7 +173,8 @@ export async function POST(req: Request) {
                         campaign_id: campaignId,
                         domain: site.domain,
                         vercel_project_id: project.id,
-                        repo_name: newRepoFullName
+                        repo_name: newRepoFullName,
+                        deployment_url: deploymentUrl
                     });
                 } catch (dbErr) {
                     console.warn('Failed to save site to DB (table might be missing):', dbErr);
