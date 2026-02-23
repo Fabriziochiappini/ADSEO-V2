@@ -169,7 +169,7 @@ export default function SettingsTab({ campaignId, sites }: SettingsTabProps) {
           {success && (
             <div className="p-4 bg-green-900/20 border border-green-900/50 rounded-xl text-green-400 text-sm flex items-start gap-3">
               <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5" />
-              <p>GA ID salvato! Lo script Analytics è ora attivo su tutti i siti collegati.</p>
+              <p>GA ID salvato! Il tracking Analytics è attivo su questo sito. Gli altri siti hanno il loro GA ID separato.</p>
             </div>
           )}
         </div>
