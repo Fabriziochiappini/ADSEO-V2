@@ -1,11 +1,75 @@
 'use client';
 
 import { useState } from 'react';
-import { Save, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Save, Loader2, CheckCircle2, AlertCircle, Link2 } from 'lucide-react';
 
 interface SettingsTabProps {
   campaignId: string;
   sites: any[];
+}
+
+function LinkSiteForm({ campaignId }: { campaignId: string }) {
+  const [domain, setDomain] = useState('');
+  const [linking, setLinking] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleLink = async () => {
+    if (!domain.trim()) return;
+    setLinking(true);
+    setError('');
+    try {
+      const res = await fetch(`/api/campaign/${campaignId}/link-site`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ domain: domain.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Errore nel collegamento');
+      window.location.reload();
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLinking(false);
+    }
+  };
+
+  return (
+    <div className="max-w-2xl mx-auto animate-in fade-in duration-500">
+      <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6">
+        <h3 className="text-lg font-semibold text-white mb-2 flex items-center gap-2">
+          <span className="w-1 h-6 bg-yellow-500 rounded-full"></span>
+          Collega un sito a questa campagna
+        </h3>
+        <p className="text-zinc-400 text-sm mb-6">
+          Inserisci il dominio del sito già deployato per abilitare la gestione Analytics.
+        </p>
+        <div className="flex gap-3">
+          <input
+            type="text"
+            value={domain}
+            onChange={(e) => setDomain(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleLink()}
+            placeholder="es. miosito.it"
+            className="flex-1 bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white placeholder:text-zinc-600 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all"
+          />
+          <button
+            onClick={handleLink}
+            disabled={linking || !domain.trim()}
+            className="bg-blue-600 text-white px-6 py-2 rounded-xl font-medium hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-all active:scale-95"
+          >
+            {linking ? <Loader2 className="w-5 h-5 animate-spin" /> : <Link2 className="w-5 h-5" />}
+            Collega
+          </button>
+        </div>
+        {error && (
+          <div className="mt-4 p-4 bg-red-900/20 border border-red-900/50 rounded-xl text-red-400 text-sm flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+            <p>{error}</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
 export default function SettingsTab({ campaignId, sites }: SettingsTabProps) {
@@ -44,19 +108,9 @@ export default function SettingsTab({ campaignId, sites }: SettingsTabProps) {
   };
 
   if (!sites || sites.length === 0) {
-    return (
-      <div className="bg-yellow-900/20 border border-yellow-900/50 rounded-2xl p-6 flex items-start gap-4">
-        <AlertCircle className="w-6 h-6 text-yellow-500 shrink-0 mt-0.5" />
-        <div>
-          <h3 className="text-yellow-500 font-semibold">Nessun sito collegato</h3>
-          <p className="text-yellow-400/80 mt-1 text-sm">
-            Questa campagna non ha ancora siti registrati nel database.
-            Lancia un deployment dalla tab principale per collegare automaticamente i siti.
-          </p>
-        </div>
-      </div>
-    );
+    return <LinkSiteForm campaignId={campaignId} />;
   }
+
 
   return (
     <div className="max-w-2xl mx-auto space-y-8 animate-in fade-in duration-500">
