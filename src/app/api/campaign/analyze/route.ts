@@ -49,7 +49,8 @@ export async function POST(req: NextRequest) {
                         .filter((k: Keyword) => k.keyword.split(' ').length >= 2) // Filter generic single words
                         .map((k: Keyword) => ({
                             ...k,
-                            competition_level: k.competition_level || (k.competition < 0.3 ? 'LOW' : k.competition < 0.7 ? 'MEDIUM' : 'HIGH')
+                            competition_level: k.competition_level || (k.competition < 0.3 ? 'LOW' : k.competition < 0.7 ? 'MEDIUM' : 'HIGH'),
+                            source: 'DataForSEO' // Mark source
                         }))
                         // Sort: Prioritize High Volume + Low Competition
                         // Simple score: Volume * (1 - Competition)
@@ -67,7 +68,9 @@ export async function POST(req: NextRequest) {
                              const geminiKeywords = await gemini.generateKeywordsWithMetrics(topic, businessDescription);
                              // Add Gemini keywords that are not already present
                              const existingKeywords = new Set(analyzedKeywords.map(k => k.keyword));
-                             const newKeywords = geminiKeywords.filter(k => !existingKeywords.has(k.keyword));
+                             const newKeywords = geminiKeywords
+                                .filter(k => !existingKeywords.has(k.keyword))
+                                .map(k => ({ ...k, source: 'Gemini (Est.)' })); // Mark source
                              
                              analyzedKeywords = [...analyzedKeywords, ...newKeywords].slice(0, 30);
                         } catch (geminiErr) {

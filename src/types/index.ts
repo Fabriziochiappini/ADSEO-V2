@@ -4,6 +4,7 @@ export interface Keyword {
     competition: number;
     cpc: number;
     competition_level?: string;
+    source?: string; // 'DataForSEO' or 'Gemini (Est.)'
 }
 
 export interface TopicAnalysisResult {
