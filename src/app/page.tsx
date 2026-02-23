@@ -258,29 +258,40 @@ export default function Home() {
                       <div className="max-h-[600px] overflow-y-auto">
                         <table className="w-full text-left">
                           <thead>
-                            <tr className="border-b border-slate-700 text-slate-400">
-                              <th className="pb-3 font-medium">Keywords Strategy ({result.keywords.length})</th>
-                              <th className="pb-3 font-medium">Vol</th>
-                              <th className="pb-3 font-medium">KD %</th>
-                              <th className="pb-3 font-medium">CPC</th>
+                            <tr className="border-b border-zinc-800 text-zinc-400 text-sm">
+                              <th className="py-4 pl-6 font-medium">Keyword</th>
+                              <th className="py-4 font-medium">Source</th>
+                              <th className="py-4 font-medium">Vol</th>
+                              <th className="py-4 font-medium">KD %</th>
+                              <th className="py-4 font-medium pr-6 text-right">CPC</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-slate-800">
+                          <tbody className="divide-y divide-zinc-800/50">
                             {result.keywords.map((k, i) => (
-                              <tr key={i} className="group hover:bg-slate-800/50 transition-colors">
-                                <td className="py-3 text-slate-200 group-hover:text-white transition-colors">
+                              <tr key={i} className="group hover:bg-zinc-800/30 transition-colors">
+                                <td className="py-3 pl-6 text-zinc-200 font-medium group-hover:text-white transition-colors">
                                   {k.keyword}
                                 </td>
-                                <td className="py-3 text-slate-400">{k.search_volume}</td>
                                 <td className="py-3">
-                                  <span className={`px-2 py-1 rounded text-xs font-medium ${k.competition_level === 'LOW' ? 'bg-green-500/20 text-green-400' :
-                                    k.competition_level === 'MEDIUM' ? 'bg-yellow-500/20 text-yellow-400' :
-                                      'bg-red-500/20 text-red-400'
+                                  <span className={`text-[10px] px-2 py-0.5 rounded-full border ${
+                                    k.source === 'DataForSEO' 
+                                      ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' 
+                                      : 'bg-purple-500/10 text-purple-400 border-purple-500/20'
+                                  }`}>
+                                    {k.source || 'Unknown'}
+                                  </span>
+                                </td>
+                                <td className="py-3 text-zinc-400">{k.search_volume}</td>
+                                <td className="py-3">
+                                  <span className={`px-2 py-1 rounded text-xs font-medium ${
+                                    k.competition_level === 'LOW' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
+                                    k.competition_level === 'MEDIUM' ? 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20' :
+                                      'bg-red-500/10 text-red-400 border border-red-500/20'
                                     }`}>
                                     {(k.competition * 100).toFixed(0)}%
                                   </span>
                                 </td>
-                                <td className="py-3 text-slate-400">${k.cpc.toFixed(2)}</td>
+                                <td className="py-3 pr-6 text-right text-zinc-400 font-mono">${k.cpc.toFixed(2)}</td>
                               </tr>
                             ))}
                           </tbody>
