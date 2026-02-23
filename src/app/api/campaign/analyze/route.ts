@@ -131,7 +131,10 @@ export async function POST(req: NextRequest) {
                     search_volume: k.search_volume,
                     competition: k.competition,
                     cpc: k.cpc,
-                    app_id: appId
+                    app_id: appId,
+                    // Note: Supabase 'keywords' table might not have 'source' column yet.
+                    // If you want to persist the source, you need to add the column in Supabase first.
+                    // For now, we return it in the JSON response for the frontend.
                 }));
 
                 const { error: keywordsError } = await supabase
