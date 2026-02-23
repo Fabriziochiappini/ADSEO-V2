@@ -169,16 +169,14 @@ export async function POST(req: Request) {
                 });
 
                 // 10. Save Site to DB (for future management like Analytics)
-                try {
-                    await supabase.from('sites').insert({
-                        campaign_id: campaignId,
-                        domain: site.domain,
-                        vercel_project_id: project.id,
-                        repo_name: newRepoFullName,
-                        deployment_url: deploymentUrl
-                    });
-                } catch (dbErr) {
-                    console.warn('Failed to save site to DB (table might be missing):', dbErr);
+                const { error: siteInsertErr } = await supabase.from('sites').insert({
+                    campaign_id: campaignId,
+                    domain: site.domain.toLowerCase(),
+                    vercel_project_id: project.id,
+                    repo_name: newRepoFullName
+                });
+                if (siteInsertErr) {
+                    console.warn('Failed to save site to DB:', siteInsertErr.message);
                 }
             } catch (err: any) {
                 console.error(`Deployment failed for ${site.domain}:`, err);
