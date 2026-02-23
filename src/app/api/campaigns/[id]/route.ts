@@ -37,11 +37,18 @@ export async function GET(
             .select('*')
             .eq('campaign_id', id);
 
+        // 5. Get Sites (for Settings)
+        const { data: sites, error: sitesError } = await supabase
+            .from('sites')
+            .select('*')
+            .eq('campaign_id', id);
+
         return new Response(JSON.stringify({
             ...campaign,
             articles: articles || [],
             queue: queue || [],
-            keywords: keywords || []
+            keywords: keywords || [],
+            sites: sites || []
         }), { 
             status: 200,
             headers: { 'Content-Type': 'application/json' }

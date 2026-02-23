@@ -65,15 +65,28 @@ export class VercelService {
     }
 
     async setEnvVariable(projectId: string, key: string, value: string) {
-        return this.fetchVercel(`/v10/projects/${projectId}/env`, {
-            method: 'POST',
-            body: JSON.stringify({
-                key,
-                value,
-                type: 'plain',
-                target: ['production', 'preview', 'development'],
-            }),
-        });
+        // 1. Check if env var exists
+        const envs = await this.fetchVercel(`/v9/projects/${projectId}/env`);
+        const existing = envs.envs?.find((e: any) => e.key === key);
+
+        if (existing) {
+            // Update (PATCH)
+            return this.fetchVercel(`/v9/projects/${projectId}/env/${existing.id}`, {
+                method: 'PATCH',
+                body: JSON.stringify({ value }),
+            });
+        } else {
+            // Create (POST)
+            return this.fetchVercel(`/v10/projects/${projectId}/env`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    key,
+                    value,
+                    type: 'plain',
+                    target: ['production', 'preview', 'development'],
+                }),
+            });
+        }
     }
 
     async addDomain(projectId: string, domain: string) {

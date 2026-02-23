@@ -8,6 +8,7 @@ import {
   FileText, List, Settings, BarChart3, Clock, CheckCircle2
 } from 'lucide-react';
 import ArticleTestPanel from '@/components/ArticleTestPanel';
+import SettingsTab from '@/components/SettingsTab';
 
 export default function CampaignDetail() {
   const params = useParams();
@@ -61,7 +62,7 @@ export default function CampaignDetail() {
         <main className="max-w-7xl mx-auto px-6 py-8">
             {/* Tabs */}
             <div className="flex border-b border-zinc-800 mb-8 overflow-x-auto">
-                {['overview', 'articles', 'queue', 'test'].map((tab) => (
+                {['overview', 'articles', 'queue', 'settings', 'test'].map((tab) => (
                     <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
@@ -220,6 +221,11 @@ export default function CampaignDetail() {
                             </tbody>
                         </table>
                     </div>
+                )}
+
+                {/* SETTINGS TAB */}
+                {activeTab === 'settings' && (
+                    <SettingsTab campaignId={id as string} sites={campaign.sites || []} />
                 )}
 
                 {/* TEST TAB */}
