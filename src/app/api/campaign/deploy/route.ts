@@ -9,7 +9,7 @@ export const maxDuration = 300; // 5 min for full campaign deployment
 
 export async function POST(req: Request) {
     try {
-        const { sites, campaignId, publishingFrequency = '1d', connectDomain = false } = await req.json();
+        const { sites, campaignId, publishingFrequency = '1d', connectDomain = false, dnsMethod = 'ns' } = await req.json();
 
         if (!campaignId) {
             return NextResponse.json({ error: 'Missing Campaign ID' }, { status: 400 });
@@ -142,7 +142,16 @@ export async function POST(req: Request) {
                     if (registered) {
                         // Sleep a bit before setting DNS
                         await new Promise(resolve => setTimeout(resolve, 3000));
-                        const dnsSuccess = await namecheap.setVercelDNS(site.domain);
+                        
+                        let dnsSuccess = false;
+                        if (dnsMethod === 'records') {
+                            console.log(`Setting DNS Records (A/CNAME) for ${site.domain}...`);
+                            dnsSuccess = await namecheap.setVercelRecords(site.domain);
+                        } else {
+                            console.log(`Setting Nameservers (NS) for ${site.domain}...`);
+                            dnsSuccess = await namecheap.setVercelDNS(site.domain);
+                        }
+                        
                         console.log(`DNS configuration for ${site.domain}:`, dnsSuccess ? 'Success' : 'Failed');
                     } else {
                         console.warn(`Failed to register domain ${site.domain}`);
@@ -154,7 +163,8 @@ export async function POST(req: Request) {
                     projectId: project.id,
                     status: 'deployed',
                     url: deploymentUrl,
-                    repo: newRepoFullName // Track which repo was created
+                    repo: newRepoFullName, // Track which repo was created
+                    dnsMethod: dnsMethod // Report which method was used
                 });
             } catch (err: any) {
                 console.error(`Deployment failed for ${site.domain}:`, err);

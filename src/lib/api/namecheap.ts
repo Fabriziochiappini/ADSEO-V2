@@ -228,7 +228,7 @@ export class NamecheapService {
         }
     }
 
-    // 3. Set DNS to Vercel
+    // 3. Set DNS to Vercel (Custom Nameservers - Recommended)
     async setVercelDNS(domain: string): Promise<boolean> {
         if (!this.user || !this.key) return false;
 
@@ -252,6 +252,45 @@ export class NamecheapService {
             return text.includes('CommandResponse') && !text.includes('Error');
         } catch (e) {
             console.error('DNS set failed', e);
+            return false;
+        }
+    }
+
+    // Alternative: Set A Record and CNAME (if user prefers DNS management in Namecheap)
+    async setVercelRecords(domain: string): Promise<boolean> {
+        if (!this.user || !this.key) return false;
+        
+        const parts = domain.split('.');
+        const sld = parts[0];
+        const tld = parts.slice(1).join('.');
+
+        // 1. Set Default DNS (Namecheap BasicDNS) first
+        const clientIp = await this.getDynamicIp();
+        const defaultUrl = this.buildUrl('namecheap.domains.dns.setDefault', clientIp, { SLD: sld, TLD: tld });
+        await this.fetchApi(defaultUrl);
+
+        // 2. Set A Record (@ -> 76.76.21.21) and CNAME (www -> cname.vercel-dns.com)
+        const startUrl = this.buildUrl('namecheap.domains.dns.setHosts', clientIp, {
+            SLD: sld,
+            TLD: tld,
+            // A Record
+            HostName1: '@',
+            RecordType1: 'A',
+            Address1: '76.76.21.21',
+            TTL1: '1800',
+            // CNAME Record
+            HostName2: 'www',
+            RecordType2: 'CNAME',
+            Address2: 'cname.vercel-dns.com',
+            TTL2: '1800'
+        });
+
+        try {
+            const response = await this.fetchApi(startUrl);
+            const text = await response.text();
+            return text.includes('CommandResponse') && !text.includes('Error');
+        } catch (e) {
+            console.error('Records set failed', e);
             return false;
         }
     }
