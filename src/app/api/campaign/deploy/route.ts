@@ -42,11 +42,11 @@ export async function POST(req: Request) {
 
         // Determine Interval in MS
         let intervalMs = 24 * 60 * 60 * 1000; // default 1d
-        if (publishingFrequency === '1m') intervalMs = 60 * 1000;
-        else if (publishingFrequency === '5m') intervalMs = 5 * 60 * 1000;
+        if (publishingFrequency === '1d') intervalMs = 24 * 60 * 60 * 1000;
         else if (publishingFrequency === '3d') intervalMs = 3 * 24 * 60 * 60 * 1000;
         else if (publishingFrequency === '7d') intervalMs = 7 * 24 * 60 * 60 * 1000;
         else if (publishingFrequency === '30d') intervalMs = 30 * 24 * 60 * 60 * 1000;
+        else intervalMs = 24 * 60 * 60 * 1000; // fallback to 1d for safety
 
         const deploymentResults = [];
 
