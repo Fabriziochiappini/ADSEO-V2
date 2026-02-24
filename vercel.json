@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/cron/drip-feed",
-      "schedule": "* * * * *"
+      "schedule": "0 2 * * *"
     }
   ]
 }
