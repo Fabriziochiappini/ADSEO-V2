@@ -1,0 +1,15 @@
+import { createClient } from '@supabase/supabase-js';
+import dotenv from 'dotenv';
+dotenv.config({ path: '.env.local' });
+
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+
+async function checkKwd() {
+  const { data: kwd } = await supabase
+    .from('article_queue')
+    .select('*')
+    .ilike('keyword', '%impresa movimento terra%')
+    
+  console.log("Found:", kwd);
+}
+checkKwd();

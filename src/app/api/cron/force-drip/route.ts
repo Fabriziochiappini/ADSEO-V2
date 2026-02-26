@@ -4,7 +4,7 @@ import { AiService } from '@/lib/api/gemini';
 export async function POST(req: Request) {
     try {
         const { force = false, limit = 5 } = await req.json();
-        
+
         const geminiKey = process.env.GEMINI_API_KEY;
         if (!geminiKey) throw new Error('Missing GEMINI_API_KEY');
 
@@ -15,17 +15,17 @@ export async function POST(req: Request) {
             .from('article_queue')
             .select('*')
             .eq('status', 'pending');
-            
+
         if (!force) {
             // Solo articoli con scheduled_at nel passato
             query = query.lte('scheduled_at', new Date().toISOString());
         }
-        
+
         const { data: queue, error: queueError } = await query.limit(limit);
 
         if (queueError) throw queueError;
         if (!queue || queue.length === 0) {
-            return new Response(JSON.stringify({ 
+            return new Response(JSON.stringify({
                 message: 'No articles to process',
                 force: force,
                 limit: limit
@@ -35,7 +35,7 @@ export async function POST(req: Request) {
         const results: {
             processed: number;
             failed: number;
-            articles: Array<{id: any; title: any; keyword: any}>;
+            articles: Array<{ id: any; title: any; keyword: any }>;
         } = {
             processed: 0,
             failed: 0,
@@ -59,7 +59,7 @@ export async function POST(req: Request) {
                     content: article.content,
                     category: article.category,
                     tags: article.tags,
-                    image_url: `https://source.unsplash.com/featured/?${article.imageSearchTerm}`,
+                    image_url: `https://loremflickr.com/1200/800/${(article.imageSearchTerm || 'seo,marketing').replace(/\\s+/g, ',')}`,
                     published_at: new Date().toISOString()
                 });
 

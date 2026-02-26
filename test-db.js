@@ -1,24 +1,25 @@
 import { createClient } from '@supabase/supabase-js';
-import fs from 'fs';
+import dotenv from 'dotenv';
+dotenv.config({ path: '.env.local' });
 
-let envContent;
-try {
-  envContent = fs.readFileSync('.env.local', 'utf-8');
-} catch (e) {
-  envContent = fs.readFileSync('.env', 'utf-8');
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+
+async function checkQueue() {
+  const { data, error } = await supabase.from('article_queue').select('*').order('scheduled_at', { ascending: true }).limit(5);
+  console.log('Error:', error);
+  console.log('Data:', data);
+  console.log('Current ISO:', new Date().toISOString());
+  
+  // Also let's check what is due
+  const { data: dueData, error: dueError } = await supabase
+            .from('article_queue')
+            .select('*')
+            .eq('status', 'pending')
+            .lte('scheduled_at', new Date().toISOString())
+            .limit(5);
+  console.log('Due Error:', dueError);
+  console.log('Due Data length:', dueData?.length);
+  if (dueData?.length) console.log('Due Data sample:', dueData[0]);
 }
-const matchUrl = envContent.match(/NEXT_PUBLIC_SUPABASE_URL=(.*)/);
-const matchKey = envContent.match(/SUPABASE_SERVICE_ROLE_KEY=(.*)/) || envContent.match(/NEXT_PUBLIC_SUPABASE_ANON_KEY=(.*)/);
 
-const supabase = createClient(matchUrl[1].trim(), matchKey[1].trim());
-
-async function run() {
-  const { data: articles, error: err1 } = await supabase.from('articles').select('title, keyword, created_at').order('created_at', { ascending: false }).limit(6);
-  console.log("RECENT ARTICLES:");
-  console.log(err1 || articles);
-
-  const { data: queue, error: err2 } = await supabase.from('article_queue').select('keyword, status, scheduled_at').order('created_at', { ascending: false }).limit(6);
-  console.log("RECENT QUEUE:");
-  console.log(err2 || queue);
-}
-run();
+checkQueue();
