@@ -228,6 +228,48 @@ export class AiService {
     }
   }
 
+  async generateGuidePageContent(domain: string, keyword: string): Promise<any> {
+    const prompt = `Create content for the "Guides & Checklists" page of the domain "${domain}" focused on the primary keyword "${keyword}".
+    The target language is Italian.
+    
+    You must return a valid JSON object matching EXACTLY this structure, with no markdown formatting around it:
+    {
+      "guideHeroTitle": "Catchy H1 for the guides section (string)",
+      "guideHeroSubtitle": "Engaging H2 explaining what they will learn (string)",
+      "guides": [
+        {
+          "title": "Guide/Checklist 1 Title (string)",
+          "description": "Short explanation of this guide (string)",
+          "steps": ["Step 1", "Step 2", "Step 3", "Step 4"]
+        },
+        {
+          "title": "Guide/Checklist 2 Title (string)",
+          "description": "Short explanation of this guide (string)",
+          "steps": ["Step 1", "Step 2", "Step 3", "Step 4"]
+        },
+        {
+          "title": "Guide/Checklist 3 Title (string)",
+          "description": "Short explanation of this guide (string)",
+          "steps": ["Step 1", "Step 2", "Step 3", "Step 4"]
+        }
+      ],
+      "guideCtaTitle": "High-impact H2 for the final call to action (string)",
+      "guideCtaSubtitle": "Persuasive subtitle to encourage contact (string)",
+      "guideCtaText": "Short CTA text (e.g. Richiedi Consulenza) (string)"
+    }
+    
+    CRITICAL: The array 'guides' must contain exactly 3 objects. Format exactly as requested.`;
+
+    try {
+      const result = await this.model.generateContent(prompt);
+      const response = await result.response;
+      return this.cleanAndParseJson(response.text());
+    } catch (error: any) {
+      console.error('Gemini generateGuidePageContent Error:', error);
+      throw new Error(`AI Guide Generation failed: ${error.message}`);
+    }
+  }
+
   async generateLongFormArticle(keyword: string): Promise<any> {
     const angles = [
       "I falsi miti e gli errori da evitare",

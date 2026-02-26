@@ -17,6 +17,12 @@ interface SiteContent {
     servicesSubtitle?: string;
     services?: Array<{ title: string, description: string }>;
     articlesTitle?: string;
+    guideHeroTitle?: string;
+    guideHeroSubtitle?: string;
+    guides?: Array<{ title: string, description: string, steps: string[] }>;
+    guideCtaTitle?: string;
+    guideCtaSubtitle?: string;
+    guideCtaText?: string;
     status: 'pending' | 'generating' | 'ready' | 'error' | 'deploying' | 'deployed';
     deploymentUrl?: string;
     errorMessage?: string;

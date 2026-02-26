@@ -73,6 +73,12 @@ export async function POST(req: Request) {
                     servicesSubtitle: site.servicesSubtitle,
                     services: site.services,
                     articlesTitle: site.articlesTitle,
+                    guideHeroTitle: site.guideHeroTitle,
+                    guideHeroSubtitle: site.guideHeroSubtitle,
+                    guides: site.guides,
+                    guideCtaTitle: site.guideCtaTitle,
+                    guideCtaSubtitle: site.guideCtaSubtitle,
+                    guideCtaText: site.guideCtaText,
                     domain: site.domain,
                     campaignId: campaignId
                 });

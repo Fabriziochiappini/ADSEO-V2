@@ -16,7 +16,16 @@ export async function POST(req: Request) {
         }
 
         const aiService = new AiService(geminiKey);
-        const content = await aiService.generateLandingPageContent(domain, keyword);
+
+        const [landingContent, guideContent] = await Promise.all([
+            aiService.generateLandingPageContent(domain, keyword),
+            aiService.generateGuidePageContent(domain, keyword)
+        ]);
+
+        const content = {
+            ...landingContent,
+            ...guideContent
+        };
 
         console.log(`[Content Generate] Success for ${domain}:`, Object.keys(content));
         return NextResponse.json(content);
