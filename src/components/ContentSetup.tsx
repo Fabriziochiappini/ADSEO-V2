@@ -123,7 +123,7 @@ export default function ContentSetup({ selectedDomains, keywords, campaignId, on
                     campaignId: campaignId,
                     publishingFrequency: publishingFrequency,
                     connectDomain: connectDomain,
-                    sites: sites.filter(s => s.status === 'ready' || s.status === 'deploying')
+                    sites: sites.filter(s => s.status === 'ready' || s.status === 'deploying' || s.status === 'deployed')
                 })
             });
 
@@ -290,7 +290,7 @@ export default function ContentSetup({ selectedDomains, keywords, campaignId, on
                     <select
                         value={publishingFrequency}
                         onChange={(e) => setPublishingFrequency(e.target.value)}
-                        disabled={isLaunching || sites.every(s => s.status === 'deployed')}
+                        disabled={isLaunching}
                         className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-white appearance-none text-center font-medium disabled:opacity-50"
                     >
                         <option value="1m">Every Minute (Turbo Test)</option>
@@ -309,7 +309,7 @@ export default function ContentSetup({ selectedDomains, keywords, campaignId, on
                         checked={connectDomain}
                         onChange={(e) => setConnectDomain(e.target.checked)}
                         className="mt-1 w-5 h-5 rounded border-slate-600 text-blue-500 focus:ring-blue-500 bg-slate-900"
-                        disabled={isLaunching || sites.every(s => s.status === 'deployed')}
+                        disabled={isLaunching}
                     />
                     <div>
                         <label htmlFor="connectDomain" className="text-white font-bold cursor-pointer">
@@ -323,7 +323,7 @@ export default function ContentSetup({ selectedDomains, keywords, campaignId, on
 
                 <button
                     onClick={handleLaunch}
-                    disabled={sites.some(s => s.status !== 'ready') || isLaunching || sites.every(s => s.status === 'deployed')}
+                    disabled={sites.some(s => s.status !== 'ready' && s.status !== 'deployed') || isLaunching}
                     className="group relative flex items-center gap-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-12 py-4 rounded-2xl font-black text-xl shadow-2xl shadow-blue-900/40 transition-all disabled:opacity-30 disabled:grayscale"
                 >
                     {isLaunching ? (
@@ -331,11 +331,11 @@ export default function ContentSetup({ selectedDomains, keywords, campaignId, on
                     ) : (
                         <Rocket className="w-6 h-6 group-hover:scale-110 transition-transform" />
                     )}
-                    {sites.every(s => s.status === 'deployed') ? 'ALL CAMPAIGNS LIVE!' : 'LAUNCH ALL CAMPAIGNS'}
+                    {sites.every(s => s.status === 'deployed') ? 'RILANCIA CAMPAGNE (DEBUG)' : 'LAUNCH ALL CAMPAIGNS'}
                 </button>
                 <p className="mt-4 text-slate-500 text-sm">
                     {sites.every(s => s.status === 'deployed')
-                        ? 'Projects created and domains assigned. Check your email/Vercel dashboard.'
+                        ? 'Projects created and domains assigned. Check your email/Vercel dashboard. (You can force re-deploy if needed)'
                         : 'This will create Projects on Vercel and assign domains via Namecheap.'
                     }
                 </p>

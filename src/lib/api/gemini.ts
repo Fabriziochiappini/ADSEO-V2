@@ -295,7 +295,7 @@ export class AiService {
     - Introduction focusing on the specific angle
     - At least 5 sections with descriptive H2 titles
     - Bullet points and lists where appropriate
-    - Include at least 2-3 internal HTML anchor links within the content's paragraphs. The 'href' attribute MUST follow EXACTLY this format: href="[DOMAIN_LINK_ID]/article/relevant-keyword-slug". Invent a realistic, highly relevant slug for the target article. (Example: <a href="[DOMAIN_LINK_ID]/article/tecniche-seo-avanzate">leggi di più sulle tecniche avanzate</a>).
+    - ABSOLUTELY MANDATORY: You MUST include exactly 3 internal <a href="[DOMAIN_LINK_ID]/article/relevant-slug">anchor links</a> distributed inside the main text paragraphs. Replacing "relevant-slug" with a plausible keyword slug. (Example: <a href="[DOMAIN_LINK_ID]/article/come-risparmiare">scopri di più</a>).
     - Conclusion with a soft CTA
     
     Avoid keyword stuffing. Target a high E-E-A-T score.
@@ -305,10 +305,10 @@ export class AiService {
       "title": "Article Title",
       "slug": "url-friendly-slug",
       "excerpt": "Short summary for cards",
-      "content": "Full HTML-formatted content (use <p>, <h2>, <ul>, <li>, <strong>)",
+      "content": "Full HTML-formatted content. IMPORTANT: You MUST include the 3 mandatory anchors inside <p> tags.",
       "category": "One of: Strategia, Tecnologia, Design, Business",
       "tags": ["tag1", "tag2", "tag3"],
-      "imageSearchTerm": "English term for a relevant Unsplash image (e.g., 'professional moving', 'cardboard boxes')"
+      "imageSearchTerm": "English term for a relevant Unsplash image"
     }`;
 
     const result = await this.model.generateContent(prompt);
