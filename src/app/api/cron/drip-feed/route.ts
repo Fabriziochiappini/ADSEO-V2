@@ -64,7 +64,7 @@ export async function GET(req: Request) {
                     content: article.content,
                     category: article.category,
                     tags: article.tags,
-                    image_url: `https://loremflickr.com/1200/800/${(article.imageSearchTerm || 'seo,marketing').replace(/\\s+/g, ',')}`,
+                    image_url: `https://loremflickr.com/1200/800/${(article.imageSearchTerm || 'seo,marketing').replace(/\s+/g, ',')}`,
                     published_at: new Date().toISOString()
                 });
 
