@@ -69,6 +69,10 @@ export async function POST(req: Request) {
                     brandTagline: site.brandTagline || 'Eccellenza Digitale',
                     heroTitle: site.heroTitle,
                     heroSubtitle: site.heroSubtitle,
+                    servicesTitle: site.servicesTitle,
+                    servicesSubtitle: site.servicesSubtitle,
+                    services: site.services,
+                    articlesTitle: site.articlesTitle,
                     domain: site.domain,
                     campaignId: campaignId
                 });

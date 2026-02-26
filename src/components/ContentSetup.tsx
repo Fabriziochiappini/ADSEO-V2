@@ -13,6 +13,10 @@ interface SiteContent {
     heroSubtitle: string;
     serviceDescription: string;
     ctaText: string;
+    servicesTitle?: string;
+    servicesSubtitle?: string;
+    services?: Array<{ title: string, description: string }>;
+    articlesTitle?: string;
     status: 'pending' | 'generating' | 'ready' | 'error' | 'deploying' | 'deployed';
     deploymentUrl?: string;
     errorMessage?: string;
@@ -346,7 +350,7 @@ export default function ContentSetup({ selectedDomains, keywords, campaignId, on
                                 <p className="text-slate-400">Manage your live campaigns and test content generation.</p>
                             </div>
                         </div>
-                        
+
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                             <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6">
                                 <h4 className="text-lg font-semibold text-white mb-4">Deployment Status</h4>
@@ -369,7 +373,7 @@ export default function ContentSetup({ selectedDomains, keywords, campaignId, on
                                     ))}
                                 </div>
                             </div>
-                            
+
                             <div>
                                 <ArticleTestPanel campaignId={campaignId} />
                             </div>
