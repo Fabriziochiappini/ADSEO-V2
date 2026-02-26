@@ -295,6 +295,7 @@ export class AiService {
     - Introduction focusing on the specific angle
     - At least 5 sections with descriptive H2 titles
     - Bullet points and lists where appropriate
+    - Include at least 2-3 internal HTML anchor links within the content's paragraphs. The 'href' attribute MUST follow EXACTLY this format: href="[DOMAIN_LINK_ID]/article/relevant-keyword-slug". Invent a realistic, highly relevant slug for the target article. (Example: <a href="[DOMAIN_LINK_ID]/article/tecniche-seo-avanzate">leggi di più sulle tecniche avanzate</a>).
     - Conclusion with a soft CTA
     
     Avoid keyword stuffing. Target a high E-E-A-T score.
