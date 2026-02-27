@@ -79,6 +79,9 @@ export async function POST(req: Request) {
                     guideCtaTitle: site.guideCtaTitle,
                     guideCtaSubtitle: site.guideCtaSubtitle,
                     guideCtaText: site.guideCtaText,
+                    siteTitle: site.siteTitle,
+                    metaDescription: site.metaDescription,
+                    footerQuote: site.footerQuote,
                     domain: site.domain,
                     campaignId: campaignId
                 });

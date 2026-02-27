@@ -23,6 +23,9 @@ interface SiteContent {
     guideCtaTitle?: string;
     guideCtaSubtitle?: string;
     guideCtaText?: string;
+    siteTitle?: string;
+    metaDescription?: string;
+    footerQuote?: string;
     status: 'pending' | 'generating' | 'ready' | 'error' | 'deploying' | 'deployed';
     deploymentUrl?: string;
     errorMessage?: string;
@@ -251,6 +254,10 @@ export default function ContentSetup({ selectedDomains, keywords, campaignId, on
                                             <p className="text-white font-semibold text-lg">{site.brandName}</p>
                                         </div>
                                         <div>
+                                            <label className="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-1 block">SEO Page Title</label>
+                                            <p className="text-blue-400 text-sm font-semibold">{site.siteTitle || 'Not generated yet'}</p>
+                                        </div>
+                                        <div>
                                             <label className="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-1 block">Hero Title</label>
                                             <p className="text-slate-200 text-xl font-bold leading-tight">{site.heroTitle}</p>
                                         </div>
@@ -261,9 +268,15 @@ export default function ContentSetup({ selectedDomains, keywords, campaignId, on
                                     </div>
                                     <div className="space-y-4">
                                         <div>
-                                            <label className="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-1 block">Service Description</label>
-                                            <p className="text-slate-300 text-sm italic border-l-2 border-indigo-500 pl-4 py-1">
-                                                "{site.serviceDescription}"
+                                            <label className="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-1 block">Meta Description (SEO)</label>
+                                            <p className="text-slate-300 text-xs bg-slate-800/50 p-2 rounded border border-slate-700">
+                                                {site.metaDescription || 'Waiting for generation...'}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <label className="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-1 block">Editorial Footer Quote</label>
+                                            <p className="text-slate-500 text-xs italic">
+                                                "{site.footerQuote || 'Pending...'}"
                                             </p>
                                         </div>
                                         <div>

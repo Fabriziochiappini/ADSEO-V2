@@ -185,8 +185,11 @@ export class AiService {
     
     You must return a valid JSON object matching EXACTLY this structure, with no markdown formatting around it:
     {
-      "brandName": "A catchy brand name (string)",
+      "brandName": "A SEO-aggressive brand name incorporating the keyword (string)",
       "brandTagline": "A short tagline (2 words max) (string)",
+      "siteTitle": "A powerful SEO Title for <title> tag (max 60 chars) including the keyword (string)",
+      "metaDescription": "A persuasive meta description (max 155 chars) for Google results (string)",
+      "footerQuote": "A unique, inspiring editorial quote for the footer about this niche (string)",
       "heroTitle": "Powerful H1 including the keyword (string)",
       "heroSubtitle": "Engaging H2 explaining the value proposition (string)",
       "serviceDescription": "A 2-3 sentence description of the service using money keywords like 'prezzo', 'preventivo', 'migliori' (string).",
@@ -194,23 +197,14 @@ export class AiService {
       "servicesTitle": "Catchy, high-impact H2 for the services section (e.g., I Nostri Servizi Esclusivi) (string)",
       "servicesSubtitle": "Sub-header for the services section, emphasizing quality and results (string)",
       "services": [
-        {
-          "title": "Service 1 Name (string)",
-          "description": "Short, persuasive description of service 1 (string)"
-        },
-        {
-          "title": "Service 2 Name (string)",
-          "description": "Short, persuasive description of service 2 (string)"
-        },
-        {
-          "title": "Service 3 Name (string)",
-          "description": "Short, persuasive description of service 3 (string)"
-        }
+        { "title": "Service 1 Name", "description": "Short description" },
+        { "title": "Service 2 Name", "description": "Short description" },
+        { "title": "Service 3 Name", "description": "Short description" }
       ],
-      "articlesTitle": "High-impact H2 for the blog/articles section (e.g., Ultime Novità e Segreti) (string)"
+      "articlesTitle": "High-impact H2 for the blog section (string)"
     }
     
-    CRITICAL: Ensure the keys match exactly (brandName, brandTagline, heroTitle, heroSubtitle, serviceDescription, ctaText, servicesTitle, servicesSubtitle, services, articlesTitle). The array 'services' must contain exactly 3 objects. Give a strong, high-impact connotation to the subtitles.`;
+    CRITICAL: Ensure the keys match exactly. siteTitle and metaDescription are ESSENTIAL for SEO. Give a strong, high-impact connotation to everything.`;
 
     try {
       const result = await this.model.generateContent(prompt);
