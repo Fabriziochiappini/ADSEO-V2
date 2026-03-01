@@ -46,11 +46,14 @@ export async function POST(req: NextRequest) {
                     realKeywords = rawResults
                         .filter((k: any) => k.search_volume >= 10)
                         .filter((k: any) => k.keyword.split(' ').length >= 2)
-                        // Filter out brand names (any keyword with a capital letter mid-sentence is likely a brand)
+                        // Filter out actual brand names (company-specific patterns)
+                        // NOT by capital letters (that would remove city names like Frosinone, Roma)
                         .filter((k: any) => {
-                            const words = k.keyword.split(' ');
-                            const hasBrandName = words.slice(1).some((w: string) => /^[A-Z]/.test(w));
-                            return !hasBrandName;
+                            const kw = k.keyword;
+                            const hasBrandPattern =
+                                /\bS\.r\.l\b|\bS\.p\.A\b|\bSrl\b|\bSpA\b|\b&\s*Co\b/i.test(kw) || // legal entity suffixes
+                                /[A-Z]{3,}/.test(kw); // 3+ consecutive caps = likely acronym brand (ELMI, SRL, etc.)
+                            return !hasBrandPattern;
                         })
                         .map((k: any) => ({
                             ...k,
