@@ -176,11 +176,11 @@ Restituisci SOLO un JSON array di 6 stringhe:
   }
 
   /**
-   * ATQ EXPANSION — "Answer The Question" (Neil Patel Method)
+   * ATQ EXPANSION — "Answer The Public" + "Answer The Question"
    * Phase 2 of the dual-level pipeline.
    * Reads REAL keywords from DataForSEO (source of truth) + the user's
-   * business description to generate EXACTLY 30 final long-tail keywords
-   * for TOPIC 1. These 30 are the definitive pillar for the entire site.
+   * business description to generate EXACTLY 30 final long-tail keywords.
+   * Forces a strict linguistic taxonomy (Questions, Prepositions, Comparisons).
    */
   async generateATQExpansion(
     realKeywords: { keyword: string; search_volume: number; competition: number }[],
