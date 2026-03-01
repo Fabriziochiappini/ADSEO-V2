@@ -17,21 +17,25 @@ export async function POST(req: Request) {
         }
 
         const aiService = new AiService(geminiKey);
+        const derivedBrand = prettifyDomainToBrand(domain);
 
-        const [landingContent, guideContent, servicesPageContent] = await Promise.all([
+        const [landingContent, guideContent] = await Promise.all([
             aiService.generateLandingPageContent(domain, keyword),
-            aiService.generateGuidePageContent(domain, keyword),
-            aiService.generateServicesPageContent(domain, keyword)
+            aiService.generateGuidePageContent(domain, keyword)
         ]);
+
+        // Use AI brand if it returned one, otherwise use derived
+        const finalBrand = landingContent.brandName?.toLowerCase() === 'sitoweb' || !landingContent.brandName
+            ? derivedBrand
+            : landingContent.brandName;
+
+        const servicesPageContent = await aiService.generateServicesPageContent(domain, keyword, finalBrand);
 
         const content = {
             ...landingContent,
             ...guideContent,
             ...servicesPageContent,
-            // Force brandName from domain if missing or looks generic
-            brandName: landingContent.brandName?.toLowerCase() === 'sitoweb' || !landingContent.brandName
-                ? prettifyDomainToBrand(domain)
-                : landingContent.brandName
+            brandName: finalBrand
         };
 
         console.log(`[Content Generate] Success for ${domain}:`, Object.keys(content));

@@ -8,14 +8,14 @@ export default function CookieBanner() {
     const [isVisible, setIsVisible] = useState(false);
 
     useEffect(() => {
-        const consent = localStorage.getItem('cookie-consent');
+        const consent = localStorage.getItem('cookie-consent-v2');
         if (!consent) {
             setIsVisible(true);
         }
     }, []);
 
     const acceptCookies = () => {
-        localStorage.setItem('cookie-consent', 'accepted');
+        localStorage.setItem('cookie-consent-v2', 'accepted');
         setIsVisible(false);
     };
 

@@ -265,40 +265,40 @@ export class AiService {
     }
   }
 
-  async generateServicesPageContent(domain: string, keyword: string): Promise<any> {
-    const prompt = `Create HIGH-VALUE content for the "/servizi" (Services) page of the domain "${domain}" focused on the primary keyword "${keyword}".
+  async generateServicesPageContent(domain: string, keyword: string, brandName: string): Promise<any> {
+    const prompt = `Create HIGH-VALUE localized content for the "/servizi" (Services) page of "${brandName}" (domain: ${domain}), specialized in "${keyword}".
     The target language is Italian.
     
-    You must return a valid JSON object matching EXACTLY this structure, with no markdown formatting around it:
+    You must return a valid JSON object matching EXACTLY this structure:
     {
-      "servicesMetaDescription": "Compelling SEO meta description (MAX 150 chars) (string)",
-      "servicesHeroTitle": "Powerful H1 for the services page (MAX 60 chars) (string)",
-      "servicesHeroSubtitle": "Engaging H2 explaining the expertise. DO NOT use generic SEO phrases. (MAX 150 chars) (string)",
+      "servicesMetaDescription": "[PROMPT: Create a professional SEO meta description for this services page. DO NOT talk about SEO if the niche is ${keyword}]",
+      "servicesHeroTitle": "[PROMPT: A catchy H1 for the services. Focus on quality and results in ${keyword}]",
+      "servicesHeroSubtitle": "[PROMPT: An engaging H2. Explain how ${brandName} is a leader in ${keyword}. NO MENTIONS of Google/SEO/Ranking unless the topic is SEO]",
       "extendedServices": [
         {
-          "title": "Service 1 (string)",
-          "description": "Longer, detailed description (min 20 words) (string)",
-          "icon": "One of the SVG path strings provided in the example"
-        },
-        ... (exactly 6 services)
+          "title": "[PROMPT: Name of a specific service in the ${keyword} niche]",
+          "description": "[PROMPT: Detailed description of this specific service (min 20 words)]",
+          "icon": "One of the SVG paths"
+        }
       ],
-      "whyChooseUsTitle": "H2 for the 'Our Method' section. Example: 'Il Metodo [Niche] per il Successo' (string)",
-      "whyChooseUsSubtitle": "Subtitle for why they should trust this method. ABSOLUTELY NO SEO MENTIONS unless the topic is SEO. (string)",
+      "whyChooseUsTitle": "[PROMPT: H2 for the 'Our Method' section. Example: 'Il Metodo ${brandName} per l\\'Eccellenza' (string). NO MENTIONS of Google/SEO/Ranking if ${keyword} is NOT SEO]",
+      "whyChooseUsSubtitle": "[PROMPT: Subtitle describing why this specific method for ${keyword} is superior. Use industry terms for ${keyword}]",
       "whyChooseUsPoints": [
-        { "title": "Critical quality 1", "description": "Why it matters in this niche" },
-        { "title": "Critical quality 2", "description": "Why it matters in this niche" },
-        { "title": "Critical quality 3", "description": "Why it matters in this niche" }
+        { "title": "[PROMPT: Positive quality 1 regarding service]", "description": "[PROMPT: Detail for point 1]" },
+        { "title": "[PROMPT: Positive quality 2 regarding service]", "description": "[PROMPT: Detail for point 2]" },
+        { "title": "[PROMPT: Positive quality 3 regarding service]", "description": "[PROMPT: Detail for point 3]" }
       ],
-      "servicesCtaTitle": "Final H2 CTA title (string)",
-      "servicesCtaSubtitle": "Persuasive text specific to the business specialty (string)",
-      "servicesCtaText": "CTA Button text (string)",
-      "servicesFooterQuote": "A deep, professional phrase specific to the business specialty (string)"
+      "servicesCtaTitle": "[PROMPT: Final conversion title. Use calls to action specific to ${keyword}]",
+      "servicesCtaSubtitle": "[PROMPT: Persuasive text to encourage the user to requested a quote/consultation for ${keyword}]",
+      "servicesCtaText": "[PROMPT: Short button text (e.g. Inizia Ora, Prenota Ora)]",
+      "servicesFooterQuote": "[PROMPT: A deep, professional phrase specific to ${keyword}]"
     }
-    
-    CRITICAL TOPIC RULES: 
-    1. If the keyword topic is NOT about 'Web Agency' or 'SEO', DO NOT talk about SEO, Web rankings, or Google. Talk ONLY about the specific niche (e.g., if it's Plumbing, talk about repairs, leakage, professional tools. If it's a Gym, talk about training, health, and dedication). 
-    2. DO NOT use the words 'SEO', 'Google', 'Ranking', 'Algoritmo' if the business is NOT digital-focused.
-    3. extendedServices MUST contain exactly 6 diverse, relevant services. whyChooseUsPoints MUST contain exactly 3 points.`;
+
+    CRITICAL RULES:
+    1. STRICT TOPIC ADHERENCE: If the topic is NOT SEO/Web Agency, DO NOT use words like "SEO", "Google", "Ranking", "Algoritmo", "Backlinks", "Performance Web".
+    2. BRAND CONSISTENCY: Always refer to the company as "${brandName}".
+    3. JSON VALIDITY: Return ONLY the raw JSON object. No markdown. No explanations.
+    4. VARIETY: Ensure the 6 services in extendedServices are diverse and relevant to "${keyword}".`;
 
     try {
       const result = await this.model.generateContent(prompt);
