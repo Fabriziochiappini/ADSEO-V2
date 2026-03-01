@@ -1,5 +1,8 @@
 import { supabase } from '@/lib/supabase';
 import { AiService } from '@/lib/api/gemini';
+import { NewsService } from '@/lib/api/news';
+import { ImageService } from '@/lib/api/images';
+import { getDynamicImageUrl } from '@/lib/utils/image-utils';
 
 export const maxDuration = 300; // Allow sufficient time for batch processing
 export const dynamic = 'force-dynamic';
@@ -23,6 +26,8 @@ export async function GET(req: Request) {
         if (!geminiKey) throw new Error('Missing GEMINI_API_KEY');
 
         const gemini = new AiService(geminiKey);
+        const newsService = new NewsService();
+        const imageService = new ImageService();
 
         // 1. Fetch articles due for publication
         const { data: queue, error: queueError } = await supabase
@@ -40,6 +45,7 @@ export async function GET(req: Request) {
         const startTime = Date.now();
         const MAX_EXECUTION_TIME = 270 * 1000; // 270 seconds (safe buffer before 300s Vercel limit)
         let processedCount = 0;
+        let batchIdx = 0;
 
         for (const item of queue) {
             // Check if we are running out of time to avoid Vercel timeout killing the function
@@ -52,8 +58,13 @@ export async function GET(req: Request) {
                 // Update status to processing
                 await supabase.from('article_queue').update({ status: 'processing' }).eq('id', item.id);
 
-                // Generate Article
-                const article = await gemini.generateLongFormArticle(item.keyword);
+                // 1. Fetch real-time context (Human Touch)
+                const news = await newsService.getNewsForKeyword(item.keyword);
+                const context = newsService.formatNewsForAi(news);
+
+                // 2. Generate Article with context & Optimize Image
+                const article = await gemini.generateLongFormArticle(item.keyword, context);
+                const seoImageUrl = await imageService.processAndUploadImage(article.imageSearchTerm || article.title, article.slug);
 
                 // Insert into articles table
                 const { error: insertError } = await supabase.from('articles').insert({
@@ -64,7 +75,7 @@ export async function GET(req: Request) {
                     content: article.content,
                     category: article.category,
                     tags: article.tags,
-                    image_url: `https://loremflickr.com/1200/800/${(article.imageSearchTerm || 'seo,marketing').replace(/\s+/g, ',')}`,
+                    image_url: seoImageUrl,
                     published_at: new Date().toISOString()
                 });
 
@@ -73,6 +84,7 @@ export async function GET(req: Request) {
                 // Mark as completed
                 await supabase.from('article_queue').update({ status: 'completed' }).eq('id', item.id);
                 processedCount++;
+                batchIdx++;
 
             } catch (err: any) {
                 console.error(`Failed to process queue item ${item.id}:`, err);

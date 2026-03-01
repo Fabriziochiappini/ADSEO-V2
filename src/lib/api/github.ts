@@ -114,6 +114,75 @@ export class GithubService {
             body: JSON.stringify(body),
         });
     }
+
+    /**
+     * Esegue un commit atomico di più file contemporaneamente
+     * @param owner Owner del repo
+     * @param repo Nome del repo
+     * @param files Array di oggetti { path, content }
+     * @param message Messaggio del commit
+     * @param branch Branch di destinazione (default 'main')
+     */
+    async commitFiles(
+        owner: string,
+        repo: string,
+        files: { path: string, content: string }[],
+        message: string,
+        branch: string = 'main'
+    ) {
+        console.log(`[GitHub] Committing ${files.length} files to ${owner}/${repo} as a single commit...`);
+
+        try {
+            // 1. Get the current branch SHA
+            const ref = await this.fetchGithub(`/repos/${owner}/${repo}/git/refs/heads/${branch}`);
+            const currentCommitSha = ref.object.sha;
+
+            // 2. Get the current commit's tree SHA
+            const commit = await this.fetchGithub(`/repos/${owner}/${repo}/git/commits/${currentCommitSha}`);
+            const baseTreeSha = commit.tree.sha;
+
+            // 3. Create the new tree
+            const treeItems = files.map(file => ({
+                path: file.path,
+                mode: '100644', // blob (normal file)
+                type: 'blob',
+                content: file.content
+            }));
+
+            const newTree = await this.fetchGithub(`/repos/${owner}/${repo}/git/trees`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    base_tree: baseTreeSha,
+                    tree: treeItems
+                })
+            });
+
+            // 4. Create the commit
+            const newCommit = await this.fetchGithub(`/repos/${owner}/${repo}/git/commits`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    message,
+                    tree: newTree.sha,
+                    parents: [currentCommitSha]
+                })
+            });
+
+            // 5. Update the reference
+            const result = await this.fetchGithub(`/repos/${owner}/${repo}/git/refs/heads/${branch}`, {
+                method: 'PATCH',
+                body: JSON.stringify({
+                    sha: newCommit.sha,
+                    force: false
+                })
+            });
+
+            console.log(`[GitHub] Successfully committed all files with SHA: ${newCommit.sha}`);
+            return result;
+        } catch (error: any) {
+            console.error(`[GitHub] Multi-file commit failed:`, error);
+            throw error;
+        }
+    }
 }
 
 // Export singleton instance

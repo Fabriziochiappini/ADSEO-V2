@@ -17,14 +17,16 @@ export async function POST(req: Request) {
 
         const aiService = new AiService(geminiKey);
 
-        const [landingContent, guideContent] = await Promise.all([
+        const [landingContent, guideContent, servicesPageContent] = await Promise.all([
             aiService.generateLandingPageContent(domain, keyword),
-            aiService.generateGuidePageContent(domain, keyword)
+            aiService.generateGuidePageContent(domain, keyword),
+            aiService.generateServicesPageContent(domain, keyword)
         ]);
 
         const content = {
             ...landingContent,
-            ...guideContent
+            ...guideContent,
+            ...servicesPageContent
         };
 
         console.log(`[Content Generate] Success for ${domain}:`, Object.keys(content));

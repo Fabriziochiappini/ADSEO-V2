@@ -187,11 +187,11 @@ export class AiService {
     {
       "brandName": "A SEO-aggressive brand name incorporating the keyword (string)",
       "brandTagline": "A short tagline (2 words max) (string)",
-      "siteTitle": "A powerful SEO Title for <title> tag (max 60 chars) including the keyword (string)",
-      "metaDescription": "A persuasive meta description (max 155 chars) for Google results (string)",
+      "siteTitle": "A powerful SEO Title for <title> tag (MAX 60 chars) including the keyword (string)",
+      "metaDescription": "A persuasive meta description (MAX 150 chars) for Google results (string)",
       "footerQuote": "A unique, inspiring editorial quote for the footer about this niche (string)",
-      "heroTitle": "Powerful H1 including the keyword (string)",
-      "heroSubtitle": "Engaging H2 explaining the value proposition (string)",
+      "heroTitle": "Powerful H1 including the keyword (MAX 60 chars) (string)",
+      "heroSubtitle": "Engaging H2 explaining the value proposition (MAX 120 chars) (string)",
       "serviceDescription": "A 2-3 sentence description of the service using money keywords like 'prezzo', 'preventivo', 'migliori' (string).",
       "ctaText": "Short CTA like 'Richiedi Preventivo' (string)",
       "servicesTitle": "Catchy, high-impact H2 for the services section (e.g., I Nostri Servizi Esclusivi) (string)",
@@ -201,7 +201,8 @@ export class AiService {
         { "title": "Service 2 Name", "description": "Short description" },
         { "title": "Service 3 Name", "description": "Short description" }
       ],
-      "articlesTitle": "High-impact H2 for the blog section (string)"
+      "articlesTitle": "High-impact H2 for the blog section (string)",
+      "youtubeVideoId": "A valid, high-quality YouTube Video ID for a general educational/commercial video attinent to the niche. Choose a popular and helpful video if possible. (string)"
     }
     
     CRITICAL: Ensure the keys match exactly. siteTitle and metaDescription are ESSENTIAL for SEO. Give a strong, high-impact connotation to everything.`;
@@ -228,8 +229,8 @@ export class AiService {
     
     You must return a valid JSON object matching EXACTLY this structure, with no markdown formatting around it:
     {
-      "guideHeroTitle": "Catchy H1 for the guides section (string)",
-      "guideHeroSubtitle": "Engaging H2 explaining what they will learn (string)",
+      "guideHeroTitle": "Catchy H1 for the guides section (MAX 60 chars) (string)",
+      "guideHeroSubtitle": "Engaging H2 explaining what they will learn (MAX 120 chars) (string)",
       "guides": [
         {
           "title": "Guide/Checklist 1 Title (string)",
@@ -264,7 +265,47 @@ export class AiService {
     }
   }
 
-  async generateLongFormArticle(keyword: string): Promise<any> {
+  async generateServicesPageContent(domain: string, keyword: string): Promise<any> {
+    const prompt = `Create content for the "/servizi" (Services) page of the domain "${domain}" focused on the primary keyword "${keyword}".
+    The target language is Italian.
+    
+    You must return a valid JSON object matching EXACTLY this structure, with no markdown formatting around it:
+    {
+      "servicesHeroTitle": "Powerful H1 for the services page (MAX 60 chars) (string)",
+      "servicesHeroSubtitle": "Engaging H2 explaining the expertise (MAX 150 chars) (string)",
+      "extendedServices": [
+        {
+          "title": "Service 1 (string)",
+          "description": "Longer, detailed description (string)",
+          "icon": "One of: M13 10V3L4 14h7v7l9-11h-7z (Thunder), M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z (Check), M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z (Clock), M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z (Lock), M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z (Chart)"
+        },
+        ... (at least 6 services)
+      ],
+      "whyChooseUsTitle": "H2 for the 'Why Us' section (string)",
+      "whyChooseUsSubtitle": "Subtitle for why they should trust this brand (string)",
+      "whyChooseUsPoints": [
+        { "title": "Point 1 Title", "description": "Point 1 Description" },
+        { "title": "Point 2 Title", "description": "Point 2 Description" },
+        { "title": "Point 3 Title", "description": "Point 3 Description" }
+      ],
+      "servicesCtaTitle": "High-impact H2 for the final CTA (string)",
+      "servicesCtaSubtitle": "Persuasive text (string)",
+      "servicesCtaText": "CTA Button text (string)"
+    }
+    
+    CRITICAL: extendedServices MUST contain exactly 6 diverse, relevant services. whyChooseUsPoints MUST contain exactly 3 points.`;
+
+    try {
+      const result = await this.model.generateContent(prompt);
+      const response = await result.response;
+      return this.cleanAndParseJson(response.text());
+    } catch (error: any) {
+      console.error('Gemini generateServicesPageContent Error:', error);
+      throw new Error(`AI Services Generation failed: ${error.message}`);
+    }
+  }
+
+  async generateLongFormArticle(keyword: string, context: string = ''): Promise<any> {
     const angles = [
       "I falsi miti e gli errori da evitare",
       "Analisi dei costi e come risparmiare",
@@ -283,13 +324,18 @@ export class AiService {
     You MUST adopt this specific angle/tone for the article: "${randomAngle}".
     Produce a highly creative, unique Title (H1) and Excerpt. DO NOT use generic phrases like "Guida Completa per..." or "Tutto quello che devi sapere su...". Differentiate!
     
+    HUMAN TOUCH & REAL-WORLD CONTEXT:
+    ${context ? `Ecco alcune informazioni/notizie recenti reali legate all'argomento:\n${context}\n\nISTRUZIONE IMPORTANTE: Non limitarti a riportare queste notizie come un feed. Usale come spunto o contesto interno per dare profondità all'articolo. Accennale o integrale nel ragionamento (es: 'In un mercato influenzato dai recenti cambiamenti in merito a...', oppure 'Considerando l'attuale evoluzione del settore che vede...'). L'articolo deve sembrare scritto da un umano che conosce i fatti del giorno, non da un'AI isolata.` : "Fai sembrare l'articolo scritto da un esperto del settore che ha una visione aggiornata e critica delle ultime tendenze, evitando toni enciclopedici."}
+
     Structure:
-    - Highly creative and catchy title (H1) incorporating the keyword naturally
-    - Detailed excerpt (meta description style, max 160 chars) - make it unique!
-    - Introduction focusing on the specific angle
-    - At least 5 sections with descriptive H2 titles
+    - Highly creative and catchy title (MAX 60 chars) (H1) incorporating the keyword naturally
+    - Detailed excerpt (meta description style, MAX 150 chars) - make it unique!
+    - Introduction focusing on the specific angle and the "human" context
+    - At least 5 sections with descriptive H2 titles. 
+    - CRITICAL: NO <h1> tags inside the content. Start directly with H2.
     - Bullet points and lists where appropriate
-    - ABSOLUTELY MANDATORY: You MUST include exactly 3 internal <a href="[DOMAIN_LINK_ID]/article/relevant-slug">anchor links</a> distributed inside the main text paragraphs. Replacing "relevant-slug" with a plausible keyword slug. (Example: <a href="[DOMAIN_LINK_ID]/article/come-risparmiare">scopri di più</a>).
+    - ABSOLUTELY MANDATORY: You MUST include exactly 3 internal <a href="[DOMAIN_LINK_ID]/article/relevant-slug">anchor links</a> distributed inside the main text paragraphs. Replacing "relevant-slug" with a plausible keyword slug.
+    - ABSOLUTELY MANDATORY: You MUST include at least 1 external link to an authoritative source (e.g. Wikipedia, Google, Gov sites) relevant to the niche.
     - Conclusion with a soft CTA
     
     Avoid keyword stuffing. Target a high E-E-A-T score.

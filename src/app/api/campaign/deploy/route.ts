@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server';
 import { VercelService } from '@/lib/api/vercel';
 import { AiService } from '@/lib/api/gemini';
+import { NewsService } from '@/lib/api/news';
 import { supabase } from '@/lib/supabase';
 import { namecheap } from '@/lib/api/namecheap';
 import { github } from '@/lib/api/github';
+import { ImageService } from '@/lib/api/images';
 
 export const maxDuration = 300; // 5 min for full campaign deployment
 
@@ -28,6 +30,8 @@ export async function POST(req: Request) {
 
         const vercel = new VercelService(vercelToken, teamId);
         const gemini = new AiService(geminiKey);
+        const newsService = new NewsService();
+        const imageService = new ImageService();
 
         // 1. Fetch DNA (Keywords) from Topic 1
         const { data: keywords, error: kwError } = await supabase
@@ -82,6 +86,7 @@ export async function POST(req: Request) {
                     siteTitle: site.siteTitle,
                     metaDescription: site.metaDescription,
                     footerQuote: site.footerQuote,
+                    youtubeVideoId: site.youtubeVideoId,
                     domain: site.domain,
                     campaignId: campaignId
                 });
@@ -109,8 +114,17 @@ export async function POST(req: Request) {
                 const pillarKeywords = keywords.slice(0, 5);
                 const articleQueue = keywords.slice(5, 30);
 
+                let pillarIdx = 0;
                 for (const kw of pillarKeywords) {
-                    const article = await gemini.generateLongFormArticle(kw.keyword);
+                    console.log(`[Pillar] Generating ${pillarIdx + 1}/5: ${kw.keyword} for ${site.domain}`);
+                    const news = await newsService.getNewsForKeyword(kw.keyword);
+                    const context = newsService.formatNewsForAi(news);
+
+                    const article = await gemini.generateLongFormArticle(kw.keyword, context);
+
+                    // Processing Image: Download, Rename, Optimize, Upload
+                    const seoImageUrl = await imageService.processAndUploadImage(article.imageSearchTerm || article.title, article.slug);
+
                     await supabase.from('articles').insert({
                         campaign_id: campaignId,
                         title: article.title,
@@ -119,9 +133,10 @@ export async function POST(req: Request) {
                         content: article.content,
                         category: article.category,
                         tags: article.tags,
-                        image_url: `https://loremflickr.com/1200/800/${(article.imageSearchTerm || 'seo,marketing').replace(/\s+/g, ',')}`,
+                        image_url: seoImageUrl,
                         published_at: new Date().toISOString()
                     });
+                    pillarIdx++;
                 }
 
                 // 6. Trigger Initial Deployment (now that DB has content)

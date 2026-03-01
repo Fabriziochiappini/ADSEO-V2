@@ -44,24 +44,24 @@ function App() {
   return (
     <div className="min-h-screen font-sans selection:bg-brand-100 selection:text-brand-900">
       <JsonLd data={localBusinessSchema} />
-      
+
       {/* Navigation */}
       <nav className="sticky top-0 z-[100] bg-white/80 backdrop-blur-xl border-b border-zinc-100 py-5">
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-          <button 
+          <button
             onClick={navigateToHome}
             className="text-2xl font-serif font-black tracking-tighter hover:text-brand-600 transition-all flex items-center gap-2"
           >
             <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center">
-                <div className="w-3 h-3 bg-white rounded-sm rotate-45" />
+              <div className="w-3 h-3 bg-white rounded-sm rotate-45" />
             </div>
             SitoWeb<span className="text-brand-600 italic">Pro</span>
           </button>
-          
+
           <div className="hidden md:flex items-center gap-10 text-xs font-bold uppercase tracking-widest text-zinc-500">
             <button onClick={navigateToHome} className="hover:text-brand-600 transition-colors">Home</button>
-            <button onClick={() => { navigateToHome(); setTimeout(() => document.getElementById('articoli')?.scrollIntoView({behavior:'smooth'}), 100)}} className="hover:text-brand-600 transition-colors">Magazine</button>
-            <button onClick={() => { navigateToHome(); setTimeout(() => document.getElementById('servizi')?.scrollIntoView({behavior:'smooth'}), 100)}} className="hover:text-brand-600 transition-colors">Servizi</button>
+            <button onClick={() => { navigateToHome(); setTimeout(() => document.getElementById('articoli')?.scrollIntoView({ behavior: 'smooth' }), 100) }} className="hover:text-brand-600 transition-colors">Magazine</button>
+            <button onClick={() => { navigateToHome(); setTimeout(() => document.getElementById('servizi')?.scrollIntoView({ behavior: 'smooth' }), 100) }} className="hover:text-brand-600 transition-colors">Servizi</button>
             <button className="bg-zinc-900 text-white px-8 py-3 rounded-full hover:bg-brand-600 transition-all shadow-xl hover:shadow-brand-200">Consulenza Gratis</button>
           </div>
         </div>
@@ -85,15 +85,19 @@ function App() {
               <div className="flex items-center justify-between border-b border-zinc-100 pb-8 mb-16">
                 <h2 className="text-4xl font-serif font-bold text-zinc-900 italic">The Insight</h2>
                 <div className="flex gap-4">
-                    <div className="w-10 h-10 rounded-full border border-zinc-200 flex items-center justify-center text-zinc-400">←</div>
-                    <div className="w-10 h-10 rounded-full border border-zinc-900 flex items-center justify-center text-zinc-900 font-bold">→</div>
+                  <div className="w-10 h-10 rounded-full border border-zinc-200 flex items-center justify-center text-zinc-400">←</div>
+                  <div className="w-10 h-10 rounded-full border border-zinc-900 flex items-center justify-center text-zinc-900 font-bold">→</div>
                 </div>
               </div>
               <ArticleGrid articles={ARTICLES.slice(1)} onSelect={navigateToArticle} />
             </section>
 
             <section id="servizi">
-              <ServiceSection services={SERVICES} />
+              <ServiceSection
+                title="I Nostri Servizi"
+                subtitle="Soluzioni professionali per il tuo business"
+                services={SERVICES}
+              />
             </section>
           </div>
         ) : (
@@ -101,7 +105,7 @@ function App() {
             {selectedArticle && (
               <>
                 <Breadcrumbs items={[{ label: 'Magazine' }, { label: selectedArticle.title }]} />
-                
+
                 <header className="mt-16 mb-20 text-center">
                   <div className="flex justify-center gap-3 mb-8">
                     {selectedArticle.tags.map(tag => (
@@ -142,7 +146,7 @@ function App() {
                 </div>
 
                 <footer className="mt-32 pt-12 border-t border-zinc-100 flex justify-between items-center">
-                  <button 
+                  <button
                     onClick={navigateToHome}
                     className="group flex items-center gap-4 text-zinc-400 hover:text-brand-600 font-black uppercase tracking-widest text-xs transition-all"
                   >
@@ -161,26 +165,26 @@ function App() {
 
       <footer className="bg-white border-t border-zinc-100 pt-32 pb-20 mt-32">
         <div className="max-w-7xl mx-auto px-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-16 mb-20">
-                <div className="col-span-2">
-                    <p className="text-3xl font-serif font-black mb-8">SitoWeb<span className="text-brand-600 italic">Pro</span></p>
-                    <p className="text-zinc-500 text-lg max-w-md font-light leading-relaxed">Eccellenza digitale dal 2018. Creiamo siti web che non sono solo belli, ma motori di crescita reale per il tuo business.</p>
-                </div>
-                <div>
-                    <h4 className="font-black text-xs uppercase tracking-widest mb-6 text-zinc-400">Contatti</h4>
-                    <p className="text-zinc-900 font-bold mb-2">info@sitowebpro.online</p>
-                    <p className="text-zinc-500">Milano, Italia</p>
-                </div>
-                <div>
-                    <h4 className="font-black text-xs uppercase tracking-widest mb-6 text-zinc-400">Seguici</h4>
-                    <p className="text-zinc-900 font-bold mb-2">LinkedIn</p>
-                    <p className="text-zinc-900 font-bold">Instagram</p>
-                </div>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-16 mb-20">
+            <div className="col-span-2">
+              <p className="text-3xl font-serif font-black mb-8">SitoWeb<span className="text-brand-600 italic">Pro</span></p>
+              <p className="text-zinc-500 text-lg max-w-md font-light leading-relaxed">Eccellenza digitale dal 2018. Creiamo siti web che non sono solo belli, ma motori di crescita reale per il tuo business.</p>
             </div>
-            <div className="pt-10 border-t border-zinc-100 text-center flex flex-col md:flex-row justify-between items-center gap-6">
-                <p className="text-zinc-400 text-xs font-medium tracking-wide italic">Design & Engineering by WebPro Team</p>
-                <p className="text-zinc-300 text-[10px] uppercase tracking-[0.3em]">© 2024 Sito Web Professionale Online.</p>
+            <div>
+              <h4 className="font-black text-xs uppercase tracking-widest mb-6 text-zinc-400">Contatti</h4>
+              <p className="text-zinc-900 font-bold mb-2">info@sitowebpro.online</p>
+              <p className="text-zinc-500">Milano, Italia</p>
             </div>
+            <div>
+              <h4 className="font-black text-xs uppercase tracking-widest mb-6 text-zinc-400">Seguici</h4>
+              <p className="text-zinc-900 font-bold mb-2">LinkedIn</p>
+              <p className="text-zinc-900 font-bold">Instagram</p>
+            </div>
+          </div>
+          <div className="pt-10 border-t border-zinc-100 text-center flex flex-col md:flex-row justify-between items-center gap-6">
+            <p className="text-zinc-400 text-xs font-medium tracking-wide italic">Design & Engineering by WebPro Team</p>
+            <p className="text-zinc-300 text-[10px] uppercase tracking-[0.3em]">© 2024 Sito Web Professionale Online.</p>
+          </div>
         </div>
       </footer>
     </div>

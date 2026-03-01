@@ -1,5 +1,8 @@
 import { supabase } from '@/lib/supabase';
 import { AiService } from '@/lib/api/gemini';
+import { NewsService } from '@/lib/api/news';
+import { ImageService } from '@/lib/api/images';
+import { getDynamicImageUrl } from '@/lib/utils/image-utils';
 
 export async function POST(req: Request) {
     try {
@@ -9,6 +12,8 @@ export async function POST(req: Request) {
         if (!geminiKey) throw new Error('Missing GEMINI_API_KEY');
 
         const gemini = new AiService(geminiKey);
+        const newsService = new NewsService();
+        const imageService = new ImageService();
 
         // Query per trovare articoli da pubblicare
         let query = supabase
@@ -47,8 +52,13 @@ export async function POST(req: Request) {
                 // Update status to processing
                 await supabase.from('article_queue').update({ status: 'processing' }).eq('id', item.id);
 
-                // Generate Article
-                const article = await gemini.generateLongFormArticle(item.keyword);
+                // Fetch real-time context
+                const news = await newsService.getNewsForKeyword(item.keyword);
+                const context = newsService.formatNewsForAi(news);
+
+                // Generate Article & Optimize Image
+                const article = await gemini.generateLongFormArticle(item.keyword, context);
+                const seoImageUrl = await imageService.processAndUploadImage(article.imageSearchTerm || article.title, article.slug);
 
                 // Insert into articles table
                 const { error: insertError } = await supabase.from('articles').insert({
@@ -59,7 +69,7 @@ export async function POST(req: Request) {
                     content: article.content,
                     category: article.category,
                     tags: article.tags,
-                    image_url: `https://loremflickr.com/1200/800/${(article.imageSearchTerm || 'seo,marketing').replace(/\s+/g, ',')}`,
+                    image_url: seoImageUrl,
                     published_at: new Date().toISOString()
                 });
 

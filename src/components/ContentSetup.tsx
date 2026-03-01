@@ -26,6 +26,7 @@ interface SiteContent {
     siteTitle?: string;
     metaDescription?: string;
     footerQuote?: string;
+    youtubeVideoId?: string;
     status: 'pending' | 'generating' | 'ready' | 'error' | 'deploying' | 'deployed';
     deploymentUrl?: string;
     errorMessage?: string;
@@ -44,6 +45,15 @@ export default function ContentSetup({ selectedDomains, keywords, campaignId, on
     const [publishingFrequency, setPublishingFrequency] = useState('1d');
     const [connectDomain, setConnectDomain] = useState(true);
     const [isTestingFeed, setIsTestingFeed] = useState(false);
+    const [launchStatus, setLaunchStatus] = useState<{
+        active: boolean;
+        message: string;
+        progress: number;
+    }>({
+        active: false,
+        message: '',
+        progress: 0
+    });
 
     useEffect(() => {
         // Initialize sites based on selected domains
@@ -114,11 +124,14 @@ export default function ContentSetup({ selectedDomains, keywords, campaignId, on
 
     const handleLaunch = async () => {
         setIsLaunching(true);
+        setLaunchStatus({ active: true, message: 'Inizializzazione orchestrazione atomica...', progress: 10 });
 
         // Mark all as deploying
         setSites(prev => prev.map(s => ({ ...s, status: s.status === 'ready' ? 'deploying' : s.status })));
 
         try {
+            setLaunchStatus(prev => ({ ...prev, message: 'Generazione Articoli Pillar + Ottimizzazione Immagini SEO...', progress: 30 }));
+
             const res = await fetch('/api/campaign/deploy', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -129,6 +142,8 @@ export default function ContentSetup({ selectedDomains, keywords, campaignId, on
                     sites: sites.filter(s => s.status === 'ready' || s.status === 'deploying' || s.status === 'deployed')
                 })
             });
+
+            setLaunchStatus(prev => ({ ...prev, message: 'Finalizzazione deploy e configurazione DNS...', progress: 80 }));
 
             const data = await res.json();
 
@@ -274,6 +289,25 @@ export default function ContentSetup({ selectedDomains, keywords, campaignId, on
                                             </p>
                                         </div>
                                         <div>
+                                            <label className="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-1 block">YouTube Video ID (Niche Specific)</label>
+                                            <div className="flex items-center gap-2">
+                                                <p className="text-zinc-400 font-mono text-xs bg-black/30 px-3 py-1 rounded border border-zinc-800">
+                                                    {site.youtubeVideoId || 'No selection'}
+                                                </p>
+                                                {site.youtubeVideoId && (
+                                                    <a
+                                                        href={`https://youtube.com/watch?v=${site.youtubeVideoId}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="p-1 hover:bg-slate-700 rounded text-slate-400 hover:text-white transition-colors"
+                                                        title="Video Preview"
+                                                    >
+                                                        <Play className="w-4 h-4" />
+                                                    </a>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div>
                                             <label className="text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-1 block">Editorial Footer Quote</label>
                                             <p className="text-slate-500 text-xs italic">
                                                 "{site.footerQuote || 'Pending...'}"
@@ -333,6 +367,22 @@ export default function ContentSetup({ selectedDomains, keywords, campaignId, on
                         </p>
                     </div>
                 </div>
+
+                {launchStatus.active && (
+                    <div className="w-full max-w-md mt-6 mb-8 animate-in fade-in zoom-in duration-300">
+                        <div className="flex justify-between items-center mb-2">
+                            <span className="text-[10px] font-black text-blue-400 uppercase tracking-[0.2em]">{launchStatus.message}</span>
+                            <span className="text-xs font-black text-white">{launchStatus.progress}%</span>
+                        </div>
+                        <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden border border-slate-700/50">
+                            <motion.div
+                                initial={{ width: 0 }}
+                                animate={{ width: `${launchStatus.progress}%` }}
+                                className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 shadow-[0_0_15px_rgba(59,130,246,0.3)]"
+                            />
+                        </div>
+                    </div>
+                )}
 
                 <button
                     onClick={handleLaunch}

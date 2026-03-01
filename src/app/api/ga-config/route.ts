@@ -23,8 +23,8 @@ export async function GET(req: NextRequest) {
     const { data, error } = await supabase
         .from('sites')
         .select('ga_id')
-        .eq('domain', normalizedDomain)
-        .single();
+        .ilike('domain', normalizedDomain)
+        .maybeSingle();
 
     if (error || !data) {
         // Return empty — site just won't have GA tracking
