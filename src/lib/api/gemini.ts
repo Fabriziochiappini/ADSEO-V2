@@ -331,7 +331,12 @@ export class AiService {
     Produce a highly creative, unique Title (H1) and Excerpt. DO NOT use generic phrases like "Guida Completa per..." or "Tutto quello che devi sapere su...". Differentiate!
     
     HUMAN TOUCH & REAL-WORLD CONTEXT:
-    ${context ? `Ecco alcune informazioni/notizie provenienti da diverse fonti reali (Wikipedia, News, ecc.) legate all'argomento:\n${context}\n\nISTRUZIONE CRITICA PER L'AMALGAMA: Non limitarti a riportare queste informazioni come un elenco. Devi FONDERLE (amalgamare) nel corpo dell'articolo. Usa i dati di Wikipedia per la precisione tecnica e le News per l'attualità. L'articolo deve sembrare scritto da un esperto informato che ha consultato diverse fonti autorevoli e le ha integrate in una narrazione fluida. Cita le fonti naturalmente (es: 'Come riportato dalle ultime notizie di settore...', oppure 'Considerando le radici storiche descritte su Wikipedia in merito a...'). L'articolo deve trasmettere un senso di autorevolezza superiore (E-E-A-T).` : "Fai sembrare l'articolo scritto da un esperto del settore che ha una visione aggiornata e critica delle ultime tendenze, evitando toni enciclopedici."}
+    ${context ? `Ecco alcune informazioni/notizie provenienti da diverse fonti reali (Wikipedia, News, Reddit ecc.) legate all'argomento:\n${context}\n\nISTRUZIONI CRITICA PER L'AMALGAMA ANTI-BOT E UTILITÀ:
+    1. NON ESSERE UN BOT: Vietato limitarsi a riportare le fonti come un elenco o un riassunto enciclopedico (stile SEO bot anni 2000).
+    2. FUSIONE AUTOREVOLE: Devi usare Wikipedia per la precisione tecnica/storica, Google News per l'attualità territoriale e Reddit per capire i dubbi reali e i "pain points" degli utenti.
+    3. FOCUS UTILITÀ: L'articolo deve essere PRIMA DI TUTTO UTILE all'utente. Se le fonti menzionano un problema comune (es: prezzi alti, truffe, difficoltà burocratiche), dedica una sezione a risolvere quel problema.
+    4. NARRAZIONE FLUIDA: Usa le fonti naturalmente (es: 'Considerando le normative citate su Wikipedia...' o 'Come si legge spesso nelle community online di settore...').
+    5. E-E-A-T: Agisci come un esperto veterano che ha studiato le fonti e ora dà un consiglio pratico e autorevole che aggiunge valore reale alla vita del lettore.` : "Agisci come un esperto del settore che fornisce consigli pratici e utili, evitando toni enciclopedici o puramente generativi. Risolvi i problemi dell'utente."}
 
     Structure:
     - Highly creative and catchy title (MAX 60 chars) (H1) incorporating the keyword naturally
