@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { VercelService } from '@/lib/api/vercel';
 import { AiService } from '@/lib/api/gemini';
-import { NewsService } from '@/lib/api/news';
+import { KnowledgeService } from '@/lib/api/knowledge';
 import { supabase } from '@/lib/supabase';
 import { namecheap } from '@/lib/api/namecheap';
 import { github } from '@/lib/api/github';
@@ -30,7 +30,7 @@ export async function POST(req: Request) {
 
         const vercel = new VercelService(vercelToken, teamId);
         const gemini = new AiService(geminiKey);
-        const newsService = new NewsService();
+        const knowledge = new KnowledgeService();
         const imageService = new ImageService();
 
         // 1. Fetch DNA (Keywords) from Topic 1
@@ -130,8 +130,8 @@ export async function POST(req: Request) {
                 let pillarIdx = 0;
                 for (const kw of pillarKeywords) {
                     console.log(`[Pillar] Generating ${pillarIdx + 1}/5: ${kw.keyword} for ${site.domain}`);
-                    const news = await newsService.getNewsForKeyword(kw.keyword);
-                    const context = newsService.formatNewsForAi(news);
+                    const sources = await knowledge.fetchAllContext(kw.keyword);
+                    const context = knowledge.formatContextForAi(sources);
 
                     const article = await gemini.generateLongFormArticle(kw.keyword, context);
 

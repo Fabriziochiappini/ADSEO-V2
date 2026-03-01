@@ -331,17 +331,17 @@ export class AiService {
     Produce a highly creative, unique Title (H1) and Excerpt. DO NOT use generic phrases like "Guida Completa per..." or "Tutto quello che devi sapere su...". Differentiate!
     
     HUMAN TOUCH & REAL-WORLD CONTEXT:
-    ${context ? `Ecco alcune informazioni/notizie recenti reali legate all'argomento:\n${context}\n\nISTRUZIONE IMPORTANTE: Non limitarti a riportare queste notizie come un feed. Usale come spunto o contesto interno per dare profondità all'articolo. Accennale o integrale nel ragionamento (es: 'In un mercato influenzato dai recenti cambiamenti in merito a...', oppure 'Considerando l'attuale evoluzione del settore che vede...'). L'articolo deve sembrare scritto da un umano che conosce i fatti del giorno, non da un'AI isolata.` : "Fai sembrare l'articolo scritto da un esperto del settore che ha una visione aggiornata e critica delle ultime tendenze, evitando toni enciclopedici."}
+    ${context ? `Ecco alcune informazioni/notizie provenienti da diverse fonti reali (Wikipedia, News, ecc.) legate all'argomento:\n${context}\n\nISTRUZIONE CRITICA PER L'AMALGAMA: Non limitarti a riportare queste informazioni come un elenco. Devi FONDERLE (amalgamare) nel corpo dell'articolo. Usa i dati di Wikipedia per la precisione tecnica e le News per l'attualità. L'articolo deve sembrare scritto da un esperto informato che ha consultato diverse fonti autorevoli e le ha integrate in una narrazione fluida. Cita le fonti naturalmente (es: 'Come riportato dalle ultime notizie di settore...', oppure 'Considerando le radici storiche descritte su Wikipedia in merito a...'). L'articolo deve trasmettere un senso di autorevolezza superiore (E-E-A-T).` : "Fai sembrare l'articolo scritto da un esperto del settore che ha una visione aggiornata e critica delle ultime tendenze, evitando toni enciclopedici."}
 
     Structure:
     - Highly creative and catchy title (MAX 60 chars) (H1) incorporating the keyword naturally
     - Detailed excerpt (meta description style, MAX 150 chars) - make it unique!
-    - Introduction focusing on the specific angle and the "human" context
+    - Introduction focusing on the specific angle and the "human" context (Wikipedia/News amalgamation)
     - At least 5 sections with descriptive H2 titles. 
     - CRITICAL: NO <h1> tags inside the content. Start directly with H2.
     - Bullet points and lists where appropriate
     - ABSOLUTELY MANDATORY: You MUST include exactly 3 internal <a href="[DOMAIN_LINK_ID]/article/relevant-slug">anchor links</a> distributed inside the main text paragraphs. Replacing "relevant-slug" with a plausible keyword slug.
-    - ABSOLUTELY MANDATORY: You MUST include at least 1 external link to an authoritative source (e.g. Wikipedia, Google, Gov sites) relevant to the niche.
+    - ABSOLUTELY MANDATORY: You MUST include at least 1 external link to an authoritative source (e.g. Wikipedia, Google, Gov sites) relevant to the niche. Use the URL provided in the context if applicable!
     - Conclusion with a soft CTA
     
     Avoid keyword stuffing. Target a high E-E-A-T score.
