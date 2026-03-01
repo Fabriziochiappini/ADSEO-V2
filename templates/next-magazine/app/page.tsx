@@ -3,7 +3,6 @@ import JsonLd from '@/components/JsonLd';
 import MagazineHero from '@/components/MagazineHero';
 import ArticleGrid from '@/components/ArticleGrid';
 import ServiceSection from '@/components/ServiceSection';
-import YouTubeVideo from '@/components/YouTubeVideo';
 import Link from 'next/link';
 import {
   SERVICES,
@@ -16,8 +15,7 @@ import {
   SERVICES_TITLE,
   SERVICES_SUBTITLE,
   HERO_TITLE,
-  HERO_SUBTITLE,
-  YOUTUBE_VIDEO_ID
+  HERO_SUBTITLE
 } from '@/lib/constants';
 import { Metadata } from 'next';
 
@@ -58,7 +56,6 @@ export default async function Home() {
     }))
   };
 
-
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-7xl mx-auto px-6 py-4">
       <JsonLd data={localBusinessSchema} />
@@ -93,13 +90,6 @@ export default async function Home() {
           services={SERVICES}
         />
       </section>
-
-      {/* Video Section - Dynamic */}
-      {YOUTUBE_VIDEO_ID && (
-        <section className="mt-12">
-          <YouTubeVideo videoId={YOUTUBE_VIDEO_ID} title={`Video Informativo per ${BRAND_NAME}`} />
-        </section>
-      )}
 
       {/* Link to Guide */}
       <div className="mt-20 text-center">

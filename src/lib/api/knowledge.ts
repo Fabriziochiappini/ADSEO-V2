@@ -75,15 +75,36 @@ export class KnowledgeService {
         }
     }
 
+    async getRedditContext(keyword: string): Promise<ContextSource[]> {
+        try {
+            const query = encodeURIComponent(keyword);
+            const url = `https://www.reddit.com/search.json?q=${query}&sort=relevance&t=year&limit=3`;
+            const res = await fetch(url, { headers: { 'User-Agent': 'ADSEO-Bot/1.0' } });
+            const data = await res.json();
+
+            if (!data.data?.children?.length) return [];
+
+            return data.data.children.slice(0, 2).map((child: any) => ({
+                type: 'reddit',
+                title: child.data.title,
+                summary: child.data.selftext?.substring(0, 300) || 'Discussione su Reddit riguardante la nicchia.',
+                link: `https://www.reddit.com${child.data.permalink}`
+            }));
+        } catch (e) {
+            return [];
+        }
+    }
+
     async fetchAllContext(keyword: string): Promise<ContextSource[]> {
         console.log(`[KnowledgeEngine] Launching data probes for: ${keyword}...`);
 
-        const [wiki, news] = await Promise.all([
+        const [wiki, news, reddit] = await Promise.all([
             this.getWikipediaContext(keyword),
-            this.getNewsContext(keyword)
+            this.getNewsContext(keyword),
+            this.getRedditContext(keyword)
         ]);
 
-        const all = [...wiki, ...news];
+        const all = [...wiki, ...news, ...reddit];
         console.log(`[KnowledgeEngine] Captured ${all.length} context shards.`);
         return all;
     }
