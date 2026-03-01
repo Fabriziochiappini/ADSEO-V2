@@ -158,7 +158,7 @@ export async function POST(req: NextRequest) {
             console.error('Database operation failed:', dbErr);
         }
 
-        return NextResponse.json({ ...result, campaignId });
+        return NextResponse.json({ ...result, campaignId, dfsSourceKeywords: realKeywords });
     } catch (error: any) {
         console.error('Analysis failed:', error);
         return NextResponse.json(

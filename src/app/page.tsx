@@ -11,7 +11,7 @@ import {
   Zap,
   Loader2,
   CheckCircle2,
-  List
+  BarChart3
 } from 'lucide-react';
 import { TopicAnalysisResult } from '@/types';
 import DomainGenerator from '@/components/DomainGenerator';
@@ -26,6 +26,7 @@ export default function Home() {
   const [currentStep, setCurrentStep] = useState<'analysis' | 'domains' | 'content'>('analysis');
   const [selectedDomains, setSelectedDomains] = useState<string[]>([]);
   const [campaignId, setCampaignId] = useState<string | null>(null);
+  const [dfsSourceKeywords, setDfsSourceKeywords] = useState<any[]>([]);
 
   const handleGenerate = async () => {
     if (!topic || !description) return;
@@ -49,6 +50,7 @@ export default function Home() {
 
       setResult(data);
       if (data.campaignId) setCampaignId(data.campaignId);
+      if (data.dfsSourceKeywords?.length) setDfsSourceKeywords(data.dfsSourceKeywords);
       setCurrentStep('domains');
     } catch (err: any) {
       console.error('Failed to generate strategy:', err);
@@ -254,13 +256,48 @@ export default function Home() {
                       </span>
                     </div>
 
+                    {/* DFS Source of Truth Panel */}
+                    {dfsSourceKeywords.length > 0 && (
+                      <div className="border border-blue-500/30 bg-blue-950/10 rounded-2xl overflow-hidden">
+                        <div className="flex items-center gap-3 px-5 py-3 border-b border-blue-500/20">
+                          <BarChart3 className="w-4 h-4 text-blue-400" />
+                          <span className="text-sm font-bold text-blue-300">Fonte di Verità — DataForSEO</span>
+                          <span className="ml-auto text-[10px] px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30 font-black uppercase tracking-widest">REAL DATA</span>
+                        </div>
+                        <div className="p-4 flex flex-wrap gap-2">
+                          {dfsSourceKeywords.map((k: any, i: number) => (
+                            <div key={i} className="flex items-center gap-2 bg-zinc-900 border border-zinc-700 rounded-xl px-3 py-2">
+                              <span className="text-zinc-200 text-sm font-medium">{k.keyword}</span>
+                              <span className="text-[10px] text-blue-400 font-mono">vol:{k.search_volume}</span>
+                              <span className={`text-[10px] font-bold ${k.competition_level === 'LOW' ? 'text-emerald-400' :
+                                k.competition_level === 'MEDIUM' ? 'text-yellow-400' : 'text-red-400'
+                                }`}>{k.competition_level}</span>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="px-5 py-3 border-t border-blue-500/10">
+                          <p className="text-xs text-zinc-500 italic">Gemini ATQ ha usato queste {dfsSourceKeywords.length} keyword reali come ancora per generare le 30 long-tail finali ↓</p>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-bold flex items-center gap-2">
+                        <Sparkles className="w-4 h-4 text-purple-400" />
+                        Topic 1 — 30 Long-Tail ATQ
+                      </h3>
+                      <span className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-bold border border-emerald-500/20 flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3" /> Analysis Complete
+                      </span>
+                    </div>
+
                     <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl overflow-hidden">
                       <div className="max-h-[600px] overflow-y-auto">
                         <table className="w-full text-left">
                           <thead>
                             <tr className="border-b border-zinc-800 text-zinc-400 text-sm">
                               <th className="py-4 pl-6 font-medium">Keyword</th>
-                              <th className="py-4 font-medium">Source</th>
+                              <th className="py-4 font-medium">Intent</th>
                               <th className="py-4 font-medium">Vol</th>
                               <th className="py-4 font-medium">KD %</th>
                               <th className="py-4 font-medium pr-6 text-right">CPC</th>
@@ -273,20 +310,19 @@ export default function Home() {
                                   {k.keyword}
                                 </td>
                                 <td className="py-3">
-                                  <span className={`text-[10px] px-2 py-0.5 rounded-full border ${
-                                    k.source === 'DataForSEO' 
-                                      ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' 
-                                      : 'bg-purple-500/10 text-purple-400 border-purple-500/20'
-                                  }`}>
-                                    {k.source || 'Unknown'}
+                                  <span className={`text-[10px] px-2 py-0.5 rounded-full border ${(k as any).intent === 'transactional' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+                                      (k as any).intent === 'commercial' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' :
+                                        (k as any).intent === 'local' ? 'bg-orange-500/10 text-orange-400 border-orange-500/20' :
+                                          'bg-purple-500/10 text-purple-400 border-purple-500/20'
+                                    }`}>
+                                    {(k as any).intent || k.source || 'ATQ'}
                                   </span>
                                 </td>
-                                <td className="py-3 text-zinc-400">{k.search_volume}</td>
+                                <td className="py-3 text-zinc-400">{k.search_volume || '—'}</td>
                                 <td className="py-3">
-                                  <span className={`px-2 py-1 rounded text-xs font-medium ${
-                                    k.competition_level === 'LOW' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
-                                    k.competition_level === 'MEDIUM' ? 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20' :
-                                      'bg-red-500/10 text-red-400 border border-red-500/20'
+                                  <span className={`px-2 py-1 rounded text-xs font-medium ${k.competition_level === 'LOW' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
+                                      k.competition_level === 'MEDIUM' ? 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20' :
+                                        'bg-red-500/10 text-red-400 border border-red-500/20'
                                     }`}>
                                     {(k.competition * 100).toFixed(0)}%
                                   </span>
@@ -311,8 +347,9 @@ export default function Home() {
               </AnimatePresence>
             </div>
           </div>
-        )}
-      </main>
-    </div>
+        )
+        }
+      </main >
+    </div >
   );
 }
