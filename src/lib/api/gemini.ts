@@ -103,8 +103,8 @@ export class AiService {
     CRITICAL INSTRUCTIONS:
     1. Keywords MUST be in Italian.
     2. Focus on "Money Keywords" (high intent): "prezzi", "costo", "preventivo", "ditta", "migliori".
-    3. Include location-specific variations if a location is mentioned in the description (e.g. "Torino", "Piemonte", "Roma").
-    4. Include specific service variations (e.g. "sgombero cantine gratis", "pulizia solai", "traslochi piano alto").
+    3. Include location-specific variations if a location is mentioned.
+    4. NO SPECIFIC BRAND/COMPANY NAMES: DO NOT include names of existing local companies or competitors (e.g., if searching for mechanics, avoid 'Officina Rossi'). Focus only on the service and location.
     5. Length: Most keywords should be 3-6 words long.
     
     Return ONLY a JSON array of strings: ["keyword 1", "keyword 2", ...]`;
@@ -120,8 +120,9 @@ export class AiService {
     
     CRITICAL INSTRUCTIONS:
     1. Keywords MUST be in Italian.
-    2. These seeds should be broad enough to generate many suggestions, but specific enough to be relevant.
-    3. Cover different angles:
+    2. NO BRAND NAMES: Do not use names of existing companies. Use generic terms like "ditta", "servizio", "centro".
+    3. These seeds should be broad enough to generate many suggestions, but specific enough to be relevant.
+    4. Cover different angles:
        - Core service (e.g. "Sgombero")
        - Service + Location type (e.g. "Sgombero Cantine")
        - Problem/Solution (e.g. "Ritiro mobili usati")
@@ -332,11 +333,12 @@ export class AiService {
     
     HUMAN TOUCH & REAL-WORLD CONTEXT:
     ${context ? `Ecco alcune informazioni/notizie provenienti da diverse fonti reali (Wikipedia, News, Reddit ecc.) legate all'argomento:\n${context}\n\nISTRUZIONI CRITICA PER L'AMALGAMA ANTI-BOT E UTILITÀ:
-    1. NON ESSERE UN BOT: Vietato limitarsi a riportare le fonti come un elenco o un riassunto enciclopedico (stile SEO bot anni 2000).
-    2. FUSIONE AUTOREVOLE: Devi usare Wikipedia per la precisione tecnica/storica, Google News per l'attualità territoriale e Reddit per capire i dubbi reali e i "pain points" degli utenti.
-    3. FOCUS UTILITÀ: L'articolo deve essere PRIMA DI TUTTO UTILE all'utente. Se le fonti menzionano un problema comune (es: prezzi alti, truffe, difficoltà burocratiche), dedica una sezione a risolvere quel problema.
-    4. NARRAZIONE FLUIDA: Usa le fonti naturalmente (es: 'Considerando le normative citate su Wikipedia...' o 'Come si legge spesso nelle community online di settore...').
-    5. E-E-A-T: Agisci come un esperto veterano che ha studiato le fonti e ora dà un consiglio pratico e autorevole che aggiunge valore reale alla vita del lettore.` : "Agisci come un esperto del settore che fornisce consigli pratici e utili, evitando toni enciclopedici o puramente generativi. Risolvi i problemi dell'utente."}
+    1. NON ESSERE UN BOT: Vietato limitarsi a riportare le fonti come un elenco o un riassunto enciclopedico.
+    2. FILTRO BRAND: SE NEL CONTESTO APPAIONO NOMI DI AZIENDE SPECIFICHE O COMPETITOR (es. Rossi Sgomberi, ELMI, ecc.), DEVI ASSOLUTAMENTE IGNORARE IL NOME E PARLARE SOLO DEL SERVIZIO IN MODO GENERICO. Non fare pubblicità o menzioni a terzi.
+    3. FUSIONE AUTOREVOLE: Devi usare Wikipedia per la precisione tecnica/storica, Google News per l'attualità territoriale e Reddit per capire i dubbi reali e i "pain points" degli utenti.
+    4. FOCUS UTILITÀ: L'articolo deve essere PRIMA DI TUTTO UTILE all'utente. Risolvi problemi reali.
+    5. NARRAZIONE FLUIDA: Usa le fonti naturalmente.
+    6. E-E-A-T: Agisci come un esperto veterano che dà un consiglio pratico e autorevole.` : "Agisci come un esperto del settore che fornisce consigli pratici e utili, evitando toni enciclopedici o menzioni a brand specifici."}
 
     Structure:
     - Highly creative and catchy title (MAX 60 chars) (H1) incorporating the keyword naturally
