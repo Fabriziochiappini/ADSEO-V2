@@ -273,7 +273,7 @@ export class AiService {
     {
       "servicesMetaDescription": "Compelling SEO meta description (MAX 150 chars) (string)",
       "servicesHeroTitle": "Powerful H1 for the services page (MAX 60 chars) (string)",
-      "servicesHeroSubtitle": "Engaging H2 explaining the expertise (MAX 150 chars) (string)",
+      "servicesHeroSubtitle": "Engaging H2 explaining the expertise. DO NOT use generic SEO phrases. (MAX 150 chars) (string)",
       "extendedServices": [
         {
           "title": "Service 1 (string)",
@@ -282,22 +282,23 @@ export class AiService {
         },
         ... (exactly 6 services)
       ],
-      "whyChooseUsTitle": "H2 for the 'Our Method' section (string)",
-      "whyChooseUsSubtitle": "Subtitle for the method (string)",
+      "whyChooseUsTitle": "H2 for the 'Our Method' section. Example: 'Il Metodo [Niche] per il Successo' (string)",
+      "whyChooseUsSubtitle": "Subtitle for why they should trust this method. ABSOLUTELY NO SEO MENTIONS unless the topic is SEO. (string)",
       "whyChooseUsPoints": [
-        { "title": "Point 1 Title", "description": "Point 1 Description" },
-        { "title": "Point 2 Title", "description": "Point 2 Description" },
-        { "title": "Point 3 Title", "description": "Point 3 Description" }
+        { "title": "Critical quality 1", "description": "Why it matters in this niche" },
+        { "title": "Critical quality 2", "description": "Why it matters in this niche" },
+        { "title": "Critical quality 3", "description": "Why it matters in this niche" }
       ],
       "servicesCtaTitle": "Final H2 CTA title (string)",
-      "servicesCtaSubtitle": "Persuasive text (string)",
+      "servicesCtaSubtitle": "Persuasive text specific to the business specialty (string)",
       "servicesCtaText": "CTA Button text (string)",
       "servicesFooterQuote": "A deep, professional phrase specific to the business specialty (string)"
     }
     
     CRITICAL TOPIC RULES: 
-    1. If the keyword topic is NOT about 'Web Agency' or 'SEO', DO NOT talk about SEO, Web rankings, or Google. Talk ONLY about the specific niche (e.g., if it's Plumbing, talk about repairs, leakage, professional tools). 
-    2. extendedServices MUST contain exactly 6 diverse, relevant services. whyChooseUsPoints MUST contain exactly 3 points.`;
+    1. If the keyword topic is NOT about 'Web Agency' or 'SEO', DO NOT talk about SEO, Web rankings, or Google. Talk ONLY about the specific niche (e.g., if it's Plumbing, talk about repairs, leakage, professional tools. If it's a Gym, talk about training, health, and dedication). 
+    2. DO NOT use the words 'SEO', 'Google', 'Ranking', 'Algoritmo' if the business is NOT digital-focused.
+    3. extendedServices MUST contain exactly 6 diverse, relevant services. whyChooseUsPoints MUST contain exactly 3 points.`;
 
     try {
       const result = await this.model.generateContent(prompt);

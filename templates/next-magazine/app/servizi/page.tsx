@@ -25,9 +25,9 @@ export const metadata = {
 export default function ServicesPage() {
     const servicesList = EXTENDED_SERVICES.length > 0 ? EXTENDED_SERVICES : SERVICES;
     const pointsList = WHY_CHOOSE_US_POINTS.length > 0 ? WHY_CHOOSE_US_POINTS : [
-        { title: "Approccio Data-Driven", description: "Ogni decisione è supportata da analisi reali del mercato e dei competitor." },
-        { title: "Sviluppo Ultra-Fast", description: "Siti costruiti su Next.js per massime performance e CWV perfetti." },
-        { title: "Contenuti Autorali", description: "Editoria di alta qualità per massimizzare il punteggio E-E-A-T." }
+        { title: "Standard Qualitativi Elevati", description: "Ogni nostra attività segue i massimi criteri di eccellenza del settore." },
+        { title: "Esperienza Certificata", description: "Mettiamo a disposizione anni di competenza per risolvere ogni tua sfida." },
+        { title: "Approccio Personalizzato", description: "Il cliente è al centro di ogni progetto, con soluzioni su misura e trasparenti." }
     ];
 
     return (

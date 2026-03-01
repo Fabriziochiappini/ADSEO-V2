@@ -16,28 +16,28 @@ const dynamic = getDynamicContent();
 
 const rawDomain = dynamic?.domain || 'https://sitowebprofessionale.online';
 export const DOMAIN = rawDomain.startsWith('http') ? rawDomain : `https://${rawDomain}`;
-export const BRAND_NAME = dynamic?.brandName || 'SitoWeb';
-export const BRAND_TAGLINE = dynamic?.brandTagline || 'Professionale';
-export const HERO_TITLE = dynamic?.heroTitle || 'Crea la tua Eccellenza Digitale Professionale.';
-export const HERO_SUBTITLE = dynamic?.heroSubtitle || 'Dal 2018 aiutiamo professionisti e aziende a scalare i motori di ricerca con siti web ultra-veloci e design orientato alla conversione.';
-export const SERVICES_TITLE = dynamic?.servicesTitle || 'Soluzioni Digitali di Eccellenza';
-export const SERVICES_SUBTITLE = dynamic?.servicesSubtitle || 'Sviluppiamo ecosistemi digitali che combinano estetica superiore e architetture moderne ad alte prestazioni.';
-export const FOOTER_QUOTE = dynamic?.footerQuote || 'Ogni progetto è un\'opportunità per ridefinire gli standard.';
-export const SITE_TITLE = dynamic?.siteTitle || `${BRAND_NAME} ${BRAND_TAGLINE}`;
-export const META_DESCRIPTION = dynamic?.metaDescription || "Il punto di riferimento per l'eccellenza digitale e strategie SEO avanzate.";
+export const BRAND_NAME = dynamic?.brandName || (rawDomain.replace(/^https?:\/\//i, '').split('.')[0].charAt(0).toUpperCase() + rawDomain.replace(/^https?:\/\//i, '').split('.')[0].slice(1).toLowerCase()).replace(/\./g, ' ');
+export const BRAND_TAGLINE = dynamic?.brandTagline || 'Eccellenza e Qualità';
+export const HERO_TITLE = dynamic?.heroTitle || `Servizi Professionali di ${BRAND_NAME}`;
+export const HERO_SUBTITLE = dynamic?.heroSubtitle || `Soluzioni di eccellenza progettate per massimizzare il tuo successo nel settore.`;
+export const SERVICES_TITLE = dynamic?.servicesTitle || 'I Nostri Servizi Esclusivi';
+export const SERVICES_SUBTITLE = dynamic?.servicesSubtitle || 'Sviluppiamo soluzioni che combinano estetica superiore e prestazioni elevate.';
+export const FOOTER_QUOTE = dynamic?.footerQuote || 'Mettiamo la qualità al centro di ogni nostro progetto.';
+export const SITE_TITLE = dynamic?.siteTitle || `${BRAND_NAME} | ${BRAND_TAGLINE}`;
+export const META_DESCRIPTION = dynamic?.metaDescription || `Scopri l'eccellenza professionale di ${BRAND_NAME}. Servizi su misura per ogni ogni esigenza.`;
 export const CAMPAIGN_ID = dynamic?.campaignId || null;
 
 // Services Page Content
-export const SERVICES_META_DESCRIPTION = dynamic?.servicesMetaDescription || "Scopri i nostri servizi professionali di eccellenza.";
+export const SERVICES_META_DESCRIPTION = dynamic?.servicesMetaDescription || `Scopri i servizi di ${BRAND_NAME}. Consulenza su misura per il tuo successo.`;
 export const SERVICES_HERO_TITLE = dynamic?.servicesHeroTitle || `I Nostri Servizi Professionali`;
-export const SERVICES_HERO_SUBTITLE = dynamic?.servicesHeroSubtitle || `Scopri le soluzioni di eccellenza digitale progettate per il tuo successo.`;
+export const SERVICES_HERO_SUBTITLE = dynamic?.servicesHeroSubtitle || `Esplora la nostra gamma completa di soluzioni progettate per i tuoi obiettivi.`;
 export const EXTENDED_SERVICES = dynamic?.extendedServices || [];
-export const WHY_CHOOSE_US_TITLE = dynamic?.whyChooseUsTitle || `Il Nostro Metodo per Scalare il Mercato`;
-export const WHY_CHOOSE_US_SUBTITLE = dynamic?.whyChooseUsSubtitle || `Non creiamo solo siti, costruiamo ecosistemi digitali che convertono.`;
+export const WHY_CHOOSE_US_TITLE = dynamic?.whyChooseUsTitle || `Il Metodo ${BRAND_NAME} per l'Eccellenza`;
+export const WHY_CHOOSE_US_SUBTITLE = dynamic?.whyChooseUsSubtitle || `Ci distinguiamo per la capacità di offrire risultati tangibili attraverso processi certificati.`;
 export const WHY_CHOOSE_US_POINTS = dynamic?.whyChooseUsPoints || [];
-export const SERVICES_CTA_TITLE = dynamic?.servicesCtaTitle || `Pronti per il Futuro Digitale?`;
-export const SERVICES_CTA_SUBTITLE = dynamic?.servicesCtaSubtitle || `Contattaci oggi per una consulenza gratuita e personalizzata.`;
-export const SERVICES_CTA_TEXT = dynamic?.servicesCtaText || `Prenota Consulenza`;
+export const SERVICES_CTA_TITLE = dynamic?.servicesCtaTitle || `Pronti per Nuove Opportunità?`;
+export const SERVICES_CTA_SUBTITLE = dynamic?.servicesCtaSubtitle || `Contattaci oggi per una consulenza gratuita e personalizzata sui tuoi progetti.`;
+export const SERVICES_CTA_TEXT = dynamic?.servicesCtaText || `Richiedi Consulenza`;
 export const SERVICES_FOOTER_QUOTE = dynamic?.servicesFooterQuote || dynamic?.footerQuote || 'Ogni progetto è un\'opportunità per ridefinire gli standard.';
 
 // Guide & Video Content

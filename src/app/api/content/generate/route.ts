@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { AiService } from '@/lib/api/gemini';
+import { prettifyDomainToBrand } from '@/lib/utils/branding-utils';
 
 // Extend Vercel serverless function timeout (default is 10s on Hobby, this needs Pro for >10s)
 export const maxDuration = 60;
@@ -26,7 +27,11 @@ export async function POST(req: Request) {
         const content = {
             ...landingContent,
             ...guideContent,
-            ...servicesPageContent
+            ...servicesPageContent,
+            // Force brandName from domain if missing or looks generic
+            brandName: landingContent.brandName?.toLowerCase() === 'sitoweb' || !landingContent.brandName
+                ? prettifyDomainToBrand(domain)
+                : landingContent.brandName
         };
 
         console.log(`[Content Generate] Success for ${domain}:`, Object.keys(content));
