@@ -69,34 +69,27 @@ export async function POST(req: NextRequest) {
         }
 
         // ============================================================
-        // PHASE 2 — Gemini ATQ Expansion: "Answer The Question"
+        // PHASE 2 — Gemini ATQ: Generate the 30 Final Keywords
         // ============================================================
-        // If we have real keywords, use them as the source of truth for expansion.
-        // If DataForSEO failed or not configured, gemini works standalone.
+        // Gemini reads BOTH the DFS real keywords (truth) AND the user's business
+        // description to generate exactly 30 hyper-specific long-tail keywords.
+        // OUTPUT = These 30 keywords. Not a mix. TOPIC 1 = these 30.
 
         if (realKeywords.length > 0) {
-            console.log(`[Phase 2] Starting ATQ Expansion based on ${realKeywords.length} real DataForSEO keywords...`);
+            console.log(`[Phase 2] ATQ Generation using ${realKeywords.length} real DFS keywords as truth source + business context...`);
             try {
-                const atqKeywords = await gemini.generateATQExpansion(realKeywords, topic);
-                console.log(`[Phase 2] ATQ generated ${atqKeywords.length} long-tail expansions.`);
-
-                // Combine: Real keywords first (priority), then ATQ expansions
-                const realSet = new Set(realKeywords.map((k: any) => k.keyword.toLowerCase()));
-                const uniqueATQ = atqKeywords.filter(k => !realSet.has(k.keyword.toLowerCase()));
-
-                analyzedKeywords = [
-                    ...realKeywords,
-                    ...uniqueATQ
-                ].slice(0, 50); // Max 50 total
-
+                const atqKeywords = await gemini.generateATQExpansion(realKeywords, topic, businessDescription);
+                console.log(`[Phase 2] ATQ generated ${atqKeywords.length} final long-tail keywords.`);
+                analyzedKeywords = atqKeywords.slice(0, 30);
             } catch (atqError) {
-                console.error('[Phase 2] ATQ Expansion failed, using DataForSEO results only:', atqError);
-                analyzedKeywords = realKeywords;
+                console.error('[Phase 2] ATQ failed:', atqError);
+                // Fallback: use the raw DFS keywords if ATQ fails
+                analyzedKeywords = realKeywords.slice(0, 30);
             }
 
         } else {
             // Full Gemini fallback if DataForSEO not available or returned nothing
-            console.log('[Fallback] No real keywords. Generating with Gemini standalone...');
+            console.log('[Fallback] No DFS truth available. Generating 30 keywords with Gemini standalone...');
             try {
                 analyzedKeywords = await gemini.generateKeywordsWithMetrics(topic, businessDescription);
             } catch (err: any) {

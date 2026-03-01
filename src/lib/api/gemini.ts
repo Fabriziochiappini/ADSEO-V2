@@ -137,43 +137,47 @@ export class AiService {
   }
 
   /**
-   * ATQ EXPANSION (Answer The Question)
+   * ATQ EXPANSION — "Answer The Question" (Neil Patel Method)
    * Phase 2 of the dual-level pipeline.
-   * Takes REAL keywords from DataForSEO as "source of truth" and expands
-   * them into 30 hyper-specific long-tail keywords using Neil Patel's
-   * Answer The Question methodology.
+   * Reads REAL keywords from DataForSEO (source of truth) + the user's
+   * business description to generate EXACTLY 30 final long-tail keywords
+   * for TOPIC 1. These 30 are the definitive pillar for the entire site.
    */
-  async generateATQExpansion(realKeywords: { keyword: string; search_volume: number; competition: number }[], topic: string): Promise<any[]> {
+  async generateATQExpansion(
+    realKeywords: { keyword: string; search_volume: number; competition: number }[],
+    topic: string,
+    businessDescription: string = ''
+  ): Promise<any[]> {
     const topKeywords = realKeywords
       .sort((a, b) => b.search_volume - a.search_volume)
       .slice(0, 10)
-      .map(k => k.keyword);
+      .map(k => `"${k.keyword}" (vol: ${k.search_volume})`);
 
-    const prompt = `Sei un esperto SEO che applica il metodo "Answer The Question" di Neil Patel.
+    const prompt = `Sei un esperto SEO strategico. Il tuo compito è generare ESATTAMENTE 30 keyword long-tail finali per il TOPIC 1 di un sito web.
 
-FONTE DI VERITÀ (Keyword reali con volume di ricerca certo, da DataForSEO):
-${topKeywords.map((k, i) => `${i + 1}. "${k}"`).join('\n')}
+━━━ FONTE DI VERITÀ (DataForSEO - Keyword reali ricercate dal mercato) ━━━
+${topKeywords.map((k, i) => `${i + 1}. ${k}`).join('\n')}
 
-TOPIC PRINCIPALE: "${topic}"
+━━━ PROFILO ATTIVITÀ DELL'UTENTE ━━━
+Topic: "${topic}"
+Descrizione business: "${businessDescription}"
 
-IL TUO COMPITO:
-Partendo da queste keyword REALI come base, genera 30 keyword LONG-TAIL iper-specifiche che rispondono alle domande implicite degli utenti (stile "People Also Ask" e "Answer The Public").
+━━━ IL TUO COMPITO ━━━
+Partendo dalle keyword REALI come ancora, genera ESATTAMENTE 30 keyword LONG-TAIL (4-8 parole) che:
+1. Sono RADICATE nelle keyword reali sopra (non inventarne di nuove "a freddo")
+2. Riflettono il PROFILO DELL'ATTIVITÀ (zona geografica, servizi specifici, target)
+3. Coprono tutti gli INTENTI di ricerca:
+   • INFORMAZIONALE: "come", "quando", "perché", "quanto tempo", "cosa serve"
+   • COMMERCIALE: "quanto costa", "preventivo", "prezzi", "conviene"
+   • TRANSAZIONALE: "affidabile", "urgente", "economico", "migliore ditta"
+   • LOCALE: variazioni geografiche specifiche (zona, quartiere, provincia)
+4. NO BRAND NAMES: zero nomi di aziende o competitor
+5. ITALIANO: tutte in italiano
+6. VARIETÀ: strutture diverse, non ripetitive
 
-REGOLE CRITICHE:
-1. RADICATE NELLA REALTÀ: Ogni keyword deve derivare concettualmente da una delle keyword reali sopra, espandendola in una domanda o bisogno specifico.
-2. LONG-TAIL (4-8 parole): Iperspecifiche, non generiche.
-3. INTENT MAPPING: Copri tutti i tipi di intento:
-   - INFORMAZIONALE: "come", "quanto costa", "quando", "perché", "è possibile"
-   - NAVIGAZIONALE: "migliore", "quale", "dove trovare"
-   - TRANSAZIONALE: "preventivo", "prezzo", "affidabile", "economico", "urgente"
-   - LOCAL: variazioni geografiche specifiche se presenti nelle keyword reali
-4. NO BRAND NAMES: Mai nomi di aziende o competitor.
-5. ITALIANO: Tutte le keyword in italiano.
-6. VARIETÀ: Non ripetere la stessa struttura 30 volte.
-
-Restituisci SOLO un JSON array di oggetti:
+Restituisci SOLO un JSON array di ESATTAMENTE 30 oggetti:
 [
-  { "keyword": "...", "intent": "informational|transactional|navigational|local", "source_seed": "la keyword reale da cui deriva" },
+  { "keyword": "...", "intent": "informational|commercial|transactional|local", "source_seed": "keyword reale di riferimento" },
   ...
 ]`;
 
@@ -181,14 +185,13 @@ Restituisci SOLO un JSON array di oggetti:
     const response = await result.response;
     const expanded = this.cleanAndParseJson(response.text());
 
-    // Merge with estimated metrics (ATQ keywords are unverified by DataForSEO)
-    return expanded.map((k: any, idx: number) => ({
+    return expanded.map((k: any) => ({
       keyword: k.keyword,
-      search_volume: 0, // Unknown - not verified by DataForSEO
-      competition: 0.2, // Estimated LOW (long-tail = less competition)
+      search_volume: 0,      // Not verified by DataForSEO — long-tail estimated low
+      competition: 0.15,     // Long-tail = naturally low competition
       cpc: 0,
       competition_level: 'LOW',
-      source: `Gemini ATQ (from: ${k.source_seed || 'seed'})`,
+      source: 'Gemini ATQ',
       intent: k.intent || 'informational'
     }));
   }
