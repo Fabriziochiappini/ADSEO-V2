@@ -22,12 +22,12 @@ export class DataForSeoService {
     async getKeywordIdeas(seeds: string[], locationCode: number = 2380, languageCode: string = 'it'): Promise<any> {
         // DataForSEO Labs Keyword Suggestions takes a single "keyword" per task.
         // We will create a task for each seed (limit to first 3 to avoid excessive costs if many seeds provided)
-        const tasks = seeds.slice(0, 3).map(seed => ({
+        const tasks = seeds.slice(0, 6).map(seed => ({
             keyword: seed,
             location_code: locationCode,
             language_code: languageCode,
             include_seed_keyword: true,
-            limit: 30 // Get top 30 suggestions per seed
+            limit: 15 // 6 seeds × 15 results = 90 diverse real keywords
         }));
 
         try {
@@ -101,7 +101,7 @@ export class DataForSeoService {
 
             const data = await response.json();
             const items = data.tasks?.[0]?.result?.[0]?.items || [];
-            
+
             return items.map((item: any) => ({
                 keyword: item.keyword,
                 search_volume: item.keyword_data?.keyword_info?.search_volume || 0,

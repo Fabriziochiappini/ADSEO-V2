@@ -25,35 +25,54 @@ export async function POST(req: NextRequest) {
         let analyzedKeywords: any[] = [];
 
         // ============================================================
+        // PHASE 0 — AI Orchestrator: Topic Angle Explosion
+        // ============================================================
+        // Gemini explodes the topic into 6 SEMANTICALLY DIVERSE angles.
+        // This is the key to getting varied results from DataForSEO.
+        // ============================================================
         // PHASE 1 — DataForSEO: Source of Truth (Real Market Data)
         // ============================================================
         let realKeywords: any[] = [];
 
         if (dfsUser && dfsPass) {
-            console.log(`[Phase 1] Starting DataForSEO real-market analysis for: ${topic}`);
             try {
-                // A. Gemini generates broad "Smart Seeds" (topic-agnostic)
-                const seeds = await gemini.generateSeedKeywords(topic, businessDescription);
-                console.log(`[Phase 1] Gemini seeds: ${JSON.stringify(seeds)}`);
+                // PHASE 0: Generate diverse topic angles (not just seed variations)
+                console.log(`[Phase 0] AI Orchestrator generating diverse topic angles for: ${topic}`);
+                let angles: string[];
+                try {
+                    angles = await gemini.generateTopicAngles(topic, businessDescription);
+                    console.log(`[Phase 0] Generated ${angles.length} diverse angles: ${JSON.stringify(angles)}`);
+                } catch (angleErr) {
+                    console.warn('[Phase 0] generateTopicAngles failed, falling back to seeds:', angleErr);
+                    angles = await gemini.generateSeedKeywords(topic, businessDescription);
+                }
 
-                // B. DataForSEO expands these seeds with real volume & competition data
+                // PHASE 1: DataForSEO queries each angle independently
+                console.log(`[Phase 1] Querying DataForSEO with ${angles.length} diverse angles...`);
                 const dfs = new DataForSeoService({ username: dfsUser, password: dfsPass });
-                const rawResults = await dfs.getKeywordIdeas(seeds);
+                const rawResults = await dfs.getKeywordIdeas(angles);
 
                 if (rawResults && rawResults.length > 0) {
-                    console.log(`[Phase 1] DataForSEO returned ${rawResults.length} real keywords.`);
+                    console.log(`[Phase 1] DataForSEO returned ${rawResults.length} raw keywords from ${angles.length} angles.`);
 
+                    // Deduplicate, filter and rank
+                    const seen = new Set<string>();
                     realKeywords = rawResults
                         .filter((k: any) => k.search_volume >= 10)
                         .filter((k: any) => k.keyword.split(' ').length >= 2)
-                        // Filter out actual brand names (company-specific patterns)
-                        // NOT by capital letters (that would remove city names like Frosinone, Roma)
                         .filter((k: any) => {
                             const kw = k.keyword;
                             const hasBrandPattern =
-                                /\bS\.r\.l\b|\bS\.p\.A\b|\bSrl\b|\bSpA\b|\b&\s*Co\b/i.test(kw) || // legal entity suffixes
-                                /[A-Z]{3,}/.test(kw); // 3+ consecutive caps = likely acronym brand (ELMI, SRL, etc.)
+                                /\bS\.r\.l\b|\bS\.p\.A\b|\bSrl\b|\bSpA\b|\b&\s*Co\b/i.test(kw) ||
+                                /[A-Z]{3,}/.test(kw);
                             return !hasBrandPattern;
+                        })
+                        .filter((k: any) => {
+                            // Deduplicate: keep only unique keywords
+                            const norm = k.keyword.toLowerCase().trim();
+                            if (seen.has(norm)) return false;
+                            seen.add(norm);
+                            return true;
                         })
                         .map((k: any) => ({
                             ...k,
@@ -61,12 +80,12 @@ export async function POST(req: NextRequest) {
                             source: 'DataForSEO'
                         }))
                         .sort((a: any, b: any) => (b.search_volume * (1 - b.competition)) - (a.search_volume * (1 - a.competition)))
-                        .slice(0, 20); // Top 20 real keywords as foundation
+                        .slice(0, 20);
 
-                    console.log(`[Phase 1] Selected ${realKeywords.length} quality real keywords.`);
+                    console.log(`[Phase 1] Selected ${realKeywords.length} unique quality keywords from diverse angles.`);
                 }
             } catch (dfsError) {
-                console.error('[Phase 1] DataForSEO failed:', dfsError);
+                console.error('[Phase 0/1] Analysis failed:', dfsError);
                 realKeywords = [];
             }
         }

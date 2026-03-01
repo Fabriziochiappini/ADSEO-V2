@@ -114,7 +114,46 @@ export class AiService {
     return this.cleanAndParseJson(response.text());
   }
 
+  /**
+   * PHASE 0 — AI Topic Orchestrator
+   * Explodes the main topic into 6 SEMANTICALLY DIVERSE angles for DataForSEO research.
+   * Each angle must be intentionally DIFFERENT to maximize the diversity of DFS results.
+   * This prevents DFS from returning variations of the same keyword.
+   */
+  async generateTopicAngles(topic: string, businessDescription: string): Promise<string[]> {
+    const prompt = `Sei un Orchestratore SEO esperto. Il tuo compito è MASSIMIZZARE LA DIVERSITÀ della ricerca keyword.
+
+TOPIC PRINCIPALE: "${topic}"
+DESCRIZIONE BUSINESS: "${businessDescription}"
+
+PROBLEMA DA RISOLVERE: Se cerco solo "${topic}" su DataForSEO, otterrò 20 varianti della stessa keyword.
+La tua missione è generare 6 angoli di ricerca SEMANTICAMENTE DIVERSI tra loro.
+
+REGOLA D'ORO: Ogni angolo deve esplorare una PROSPETTIVA COMPLETAMENTE DIVERSA:
+1. SERVIZIO CORE: la keyword principale (es. "sgombero appartamenti milano")
+2. SERVIZIO PARALLELO: un servizio correlato diverso (es. "traslochi milano", NON "sgombero...")
+3. PROBLEMA DEL CLIENTE: cosa cerca chi ha questo problema (es. "smaltimento mobili usati gratis")
+4. SOTTO-NICCHIA: variante del servizio meno ovvia (es. "svuotamento cantine milano")
+5. ZONA/AREA: focus geografico se presente (es. "sgombero periferia milano nord")
+6. INTENT COMMERCIALE: keyword con chiaro intento d'acquisto diverso (es. "preventivo sgombero casa milano")
+
+REGOLE:
+- Ogni angolo DEVE essere semanticamente distinto dagli altri
+- NO variazioni della stessa keyword (vietato "sgombero appartamenti" E "sgombero appartamenti milano" = troppo simili)
+- NO brand names
+- In italiano
+- 2-4 parole per angolo (devono essere "seed" broad per DataForSEO)
+
+Restituisci SOLO un JSON array di 6 stringhe:
+["angolo 1", "angolo 2", "angolo 3", "angolo 4", "angolo 5", "angolo 6"]`;
+
+    const result = await this.model.generateContent(prompt);
+    const response = await result.response;
+    return this.cleanAndParseJson(response.text());
+  }
+
   async generateSeedKeywords(topic: string, businessDescription: string): Promise<string[]> {
+    // Legacy fallback - now using generateTopicAngles for primary flow
     const prompt = `Analyze the business topic "${topic}" and description "${businessDescription}".
     Generate 5 distinct "Seed Keywords" to be used in a Keyword Research Tool (like DataForSEO or SEMrush).
     
