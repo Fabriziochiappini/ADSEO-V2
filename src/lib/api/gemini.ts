@@ -288,10 +288,10 @@ Restituisci SOLO un JSON array di ESATTAMENTE 30 oggetti:
       "brandName": "A SEO-aggressive brand name incorporating the keyword (string)",
       "brandTagline": "A short tagline (2 words max) (string)",
       "brandAuthorRole": "A niche-specific professional title for the author/redaction (e.g., 'Esperto di Fitness', 'Maestro di Ballo', 'Tecnico Sgomberi'). DO NOT use 'Esperto SEO' if the niche is different. (string)",
-      "siteTitle": "A powerful SEO Title for <title> tag (MAX 60 chars) including the keyword (string)",
+      "siteTitle": "A powerful SEO Title for <title> tag. CRITICAL: STRICT MAXIMUM 55 CHARACTERS! Do not exceed. (string)",
       "metaDescription": "A persuasive meta description (MAX 150 chars) for Google results (string)",
       "footerQuote": "A unique, inspiring editorial quote for the footer about this niche (string)",
-      "heroTitle": "Powerful H1 including the keyword (MAX 60 chars) (string)",
+      "heroTitle": "Powerful H1 including the keyword. CRITICAL: STRICT MAXIMUM 55 CHARACTERS! (string)",
       "heroSubtitle": "Engaging H2 explaining the value proposition (MAX 120 chars) (string)",
       "serviceDescription": "A 2-3 sentence description of the service using money keywords like 'prezzo', 'preventivo', 'migliori' (string).",
       "ctaText": "Short CTA like 'Richiedi Preventivo' (string)",
@@ -330,7 +330,7 @@ Restituisci SOLO un JSON array di ESATTAMENTE 30 oggetti:
     
     You must return a valid JSON object matching EXACTLY this structure, with no markdown formatting around it:
     {
-      "guideHeroTitle": "Catchy H1 for the guides section (MAX 60 chars) (string)",
+      "guideHeroTitle": "Catchy H1 for the guides section. STRICT MAXIMUM 55 CHARACTERS! (string)",
       "guideHeroSubtitle": "Engaging H2 explaining what they will learn (MAX 120 chars) (string)",
       "guides": [
         {
@@ -440,8 +440,8 @@ Restituisci SOLO un JSON array di ESATTAMENTE 30 oggetti:
     6. E-E-A-T: Agisci come un esperto veterano che dà un consiglio pratico e autorevole.` : "Agisci come un esperto del settore che fornisce consigli pratici e utili, evitando toni enciclopedici o menzioni a brand specifici."}
 
     Structure:
-    - Highly creative and catchy title (MAX 60 chars) (H1) incorporating the keyword naturally
-    - Detailed excerpt (meta description style, MAX 150 chars) - make it unique!
+    - Highly creative and catchy title (H1) incorporating the keyword naturally. CRITICAL INSTRUCTION: STRICT MAXIMUM 55 CHARACTERS! If longer, it fails SEO. Short, punchy.
+    - Detailed excerpt (meta description style, 140-155 chars) - make it unique!
     - Introduction focusing on the specific angle and the "human" context (Wikipedia/News amalgamation)
     - At least 5 sections with descriptive H2 titles. 
     - CRITICAL: NO <h1> tags inside the content. Start directly with H2.

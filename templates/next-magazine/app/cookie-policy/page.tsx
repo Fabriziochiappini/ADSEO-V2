@@ -1,76 +1,45 @@
 import React from 'react';
-import { BRAND_NAME, DOMAIN } from "@/lib/constants";
-import Link from 'next/link';
+import { BRAND_NAME, DOMAIN } from '@/lib/constants';
 
 export const metadata = {
     title: `Cookie Policy | ${BRAND_NAME}`,
-    description: `Informativa estesa sui cookie di ${BRAND_NAME}. Scopri quali cookie utilizziamo e come gestirli o disabilitarli.`,
+    description: `Informativa sui cookie utilizzati da ${BRAND_NAME}.`,
 };
 
-export default function CookiePolicy() {
+export default function CookiePolicyPage() {
     return (
-        <div className="max-w-4xl mx-auto px-6 py-24 md:py-40">
-            <nav className="mb-12">
-                <Link href="/" className="text-brand-600 font-bold flex items-center gap-2 hover:underline">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-                    Torna alla Home
-                </Link>
-            </nav>
+        <div className="max-w-4xl mx-auto px-6 py-20 prose prose-zinc prose-lg">
+            <h1 className="text-4xl font-serif font-bold mb-8">Cookie Policy</h1>
+            <p>Data di decorrenza: {new Date().toLocaleDateString('it-IT')}</p>
 
-            <h1 className="text-4xl md:text-5xl font-serif font-bold text-zinc-900 mb-12">Cookie Policy</h1>
+            <h2>1. Cosa sono i cookie?</h2>
+            <p>
+                I cookie sono piccoli file di testo che i siti salvano sul tuo computer o dispositivo mobile durante la navigazione. Aiutano il sito a ricordare le tue preferenze e offrono informazioni utili per migliorare l&apos;esperienza utente.
+            </p>
 
-            <div className="prose prose-zinc prose-lg max-w-none text-zinc-600 leading-relaxed space-y-8">
-                <section>
-                    <h2 className="text-2xl font-bold text-zinc-900 mb-4">1. Cosa sono i cookie?</h2>
-                    <p>
-                        I cookie sono piccoli file di testo che i siti visitati dall'utente inviano al suo terminale, dove vengono memorizzati per essere poi ritrasmessi agli stessi siti alla successiva visita del medesimo utente. In questo sito web <strong>{DOMAIN}</strong>, utilizziamo i cookie per migliorare la tua esperienza di navigazione.
-                    </p>
-                </section>
+            <h2>2. Come utilizziamo i cookie</h2>
+            <p>Il sito di <strong>{BRAND_NAME}</strong> ({DOMAIN}) utilizza le seguenti tipologie di cookie:</p>
+            <ul>
+                <li><strong>Cookie Tecnici Essenziali:</strong> Necessari per il corretto caricamento delle pagine e delle funzionalità di base (ad es. per mostrare questo banner). Questi cookie non richiedono il tuo consenso preventivo.</li>
+                <li><strong>Cookie Analitici:</strong> Usiamo strumenti come Google Analytics per capire quante persone visitano il sito e quali pagine sono più lette, raccogliendo solo dati aggregati e anonimizzati (anonimizzazione IP attiva). Possono essere disattivati.</li>
+            </ul>
 
-                <section>
-                    <h2 className="text-2xl font-bold text-zinc-900 mb-4">2. Cookie tecnici e di navigazione</h2>
-                    <p>
-                        Questi cookie sono necessari per il corretto funzionamento del sito. Includono, ad esempio, i cookie che consentono di accedere ad aree protette del sito o di gestire le preferenze dell'utente. Senza questi cookie, alcune parti del sito potrebbero non funzionare correttamente.
-                    </p>
-                </section>
+            <h2>3. Gestione del consenso</h2>
+            <p>
+                Al primo accesso, ti abbiamo mostrato un banner per accettare o rifiutare l&apos;uso dei cookie analitici.
+                Puoi sempre cambiare la tua scelta o cancellare i cookie usando le impostazioni del tuo browser web (Chrome, Firefox, Safari, Edge ecc.).
+            </p>
 
-                <section>
-                    <h2 className="text-2xl font-bold text-zinc-900 mb-4">3. Cookie di terze parti (Google Analytics)</h2>
-                    <p>
-                        Utilizziamo cookie di terze parti forniti da Google Analytics per raccogliere informazioni in forma anonima e aggregata sul traffico del sito. Questi dati vengono utilizzati esclusivamente per scopi statistici e per migliorare la qualità dei nostri contenuti.
-                    </p>
-                    <p>
-                        Questi cookie possono raccogliere informazioni quali l'indirizzo IP, il tipo di browser, il dispositivo utilizzato e il comportamento dell'utente sul sito.
-                    </p>
-                </section>
+            <h2>4. Cookie di Terze Parti</h2>
+            <p>
+                Il nostro sito potrebbe incorporare video da YouTube, mappe da Google Maps o pulsanti social, i quali rilasciano cookie secondo la policy delle rispettive piattaforme esterne:
+            </p>
+            <ul>
+                <li>Google e YouTube: <a href="https://policies.google.com/privacy" rel="nofollow">policies.google.com/privacy</a></li>
+            </ul>
 
-                <section>
-                    <h2 className="text-2xl font-bold text-zinc-900 mb-4">4. Come disabilitare i cookie?</h2>
-                    <p>
-                        L'utente può gestire le preferenze relative ai cookie direttamente all'interno del proprio browser ed impedire — ad esempio — che terze parti possano installarne. Tramite le preferenze del browser è inoltre possibile eliminare i cookie installati in passato.
-                    </p>
-                    <p>
-                        Puoi trovare informazioni su come gestire i cookie nei browser più diffusi ai seguenti indirizzi:
-                    </p>
-                    <ul className="list-disc pl-6 space-y-2">
-                        <li><a href="https://support.google.com/chrome/answer/95647?hl=it" target="_blank" className="text-brand-600 hover:underline">Google Chrome</a></li>
-                        <li><a href="https://support.mozilla.org/it/kb/Gestione%20dei%20cookie" target="_blank" className="text-brand-600 hover:underline">Mozilla Firefox</a></li>
-                        <li><a href="https://support.apple.com/it-it/guide/safari/sfri11471/mac" target="_blank" className="text-brand-600 hover:underline">Apple Safari</a></li>
-                        <li><a href="https://support.microsoft.com/it-it/help/4027947/microsoft-edge-delete-cookies" target="_blank" className="text-brand-600 hover:underline">Microsoft Edge</a></li>
-                    </ul>
-                </section>
-
-                <section>
-                    <h2 className="text-2xl font-bold text-zinc-900 mb-4">5. Consenso</h2>
-                    <p>
-                        Continuando la navigazione su questo sito, acconsenti all'uso dei cookie come descritto in questa informativa semplificata. Ti ricordiamo che puoi sempre modificare le tue preferenze tramite le impostazioni del tuo browser.
-                    </p>
-                </section>
-
-                <p className="text-sm text-zinc-400 mt-12 italic">
-                    Ultimo aggiornamento: {new Date().toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' })}
-                </p>
-            </div>
+            <h2>5. Contatti</h2>
+            <p>Per ulteriori informazioni su come gestiamo i tuoi dati, fai riferimento alla nostra <a href="/privacy-policy">Privacy Policy</a> o contattaci tramite i canali ufficiali del sito.</p>
         </div>
     );
 }

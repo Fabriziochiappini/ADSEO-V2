@@ -157,7 +157,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                 </p>
                 <div
                     className="text-zinc-800 space-y-8 leading-loose text-lg article-content"
-                    dangerouslySetInnerHTML={{ __html: injectInternalLink(article.content) }}
+                    dangerouslySetInnerHTML={{ __html: injectInternalLink(article.content).replace(/<h1(.*?)>/gi, '<h2$1>').replace(/<\/h1>/gi, '</h2>') }}
                 />
             </div>
 

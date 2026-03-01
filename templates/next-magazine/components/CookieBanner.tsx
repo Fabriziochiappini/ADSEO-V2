@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { BRAND_NAME } from '@/lib/constants';
 
 export default function CookieBanner() {
     const [isVisible, setIsVisible] = useState(false);
@@ -10,43 +9,40 @@ export default function CookieBanner() {
     useEffect(() => {
         const consent = localStorage.getItem('cookie-consent-v2');
         if (!consent) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setIsVisible(true);
         }
     }, []);
 
-    const acceptCookies = () => {
-        localStorage.setItem('cookie-consent-v2', 'accepted');
+    const acceptAll = () => {
+        localStorage.setItem('cookie-consent-v2', 'all');
+        setIsVisible(false);
+        // Dispatch event per dire a GA di inizializzarsi
+        window.dispatchEvent(new Event('cookie-consent-granted'));
+    };
+
+    const acceptEssential = () => {
+        localStorage.setItem('cookie-consent-v2', 'essential');
         setIsVisible(false);
     };
 
     if (!isVisible) return null;
 
     return (
-        <div className="fixed bottom-6 left-6 right-6 md:left-auto md:right-8 md:max-w-md z-50 animate-in fade-in slide-in-from-bottom-10 duration-500">
-            <div className="bg-zinc-900/95 backdrop-blur-xl border border-zinc-800 p-6 rounded-3xl shadow-2xl shadow-black/50">
-                <div className="flex flex-col gap-4">
-                    <div className="flex items-center gap-3">
-                        <div className="w-2 h-2 rounded-full bg-brand-500 animate-pulse" />
-                        <h3 className="text-white font-bold text-sm tracking-tight">Informativa sui Cookie</h3>
-                    </div>
-                    <p className="text-zinc-400 text-xs leading-relaxed">
-                        {BRAND_NAME} utilizza i cookie per migliorare la tua esperienza di navigazione e analizzare il traffico del sito.
-                        Nessun dato personale viene venduto a terzi. Cliccando su "Accetta", acconsenti all'uso dei cookie.
-                    </p>
-                    <div className="flex items-center gap-4 pt-2">
-                        <button
-                            onClick={acceptCookies}
-                            className="flex-1 bg-white text-zinc-950 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-brand-500 hover:text-white transition-all active:scale-95"
-                        >
-                            Accetta
-                        </button>
-                        <Link
-                            href="/cookie-policy"
-                            className="text-zinc-500 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors"
-                        >
-                            Leggi di più
-                        </Link>
-                    </div>
+        <div className="fixed bottom-0 left-0 right-0 z-[999] bg-zinc-900 border-t border-zinc-800 text-zinc-300 p-4 md:p-6 shadow-2xl animate-in slide-in-from-bottom-full duration-500 font-sans">
+            <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="text-sm leading-relaxed max-w-4xl">
+                    <strong className="text-white block mb-1">Informativa sui Cookie</strong>
+                    Utilizziamo cookie tecnici essenziali per il funzionamento del sito e, previo tuo consenso, cookie analitici (Google Analytics) per capire come viene utilizzato il nostro sito e migliorare l&apos;esperienza.
+                    Puoi accettare tutti i cookie, solo quelli essenziali o leggere la nostra <Link href="/cookie-policy" className="text-white underline hover:text-brand-400 transition-colors">Cookie Policy completa</Link>.
+                </div>
+                <div className="flex w-full md:w-auto flex-col sm:flex-row items-stretch md:items-center gap-3 shrink-0">
+                    <button onClick={acceptEssential} className="px-5 py-2.5 text-sm font-semibold border border-zinc-700 hover:bg-zinc-800 hover:text-white rounded-xl transition-all whitespace-nowrap">
+                        Solo Essenziali
+                    </button>
+                    <button onClick={acceptAll} className="px-5 py-2.5 text-sm font-semibold bg-white text-zinc-900 hover:bg-brand-50 rounded-xl transition-all whitespace-nowrap shadow-sm">
+                        Accetta Tutti
+                    </button>
                 </div>
             </div>
         </div>

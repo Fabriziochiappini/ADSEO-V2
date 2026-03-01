@@ -24,6 +24,10 @@ export const metadata: Metadata = {
   title: SITE_TITLE,
   description: META_DESCRIPTION,
   metadataBase: new URL(DOMAIN),
+  openGraph: {
+    images: [`${DOMAIN}/api/og`], // Fallback OG image
+    type: 'website',
+  },
   robots: {
     index: true,
     follow: true,
@@ -84,7 +88,7 @@ export default async function RootLayout({
         </main>
 
         {/* Footer */}
-        <footer className="bg-zinc-50 pt-32 pb-16 mt-32 border-t border-zinc-100 text-center">
+        <footer id="contatti" className="bg-zinc-50 pt-32 pb-16 mt-32 border-t border-zinc-100 text-center">
           <div className="max-w-7xl mx-auto px-6">
             <h2 className="text-3xl font-serif font-bold mb-8">{BRAND_NAME}<span className="text-zinc-500 italic">.{BRAND_TAGLINE.toLowerCase()}</span></h2>
             <div className="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-8 mb-8 text-xs text-zinc-600 font-medium tracking-wide uppercase">

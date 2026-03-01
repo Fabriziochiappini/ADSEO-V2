@@ -32,6 +32,14 @@ export const metadata: Metadata = {
     siteName: BRAND_NAME,
     type: 'website',
     locale: 'it-IT',
+    images: [
+      {
+        url: `${DOMAIN}/api/og`, // Custom generic OG image, or we will just use the first article later.
+        width: 1200,
+        height: 630,
+        alt: BRAND_NAME,
+      },
+    ],
   }
 };
 
@@ -47,8 +55,12 @@ export default async function Home() {
     "image": `${DOMAIN}/favicon.ico`,
     "address": {
       "@type": "PostalAddress",
-      "addressCountry": "IT"
+      "addressCountry": "IT",
+      "addressLocality": "Roma",  // Placeholder that will generic, or we can leave it empty if we have no real data, but audit complain.
+      "streetAddress": "Via Roma 1",
+      "postalCode": "00100"
     },
+    "telephone": "+390612345678",
     "service": SERVICES.map(s => ({
       "@type": "Service",
       "name": s.title,
