@@ -2,9 +2,8 @@ import React from 'react';
 import { notFound } from 'next/navigation';
 import JsonLd from '@/components/JsonLd';
 import Breadcrumbs from '@/components/Breadcrumbs';
-import YouTubeVideo from '@/components/YouTubeVideo';
 import ArticleGrid from '@/components/ArticleGrid';
-import { getLiveArticles, DOMAIN, BRAND_NAME, YOUTUBE_VIDEO_ID } from '@/lib/constants';
+import { getLiveArticles, DOMAIN, BRAND_NAME } from '@/lib/constants';
 import type { Metadata, ResolvingMetadata } from 'next';
 import Link from 'next/link';
 

@@ -1,8 +1,7 @@
 import React from 'react';
 import Breadcrumbs from '@/components/Breadcrumbs';
 import ArticleGrid from '@/components/ArticleGrid';
-import YouTubeVideo from '@/components/YouTubeVideo';
-import { getLiveArticles, BRAND_NAME, YOUTUBE_VIDEO_ID } from '@/lib/constants';
+import { getLiveArticles, BRAND_NAME } from '@/lib/constants';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -31,11 +30,6 @@ export default async function MagazinePage() {
                 <ArticleGrid articles={articles} />
             </section>
 
-            {YOUTUBE_VIDEO_ID && (
-                <div className="mt-24 border-t border-zinc-100 pt-24">
-                    <YouTubeVideo videoId={YOUTUBE_VIDEO_ID} title={`Video Hub per ${BRAND_NAME}`} />
-                </div>
-            )}
         </div>
     );
 }

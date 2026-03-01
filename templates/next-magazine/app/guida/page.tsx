@@ -1,6 +1,5 @@
 import React from 'react';
 import Breadcrumbs from '@/components/Breadcrumbs';
-import YouTubeVideo from '@/components/YouTubeVideo';
 import {
     GUIDE_HERO_TITLE,
     GUIDE_HERO_SUBTITLE,
@@ -8,7 +7,6 @@ import {
     GUIDE_CTA_TITLE,
     GUIDE_CTA_SUBTITLE,
     GUIDE_CTA_TEXT,
-    YOUTUBE_VIDEO_ID,
     BRAND_NAME
 } from '@/lib/constants';
 import { Metadata } from 'next';
@@ -92,12 +90,6 @@ export default function GuidePage() {
                 })}
             </div>
 
-            {/* Video Section - Solo se ID presente */}
-            {YOUTUBE_VIDEO_ID && (
-                <div className="max-w-4xl mx-auto">
-                    <YouTubeVideo videoId={YOUTUBE_VIDEO_ID} />
-                </div>
-            )}
 
             {/* Final CTA */}
             <section className="bg-zinc-900 rounded-[3rem] p-12 md:p-20 text-center text-white mt-12 overflow-hidden relative">
