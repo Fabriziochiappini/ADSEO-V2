@@ -136,6 +136,63 @@ export class AiService {
     return this.cleanAndParseJson(response.text());
   }
 
+  /**
+   * ATQ EXPANSION (Answer The Question)
+   * Phase 2 of the dual-level pipeline.
+   * Takes REAL keywords from DataForSEO as "source of truth" and expands
+   * them into 30 hyper-specific long-tail keywords using Neil Patel's
+   * Answer The Question methodology.
+   */
+  async generateATQExpansion(realKeywords: { keyword: string; search_volume: number; competition: number }[], topic: string): Promise<any[]> {
+    const topKeywords = realKeywords
+      .sort((a, b) => b.search_volume - a.search_volume)
+      .slice(0, 10)
+      .map(k => k.keyword);
+
+    const prompt = `Sei un esperto SEO che applica il metodo "Answer The Question" di Neil Patel.
+
+FONTE DI VERITÀ (Keyword reali con volume di ricerca certo, da DataForSEO):
+${topKeywords.map((k, i) => `${i + 1}. "${k}"`).join('\n')}
+
+TOPIC PRINCIPALE: "${topic}"
+
+IL TUO COMPITO:
+Partendo da queste keyword REALI come base, genera 30 keyword LONG-TAIL iper-specifiche che rispondono alle domande implicite degli utenti (stile "People Also Ask" e "Answer The Public").
+
+REGOLE CRITICHE:
+1. RADICATE NELLA REALTÀ: Ogni keyword deve derivare concettualmente da una delle keyword reali sopra, espandendola in una domanda o bisogno specifico.
+2. LONG-TAIL (4-8 parole): Iperspecifiche, non generiche.
+3. INTENT MAPPING: Copri tutti i tipi di intento:
+   - INFORMAZIONALE: "come", "quanto costa", "quando", "perché", "è possibile"
+   - NAVIGAZIONALE: "migliore", "quale", "dove trovare"
+   - TRANSAZIONALE: "preventivo", "prezzo", "affidabile", "economico", "urgente"
+   - LOCAL: variazioni geografiche specifiche se presenti nelle keyword reali
+4. NO BRAND NAMES: Mai nomi di aziende o competitor.
+5. ITALIANO: Tutte le keyword in italiano.
+6. VARIETÀ: Non ripetere la stessa struttura 30 volte.
+
+Restituisci SOLO un JSON array di oggetti:
+[
+  { "keyword": "...", "intent": "informational|transactional|navigational|local", "source_seed": "la keyword reale da cui deriva" },
+  ...
+]`;
+
+    const result = await this.model.generateContent(prompt);
+    const response = await result.response;
+    const expanded = this.cleanAndParseJson(response.text());
+
+    // Merge with estimated metrics (ATQ keywords are unverified by DataForSEO)
+    return expanded.map((k: any, idx: number) => ({
+      keyword: k.keyword,
+      search_volume: 0, // Unknown - not verified by DataForSEO
+      competition: 0.2, // Estimated LOW (long-tail = less competition)
+      cpc: 0,
+      competition_level: 'LOW',
+      source: `Gemini ATQ (from: ${k.source_seed || 'seed'})`,
+      intent: k.intent || 'informational'
+    }));
+  }
+
   async generateBroadVariations(keywords: string[]): Promise<string[]> {
     const prompt = `Here is a list of specific long-tail keywords that had 0 search volume:
     ${JSON.stringify(keywords)}

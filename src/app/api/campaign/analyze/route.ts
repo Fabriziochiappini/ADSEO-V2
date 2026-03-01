@@ -24,78 +24,83 @@ export async function POST(req: NextRequest) {
         const gemini = new AiService(geminiKey);
         let analyzedKeywords: any[] = [];
 
-        // 1. Try DataForSEO First (Real Data) with Gemini Seeds
-        if (dfsUser && dfsPass) {
-            console.log(`Starting Hybrid Analysis (Gemini + DataForSEO) for topic: ${topic}`);
-            try {
-                // A. Gemini generates "Smart Seeds"
-                const seeds = await gemini.generateSeedKeywords(topic, businessDescription);
-                console.log(`Gemini generated seeds: ${JSON.stringify(seeds)}`);
+        // ============================================================
+        // PHASE 1 — DataForSEO: Source of Truth (Real Market Data)
+        // ============================================================
+        let realKeywords: any[] = [];
 
-                // B. DataForSEO expands these seeds
+        if (dfsUser && dfsPass) {
+            console.log(`[Phase 1] Starting DataForSEO real-market analysis for: ${topic}`);
+            try {
+                // A. Gemini generates broad "Smart Seeds" (topic-agnostic)
+                const seeds = await gemini.generateSeedKeywords(topic, businessDescription);
+                console.log(`[Phase 1] Gemini seeds: ${JSON.stringify(seeds)}`);
+
+                // B. DataForSEO expands these seeds with real volume & competition data
                 const dfs = new DataForSeoService({ username: dfsUser, password: dfsPass });
                 const rawResults = await dfs.getKeywordIdeas(seeds);
-                
+
                 if (rawResults && rawResults.length > 0) {
-                    console.log(`DataForSEO returned ${rawResults.length} raw ideas.`);
-                    
-                    // C. Filter & Rank
-                    // 1. Remove low volume trash (< 10)
-                    // 2. Remove too short keywords (1 word)
-                    // 3. Sort by "Efficiency" (Volume / Competition) or just Volume if Competition is low
-                    
-                    analyzedKeywords = rawResults
-                        .filter((k: Keyword) => k.search_volume >= 10) // Filter no-volume
-                        .filter((k: Keyword) => k.keyword.split(' ').length >= 2) // Filter generic single words
-                        .map((k: Keyword) => ({
+                    console.log(`[Phase 1] DataForSEO returned ${rawResults.length} real keywords.`);
+
+                    realKeywords = rawResults
+                        .filter((k: any) => k.search_volume >= 10)
+                        .filter((k: any) => k.keyword.split(' ').length >= 2)
+                        // Filter out brand names (any keyword with a capital letter mid-sentence is likely a brand)
+                        .filter((k: any) => {
+                            const words = k.keyword.split(' ');
+                            const hasBrandName = words.slice(1).some((w: string) => /^[A-Z]/.test(w));
+                            return !hasBrandName;
+                        })
+                        .map((k: any) => ({
                             ...k,
                             competition_level: k.competition_level || (k.competition < 0.3 ? 'LOW' : k.competition < 0.7 ? 'MEDIUM' : 'HIGH'),
-                            source: 'DataForSEO' // Mark source
+                            source: 'DataForSEO'
                         }))
-                        // Sort: Prioritize High Volume + Low Competition
-                        // Simple score: Volume * (1 - Competition)
-                        .sort((a: Keyword, b: Keyword) => {
-                            const scoreA = a.search_volume * (1 - a.competition);
-                            const scoreB = b.search_volume * (1 - b.competition);
-                            return scoreB - scoreA;
-                        })
-                        .slice(0, 50); // Take top 50
+                        .sort((a: any, b: any) => (b.search_volume * (1 - b.competition)) - (a.search_volume * (1 - a.competition)))
+                        .slice(0, 20); // Top 20 real keywords as foundation
 
-                    // D. Fallback if result count is too low (e.g. niche topic)
-                    if (analyzedKeywords.length < 30) {
-                        console.log(`DataForSEO returned only ${analyzedKeywords.length} valid keywords. Falling back to Gemini to fill the gap.`);
-                        try {
-                             const geminiKeywords = await gemini.generateKeywordsWithMetrics(topic, businessDescription);
-                             // Add Gemini keywords that are not already present
-                             const existingKeywords = new Set(analyzedKeywords.map(k => k.keyword));
-                             const newKeywords = geminiKeywords
-                                .filter(k => !existingKeywords.has(k.keyword))
-                                .map(k => ({ ...k, source: 'Gemini (Est.)' })); // Mark source
-                             
-                             // Fill up to 30
-                             const needed = 30 - analyzedKeywords.length;
-                             const toAdd = newKeywords.slice(0, needed);
-                             
-                             analyzedKeywords = [...analyzedKeywords, ...toAdd];
-                        } catch (geminiErr) {
-                            console.error('Gemini fallback failed:', geminiErr);
-                        }
-                    }
+                    console.log(`[Phase 1] Selected ${realKeywords.length} quality real keywords.`);
                 }
             } catch (dfsError) {
-                console.error('DataForSEO analysis failed, falling back to Gemini:', dfsError);
-                analyzedKeywords = []; // Ensure fallback triggers
+                console.error('[Phase 1] DataForSEO failed:', dfsError);
+                realKeywords = [];
             }
         }
 
-        // 2. Fallback to Gemini if DataForSEO failed or returned no results
-        if (!analyzedKeywords || analyzedKeywords.length === 0) {
-            console.log('Generating keywords and metrics with Gemini (Fallback) for:', topic);
+        // ============================================================
+        // PHASE 2 — Gemini ATQ Expansion: "Answer The Question"
+        // ============================================================
+        // If we have real keywords, use them as the source of truth for expansion.
+        // If DataForSEO failed or not configured, gemini works standalone.
+
+        if (realKeywords.length > 0) {
+            console.log(`[Phase 2] Starting ATQ Expansion based on ${realKeywords.length} real DataForSEO keywords...`);
+            try {
+                const atqKeywords = await gemini.generateATQExpansion(realKeywords, topic);
+                console.log(`[Phase 2] ATQ generated ${atqKeywords.length} long-tail expansions.`);
+
+                // Combine: Real keywords first (priority), then ATQ expansions
+                const realSet = new Set(realKeywords.map((k: any) => k.keyword.toLowerCase()));
+                const uniqueATQ = atqKeywords.filter(k => !realSet.has(k.keyword.toLowerCase()));
+
+                analyzedKeywords = [
+                    ...realKeywords,
+                    ...uniqueATQ
+                ].slice(0, 50); // Max 50 total
+
+            } catch (atqError) {
+                console.error('[Phase 2] ATQ Expansion failed, using DataForSEO results only:', atqError);
+                analyzedKeywords = realKeywords;
+            }
+
+        } else {
+            // Full Gemini fallback if DataForSEO not available or returned nothing
+            console.log('[Fallback] No real keywords. Generating with Gemini standalone...');
             try {
                 analyzedKeywords = await gemini.generateKeywordsWithMetrics(topic, businessDescription);
             } catch (err: any) {
-                console.error("Gemini Analysis Error:", err);
-                throw new Error(`Gemini Analysis Failed: ${err.message}`);
+                throw new Error(`Keyword generation failed entirely: ${err.message}`);
             }
         }
 
@@ -103,9 +108,16 @@ export async function POST(req: NextRequest) {
             throw new Error('Analysis returned no results (both DataForSEO and AI failed).');
         }
 
+        const realCount = analyzedKeywords.filter((k: any) => k.source === 'DataForSEO').length;
+        const atqCount = analyzedKeywords.filter((k: any) => k.source?.includes('ATQ')).length;
+        const descriptionParts = [];
+        if (realCount > 0) descriptionParts.push(`${realCount} keyword reali (DataForSEO)`);
+        if (atqCount > 0) descriptionParts.push(`${atqCount} long-tail ATQ (Gemini)`);
+        if (descriptionParts.length === 0) descriptionParts.push(`${analyzedKeywords.length} keyword (Gemini AI)`);
+
         const result: TopicAnalysisResult = {
             name: "TOPIC 1",
-            description: `Analysis of "${topic}" (${analyzedKeywords.length} keywords found via ${dfsUser && dfsPass ? 'DataForSEO' : 'AI'})`,
+            description: `"${topic}" — ${descriptionParts.join(' + ')}`,
             keywords: analyzedKeywords
         };
 
