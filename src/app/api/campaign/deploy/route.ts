@@ -71,6 +71,7 @@ export async function POST(req: Request) {
                 const contentJson = JSON.stringify({
                     brandName: site.brandName,
                     brandTagline: site.brandTagline || 'Eccellenza Digitale',
+                    brandAuthorRole: site.brandAuthorRole || 'Redazione Specializzata',
                     heroTitle: site.heroTitle,
                     heroSubtitle: site.heroSubtitle,
                     servicesTitle: site.servicesTitle,

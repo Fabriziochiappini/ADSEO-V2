@@ -187,6 +187,7 @@ export class AiService {
     {
       "brandName": "A SEO-aggressive brand name incorporating the keyword (string)",
       "brandTagline": "A short tagline (2 words max) (string)",
+      "brandAuthorRole": "A niche-specific professional title for the author/redaction (e.g., 'Esperto di Fitness', 'Maestro di Ballo', 'Tecnico Sgomberi'). DO NOT use 'Esperto SEO' if the niche is different. (string)",
       "siteTitle": "A powerful SEO Title for <title> tag (MAX 60 chars) including the keyword (string)",
       "metaDescription": "A persuasive meta description (MAX 150 chars) for Google results (string)",
       "footerQuote": "A unique, inspiring editorial quote for the footer about this niche (string)",
