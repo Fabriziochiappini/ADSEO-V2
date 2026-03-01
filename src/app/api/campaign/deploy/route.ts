@@ -31,7 +31,7 @@ export async function POST(req: Request) {
         const vercel = new VercelService(vercelToken, teamId);
         const gemini = new AiService(geminiKey);
         const knowledge = new KnowledgeService();
-        const imageService = new ImageService();
+        const imageService = new ImageService(geminiKey);
 
         // 1. Fetch DNA (Keywords) from Topic 1
         const { data: keywords, error: kwError } = await supabase
@@ -135,8 +135,12 @@ export async function POST(req: Request) {
 
                     const article = await gemini.generateLongFormArticle(kw.keyword, context);
 
-                    // Processing Image: Download, Rename, Optimize, Upload
-                    const seoImageUrl = await imageService.processAndUploadImage(article.imageSearchTerm || article.title, article.slug);
+                    // Processing Image: Imagen 4 Fast → WebP → Supabase (named with slug, with alt tag)
+                    const seoImage = await imageService.processAndUploadImage(
+                        article.imageSearchTerm || article.title,
+                        article.slug,
+                        article.title  // alt tag = article title for SEO
+                    );
 
                     await supabase.from('articles').insert({
                         campaign_id: campaignId,
@@ -146,7 +150,8 @@ export async function POST(req: Request) {
                         content: article.content,
                         category: article.category,
                         tags: article.tags,
-                        image_url: seoImageUrl,
+                        image_url: seoImage.url,
+                        alt_tag: seoImage.alt,
                         published_at: new Date().toISOString()
                     });
                     pillarIdx++;

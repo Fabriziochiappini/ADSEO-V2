@@ -27,7 +27,7 @@ export async function GET(req: Request) {
 
         const gemini = new AiService(geminiKey);
         const newsService = new NewsService();
-        const imageService = new ImageService();
+        const imageService = new ImageService(geminiKey);
 
         // 1. Fetch articles due for publication
         const { data: queue, error: queueError } = await supabase
@@ -64,7 +64,11 @@ export async function GET(req: Request) {
 
                 // 2. Generate Article with context & Optimize Image
                 const article = await gemini.generateLongFormArticle(item.keyword, context);
-                const seoImageUrl = await imageService.processAndUploadImage(article.imageSearchTerm || article.title, article.slug);
+                const seoImage = await imageService.processAndUploadImage(
+                    article.imageSearchTerm || article.title,
+                    article.slug,
+                    article.title
+                );
 
                 // Insert into articles table
                 const { error: insertError } = await supabase.from('articles').insert({
@@ -75,7 +79,8 @@ export async function GET(req: Request) {
                     content: article.content,
                     category: article.category,
                     tags: article.tags,
-                    image_url: seoImageUrl,
+                    image_url: seoImage.url,
+                    alt_tag: seoImage.alt,
                     published_at: new Date().toISOString()
                 });
 

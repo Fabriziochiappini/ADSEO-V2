@@ -13,7 +13,7 @@ export async function POST(req: Request) {
 
         const gemini = new AiService(geminiKey);
         const newsService = new NewsService();
-        const imageService = new ImageService();
+        const imageService = new ImageService(geminiKey);
 
         // Query per trovare articoli da pubblicare
         let query = supabase
@@ -58,7 +58,11 @@ export async function POST(req: Request) {
 
                 // Generate Article & Optimize Image
                 const article = await gemini.generateLongFormArticle(item.keyword, context);
-                const seoImageUrl = await imageService.processAndUploadImage(article.imageSearchTerm || article.title, article.slug);
+                const seoImage = await imageService.processAndUploadImage(
+                    article.imageSearchTerm || article.title,
+                    article.slug,
+                    article.title
+                );
 
                 // Insert into articles table
                 const { error: insertError } = await supabase.from('articles').insert({
@@ -69,7 +73,8 @@ export async function POST(req: Request) {
                     content: article.content,
                     category: article.category,
                     tags: article.tags,
-                    image_url: seoImageUrl,
+                    image_url: seoImage.url,
+                    alt_tag: seoImage.alt,
                     published_at: new Date().toISOString()
                 });
 
