@@ -10,13 +10,15 @@ import {
     WHY_CHOOSE_US_POINTS,
     SERVICES_CTA_TITLE,
     SERVICES_CTA_SUBTITLE,
-    SERVICES_CTA_TEXT
+    SERVICES_CTA_TEXT,
+    SERVICES_META_DESCRIPTION,
+    SERVICES_FOOTER_QUOTE
 } from "@/lib/constants";
 import Link from 'next/link';
 
 export const metadata = {
-    title: `I Nostri Servizi Professionali | ${BRAND_NAME}`,
-    description: `Scopri le soluzioni di eccellenza digitale di ${BRAND_NAME}. Consulenza su misura per il tuo successo.`,
+    title: `Servizi Professionali | ${BRAND_NAME}`,
+    description: SERVICES_META_DESCRIPTION,
     alternates: { canonical: '/servizi' }
 };
 
@@ -121,6 +123,15 @@ export default function ServicesPage() {
                             </div>
                         </div>
                     </div>
+                </div>
+            </section>
+            {/* Final Quote Section */}
+            <section className="py-24 bg-white text-center border-t border-zinc-100">
+                <div className="max-w-4xl mx-auto px-6">
+                    <div className="w-12 h-0.5 bg-brand-500 mx-auto mb-12 opacity-30" />
+                    <p className="text-2xl md:text-3xl font-serif italic text-zinc-500 leading-relaxed font-light">
+                        "{SERVICES_FOOTER_QUOTE}"
+                    </p>
                 </div>
             </section>
         </div>

@@ -266,34 +266,38 @@ export class AiService {
   }
 
   async generateServicesPageContent(domain: string, keyword: string): Promise<any> {
-    const prompt = `Create content for the "/servizi" (Services) page of the domain "${domain}" focused on the primary keyword "${keyword}".
+    const prompt = `Create HIGH-VALUE content for the "/servizi" (Services) page of the domain "${domain}" focused on the primary keyword "${keyword}".
     The target language is Italian.
     
     You must return a valid JSON object matching EXACTLY this structure, with no markdown formatting around it:
     {
+      "servicesMetaDescription": "Compelling SEO meta description (MAX 150 chars) (string)",
       "servicesHeroTitle": "Powerful H1 for the services page (MAX 60 chars) (string)",
       "servicesHeroSubtitle": "Engaging H2 explaining the expertise (MAX 150 chars) (string)",
       "extendedServices": [
         {
           "title": "Service 1 (string)",
-          "description": "Longer, detailed description (string)",
-          "icon": "One of: M13 10V3L4 14h7v7l9-11h-7z (Thunder), M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z (Check), M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z (Clock), M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z (Lock), M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z (Chart)"
+          "description": "Longer, detailed description (min 20 words) (string)",
+          "icon": "One of the SVG path strings provided in the example"
         },
-        ... (at least 6 services)
+        ... (exactly 6 services)
       ],
-      "whyChooseUsTitle": "H2 for the 'Why Us' section (string)",
-      "whyChooseUsSubtitle": "Subtitle for why they should trust this brand (string)",
+      "whyChooseUsTitle": "H2 for the 'Our Method' section (string)",
+      "whyChooseUsSubtitle": "Subtitle for the method (string)",
       "whyChooseUsPoints": [
         { "title": "Point 1 Title", "description": "Point 1 Description" },
         { "title": "Point 2 Title", "description": "Point 2 Description" },
         { "title": "Point 3 Title", "description": "Point 3 Description" }
       ],
-      "servicesCtaTitle": "High-impact H2 for the final CTA (string)",
+      "servicesCtaTitle": "Final H2 CTA title (string)",
       "servicesCtaSubtitle": "Persuasive text (string)",
-      "servicesCtaText": "CTA Button text (string)"
+      "servicesCtaText": "CTA Button text (string)",
+      "servicesFooterQuote": "A deep, professional phrase specific to the business specialty (string)"
     }
     
-    CRITICAL: extendedServices MUST contain exactly 6 diverse, relevant services. whyChooseUsPoints MUST contain exactly 3 points.`;
+    CRITICAL TOPIC RULES: 
+    1. If the keyword topic is NOT about 'Web Agency' or 'SEO', DO NOT talk about SEO, Web rankings, or Google. Talk ONLY about the specific niche (e.g., if it's Plumbing, talk about repairs, leakage, professional tools). 
+    2. extendedServices MUST contain exactly 6 diverse, relevant services. whyChooseUsPoints MUST contain exactly 3 points.`;
 
     try {
       const result = await this.model.generateContent(prompt);

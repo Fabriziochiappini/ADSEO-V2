@@ -22,13 +22,14 @@ export class ImageService {
             const query = encodeURIComponent(keyword.toLowerCase().replace(/\s+/g, ','));
             const randomSeed = Math.abs(this.hashCode(slug)) % 1000;
 
-            // Rotazione sorgenti: Unsplash (via proxy/random) e Picsum
-            let sourceUrl = `https://picsum.photos/seed/${randomSeed}/1200/675`;
-            if (randomSeed % 2 === 0) {
-                sourceUrl = `https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&q=80&w=1200&sig=${randomSeed}`;
-            } else if (randomSeed % 3 === 0) {
-                sourceUrl = `https://images.unsplash.com/photo-1504384308090-c54be3855833?auto=format&fit=crop&q=80&w=1200&sig=${randomSeed}`;
-            }
+            // Rotazione sorgenti professionali basate sulla keyword per massimizzare la rilevanza
+            const sources = [
+                `https://source.unsplash.com/featured/1200x675/?${query}&sig=${randomSeed}`,
+                `https://loremflickr.com/1200/675/${query}?lock=${randomSeed}`,
+                `https://picsum.photos/seed/${randomSeed}/1200/675`
+            ];
+
+            let sourceUrl = sources[randomSeed % sources.length];
 
             console.log(`[ImageService] Fetching from ${sourceUrl} for ${slug}`);
             const response = await fetch(sourceUrl);
@@ -73,7 +74,7 @@ export class ImageService {
         } catch (error: any) {
             console.error('[ImageService] Critical Error:', error.message);
             // Estremo fallback per non bloccare il deploy
-            return `https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&q=80&w=1200&f=${slug}.webp`;
+            return `https://source.unsplash.com/featured/1200x675/?${encodeURIComponent(keyword)}&f=${slug}.webp`;
         }
     }
 

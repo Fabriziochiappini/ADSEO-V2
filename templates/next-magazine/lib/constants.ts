@@ -28,6 +28,7 @@ export const META_DESCRIPTION = dynamic?.metaDescription || "Il punto di riferim
 export const CAMPAIGN_ID = dynamic?.campaignId || null;
 
 // Services Page Content
+export const SERVICES_META_DESCRIPTION = dynamic?.servicesMetaDescription || "Scopri i nostri servizi professionali di eccellenza.";
 export const SERVICES_HERO_TITLE = dynamic?.servicesHeroTitle || `I Nostri Servizi Professionali`;
 export const SERVICES_HERO_SUBTITLE = dynamic?.servicesHeroSubtitle || `Scopri le soluzioni di eccellenza digitale progettate per il tuo successo.`;
 export const EXTENDED_SERVICES = dynamic?.extendedServices || [];
@@ -37,6 +38,7 @@ export const WHY_CHOOSE_US_POINTS = dynamic?.whyChooseUsPoints || [];
 export const SERVICES_CTA_TITLE = dynamic?.servicesCtaTitle || `Pronti per il Futuro Digitale?`;
 export const SERVICES_CTA_SUBTITLE = dynamic?.servicesCtaSubtitle || `Contattaci oggi per una consulenza gratuita e personalizzata.`;
 export const SERVICES_CTA_TEXT = dynamic?.servicesCtaText || `Prenota Consulenza`;
+export const SERVICES_FOOTER_QUOTE = dynamic?.servicesFooterQuote || dynamic?.footerQuote || 'Ogni progetto è un\'opportunità per ridefinire gli standard.';
 
 // Guide & Video Content
 export const GUIDE_HERO_TITLE = dynamic?.guideHeroTitle || 'Guida alla Scelta Professionale';

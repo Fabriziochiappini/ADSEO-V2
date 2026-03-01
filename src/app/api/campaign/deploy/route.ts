@@ -88,7 +88,19 @@ export async function POST(req: Request) {
                     footerQuote: site.footerQuote,
                     youtubeVideoId: site.youtubeVideoId,
                     domain: site.domain,
-                    campaignId: campaignId
+                    campaignId: campaignId,
+                    // Extended Services Content (AI Agent)
+                    servicesMetaDescription: site.servicesMetaDescription,
+                    servicesHeroTitle: site.servicesHeroTitle,
+                    servicesHeroSubtitle: site.servicesHeroSubtitle,
+                    extendedServices: site.extendedServices,
+                    whyChooseUsTitle: site.whyChooseUsTitle,
+                    whyChooseUsSubtitle: site.whyChooseUsSubtitle,
+                    whyChooseUsPoints: site.whyChooseUsPoints,
+                    servicesCtaTitle: site.servicesCtaTitle,
+                    servicesCtaSubtitle: site.servicesCtaSubtitle,
+                    servicesCtaText: site.servicesCtaText,
+                    servicesFooterQuote: site.servicesFooterQuote
                 });
 
                 // 3. Create NEW REPO for this site (Cloning Template)
