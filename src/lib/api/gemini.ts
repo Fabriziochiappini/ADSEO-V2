@@ -431,13 +431,13 @@ Restituisci SOLO un JSON array di ESATTAMENTE 30 oggetti:
     Produce a highly creative, unique Title (H1) and Excerpt. DO NOT use generic phrases like "Guida Completa per..." or "Tutto quello che devi sapere su...". Differentiate!
     
     HUMAN TOUCH & REAL-WORLD CONTEXT:
-    ${context ? `Ecco alcune informazioni/notizie provenienti da diverse fonti reali (Wikipedia, News, Reddit ecc.) legate all'argomento:\n${context}\n\nISTRUZIONI CRITICHE PER L'OLIMPO ADSEO (IL CITAZIONE ENGINE):
-    1. CITAZIONE ESPLICITA IN BOX: DEVI inserire esattamente 2 o 3 citazioni testuali prese dalle fonti fornite. Ogni citazione deve essere di 2-3 righe e racchiusa tra <blockquote class=\"cite-box\">[Testo Citazione]</blockquote>.
-    2. COMMENTO POST-CITAZIONE: Sotto ogni box di citazione, DEVI commentare e integrare la notizia con la tua competenza esperta del settore (niente toni da bot).
-    3. ANTI-BOT / ANTI-SLOP: VIETATO usare frasi fatte da AI come: "Evita sorprese!", "Non farti fregare!", "Parti col piede giusto!", "Un preventivo dettagliato è fondamentale", "Valuta attentamente". Se le usi, l'articolo verrà penalizzato.
-    4. EXPERTISE LOCALE & NUMERICA (E-E-A-T): Inserisci dati concreti simulati basati sul mercato 2026 specifico per la nicchia e la città. Se parli di palestre a Roma, usa range di prezzi reali o tendenze locali 2026.
-    5. PERSONA EXPERT: Agisci come un esperto senior del settore (es: Personal Trainer se parli di sport, Architetto se parli di case, ecc.). Non menzionare "Dottore SEO" a meno che il tema non sia il SEO.
-    6. FILTRO BRAND: SE NEL CONTESTO APPAIONO NOMI DI AZIENDE SPECIFICHE O COMPETITOR, DEVI ignorare il nome e parlare solo del servizio.` : "Agisci come un esperto senior del settore che fornisce consigli pratici, dati numerici realistici del mercato 2026, evitando toni enciclopedici o frasi fatte da bot."}
+    ${context ? `Ecco alcune informazioni/notizie provenienti da diverse fonti reali (Wikipedia, News, Reddit ecc.) legate all'argomento:\n${context}\n\nISTRUZIONI CRITICHE PER L'OLIMPO ADSEO (IL CITAZIONE ENGINE E E-E-A-T):
+    1. CITAZIONE ESPLICITA IN BOX: DEVI inserire esattamente 1 o 2 citazioni testuali prese dalle fonti fornite (scegli SOLO le più rilevanti, ignora gossip o news non correlate all'intent originario). Ogni citazione deve essere racchiusa tra <blockquote class=\"cite-box\">[Testo Citazione]</blockquote>.
+    2. COMMENTO POST-CITAZIONE: Sotto ogni citazione, commenta integrando con la tua competenza esperta.
+    3. TABELLA DATI/PREZZI (MANDATORIA): Inserisci SEMPRE una tabella HTML ben formattata (<table> con classi Tailwind come 'w-full text-left border-collapse my-8'). Se la keyword è locale (es. "scavi parma"), fai una tabella prezzi dettagliata 2026. Se è generica, una tabella comparativa o di specifiche. Usa DATI CONCRETI (es. "15-35€/m³" e non frasi vuote come "varia molto").
+    4. INSIGHT UNICO CONCRETO: Inserisci un paragrafo di esperienza diretta (es: "Nella nostra esperienza cantieristica a Parma, il 30% dei subappalti nasconde costi extra per..."). Sii iper-specifico. Inseriscilo dentro: <div class="bg-brand-50 border-l-4 border-brand-500 p-6 my-8 rounded-r-2xl text-slate-800 font-medium">✨ <em>Esperienza Diretta:</em> ...</div>
+    5. ANTI-BOT / ANTI-SLOP: VIETATO usare frasi fatte da AI come: "Evita sorprese", "Non farti fregare", "Parti col piede giusto", "Un preventivo è fondamentale". NIENTE FILLER ripetitivi.
+    6. PERSONA EXPERT & BIO: L'Autore non è solo un nome. Crea una qualifica (authorRole) iper-specifica per nicchia e territorio. Esempio vero: "Geometra con 15+ anni in Emilia-Romagna, spec. in movimento terra".` : "Agisci come un esperto senior del settore che fornisce consigli pratici, tabelle di prezzi realistici 2026 e casi studio realistici."}
 
     Structure:
     - Highly creative and catchy title (H1) incorporating the keyword naturally. CRITICAL INSTRUCTION: STRICT MAXIMUM 55 CHARACTERS! If longer, it fails SEO. Short, punchy.
