@@ -20,9 +20,16 @@ export async function POST(req: Request) {
         const vercelToken = process.env.VERCEL_API_TOKEN;
         const teamId = process.env.VERCEL_TEAM_ID;
         const geminiKey = process.env.GEMINI_API_KEY;
-        // Template source (GitHub user/repo)
-        const templateRepoFull = process.env.LANDER_TEMPLATE_REPO || 'Fabriziochiappini/lander-template';
-        const [templateOwner, templateName] = templateRepoFull.split('/');
+
+        // Footprint Avoidance: Cycle between Template 1 and Template 2
+        const template1 = process.env.LANDER_TEMPLATE_REPO || 'Fabriziochiappini/lander-template';
+        const template2 = process.env.LANDER_TEMPLATE_REPO_V2 || 'Fabriziochiappini/lander-template-v2';
+
+        // 50/50 Random Selection
+        const selectedTemplate = Math.random() > 0.5 ? template1 : template2;
+        const [templateOwner, templateName] = selectedTemplate.split('/');
+
+        console.log(`[Footprint Avoidance] Selected Template: ${selectedTemplate}`);
 
         if (!vercelToken || !geminiKey) {
             return NextResponse.json({ error: 'Missing API configuration (Vercel or Gemini)' }, { status: 500 });
