@@ -431,24 +431,23 @@ Restituisci SOLO un JSON array di ESATTAMENTE 30 oggetti:
     Produce a highly creative, unique Title (H1) and Excerpt. DO NOT use generic phrases like "Guida Completa per..." or "Tutto quello che devi sapere su...". Differentiate!
     
     HUMAN TOUCH & REAL-WORLD CONTEXT:
-    ${context ? `Ecco alcune informazioni/notizie provenienti da diverse fonti reali (Wikipedia, News, Reddit ecc.) legate all'argomento:\n${context}\n\nISTRUZIONI CRITICA PER L'AMALGAMA ANTI-BOT E UTILITÀ:
-    1. NON ESSERE UN BOT: Vietato limitarsi a riportare le fonti come un elenco o un riassunto enciclopedico.
-    2. FILTRO BRAND: SE NEL CONTESTO APPAIONO NOMI DI AZIENDE SPECIFICHE O COMPETITOR (es. Rossi Sgomberi, ELMI, ecc.), DEVI ASSOLUTAMENTE IGNORARE IL NOME E PARLARE SOLO DEL SERVIZIO IN MODO GENERICO. Non fare pubblicità o menzioni a terzi.
-    3. FUSIONE AUTOREVOLE: Devi usare Wikipedia per la precisione tecnica/storica, Google News per l'attualità territoriale e Reddit per capire i dubbi reali e i "pain points" degli utenti.
-    4. FOCUS UTILITÀ: L'articolo deve essere PRIMA DI TUTTO UTILE all'utente. Risolvi problemi reali.
-    5. NARRAZIONE FLUIDA: Usa le fonti naturalmente.
-    6. E-E-A-T: Agisci come un esperto veterano che dà un consiglio pratico e autorevole.` : "Agisci come un esperto del settore che fornisce consigli pratici e utili, evitando toni enciclopedici o menzioni a brand specifici."}
+    ${context ? `Ecco alcune informazioni/notizie provenienti da diverse fonti reali (Wikipedia, News, Reddit ecc.) legate all'argomento:\n${context}\n\nISTRUZIONI CRITICHE PER L'OLIMPO ADSEO (DOTTORE SEO):
+    1. CITAZIONE ESPLICITA: DEVI citare le fonti per nome (es: "Secondo Wikipedia...", "In una recente notizia su...", "Una discussione su Reddit evidenzia che...").
+    2. VIRGOLETTATI REALI: Prendi almeno una frase significativa dalle fonti fornite e inseriscila tra virgolette, commentandola poi con la tua competenza esperta.
+    3. ANTI-BOT / ANTI-SLOP: VIETATO usare frasi fatte da AI come: "Evita sorprese!", "Non farti fregare!", "Parti col piede giusto!", "Un preventivo dettagliato è fondamentale", "Valuta attentamente". Se le usi, l'articolo verrà penalizzato.
+    4. EXPERTISE LOCALE & NUMERICA (E-E-A-T): Inserisci dati concreti simulati basati sul mercato 2026. Esempio: "A Bologna i prezzi variano tra 900€ e 2800€ per una vetrina media", oppure cita casi studio realistici (senza fare nomi di competitor reali).
+    5. COMMENTO ESPERTO: Non limitarti a riassumere. Agisci come un Dottore SEO che "diagnostica" il problema dell'utente e dà la cura definitiva.
+    6. FILTRO BRAND: SE NEL CONTESTO APPAIONO NOMI DI AZIENDE SPECIFICHE O COMPETITOR, DEVI ignorare il nome e parlare solo del servizio.` : "Agisci come un esperto 'Dottore del settore' che fornisce consigli pratici, dati numerici realistici del mercato 2026 (es. range di prezzi in euro) e citazioni di buon senso, evitando toni enciclopedici o frasi fatte da bot."}
 
     Structure:
     - Highly creative and catchy title (H1) incorporating the keyword naturally. CRITICAL INSTRUCTION: STRICT MAXIMUM 55 CHARACTERS! If longer, it fails SEO. Short, punchy.
     - Detailed excerpt (meta description style, 140-155 chars) - make it unique!
-    - Introduction focusing on the specific angle and the "human" context (Wikipedia/News amalgamation)
-    - At least 5 sections with descriptive H2 titles. 
-    - CRITICAL: NO <h1> tags inside the content. Start directly with H2.
-    - Bullet points and lists where appropriate
-    - ABSOLUTELY MANDATORY: You MUST include exactly 3 internal <a href="[DOMAIN_LINK_ID]/article/relevant-slug">anchor links</a> distributed inside the main text paragraphs. Replacing "relevant-slug" with a plausible keyword slug.
-    - ABSOLUTELY MANDATORY: You MUST include at least 1 external link to an authoritative source (e.g. Wikipedia, Google, Gov sites) relevant to the niche. Use the URL provided in the context if applicable!
-    - Conclusion with a soft CTA
+    - Introduction: Break the Fourth Wall of AI slop. Start with an expert observation, a quote or a specific local context (Wikipedia/Reddit amalgamation).
+    - At least 5 sections with descriptive H2 titles.
+    - CRITICAL: Use the citation engine. Each section should feel like it was written by an expert citing real-world trends (Semantic Scholar, News, etc.).
+    - ABSOLUTELY MANDATORY: You MUST include exactly 3 internal <a href="[DOMAIN_LINK_ID]/article/relevant-slug">anchor links</a>.
+    - ABSOLUTELY MANDATORY: You MUST include at least 1 external link to an authoritative source relevant to the niche.
+    - Conclusion: Final "Doctor's Prescription" (CTA).
     
     Avoid keyword stuffing. Target a high E-E-A-T score.
     
@@ -460,7 +459,9 @@ Restituisci SOLO un JSON array di ESATTAMENTE 30 oggetti:
       "content": "Full HTML-formatted content. IMPORTANT: You MUST include the 3 mandatory anchors inside <p> tags.",
       "category": "One of: Strategia, Tecnologia, Design, Business",
       "tags": ["tag1", "tag2", "tag3"],
-      "imageSearchTerm": "English term for a relevant Unsplash image"
+      "imageSearchTerm": "English term for a relevant Unsplash image",
+      "author": "A realistic Italian full name (e.g. Marco Rossi, Elena Bianchi)",
+      "authorRole": "A relevant professional role (e.g. Esperto di Logistica, Redazione, Specialista, Consulente)"
     }`;
 
     const result = await this.model.generateContent(prompt);
@@ -479,6 +480,36 @@ Restituisci SOLO un JSON array di ESATTAMENTE 30 oggetti:
     4. Format: Return ONLY the domain name (e.g. "sgomberorapido.it").
     
     Return ONLY a JSON array of strings: ["domain1.com", "domain2.it", ...]`;
+
+    const result = await this.model.generateContent(prompt);
+    const response = await result.response;
+    return this.cleanAndParseJson(response.text());
+  }
+
+  async generateAboutPageContent(domain: string, keyword: string, brandName: string): Promise<any> {
+    const prompt = `Write a highly professional and credible "About Us" (Chi Siamo) page in Italian for a project named "${brandName}" on the domain "${domain}".
+    Focus keyword/niche: "${keyword}".
+    
+    CRITICAL E-E-A-T INSTRUCTIONS:
+    1. LOCAL FLAVOR: If the keyword implies a location (e.g. "Roma", "Bologna"), position the team as local experts based in that city.
+    2. HUMAN TOUCH: Use a professional but human tone. Avoid "AI-slop" phrases. Focus on experience, manual work, and human-supervised AI optimization (for 2026).
+    3. STRUCTURE:
+       - H1: Catchy, local, and professional (max 60 chars).
+       - Intro (150 words): Professional background, years in the industry (e.g., since 2018), and mission.
+       - The Team & Expertise (250 words): Details about the number of local projects handled, expertise (e.g., local logistics, web design trends 2026), and the human "why".
+       - Trust factors: Mentions of transparency, clear pricing, and respect for the client.
+    
+    4. IMAGE SEARCH TERMS: Provide 2 specific English terms for Unsplash images that perfectly match the niche (e.g., "moving truck" for movers, "modern office laptops" for agencies).
+    
+    Return ONLY a JSON object with:
+    {
+      "aboutTitle": "H1 for the page",
+      "aboutIntro": "Full intro text with HTML <p> tags",
+      "aboutTeam": "Full team/expertise section with HTML <p> and <ul> tags",
+      "aboutExcerpt": "Meta description (140-155 chars)",
+      "imageSearchTerm1": "First Unsplash term",
+      "imageSearchTerm2": "Second Unsplash term"
+    }`;
 
     const result = await this.model.generateContent(prompt);
     const response = await result.response;

@@ -49,12 +49,6 @@ export const GUIDE_CTA_TITLE = dynamic?.guideCtaTitle || 'Hai bisogno di support
 export const GUIDE_CTA_SUBTITLE = dynamic?.guideCtaSubtitle || 'Contattaci oggi per una consulenza gratuita e personalizzata.';
 export const GUIDE_CTA_TEXT = dynamic?.guideCtaText || 'Contattaci Ora';
 
-// Initialize Supabase client
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://example.supabase.co',
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder'
-);
-
 const UNSPLASH_IMAGES = [
   'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1200',
   'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1200',
@@ -77,6 +71,20 @@ const UNSPLASH_IMAGES = [
   'https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&q=80&w=1200',
   'https://images.unsplash.com/photo-1559136555-9303baea8ebd?auto=format&fit=crop&q=80&w=1200'
 ];
+
+// Initialize Supabase client
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://example.supabase.co',
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder'
+);
+
+// About Us Page Content
+export const ABOUT_TITLE = dynamic?.aboutTitle || `Chi Siamo | ${BRAND_NAME}`;
+export const ABOUT_INTRO = dynamic?.aboutIntro || `<p>Siamo esperti nel settore di ${BRAND_TAGLINE}. La nostra missione è fornire soluzioni di alta qualità ai nostri clienti.</p>`;
+export const ABOUT_TEAM = dynamic?.aboutTeam || `<p>Il nostro team è composto da professionisti con anni di esperienza, dedicati all'eccellenza e alla soddisfazione del cliente.</p>`;
+export const ABOUT_META_DESCRIPTION = dynamic?.aboutExcerpt || `Scopri chi siamo e la nostra missione in ${BRAND_NAME}. Esperti al tuo servizio.`;
+export const ABOUT_IMAGE_1 = dynamic?.imageSearchTerm1 ? `https://source.unsplash.com/featured/?${encodeURIComponent(dynamic.imageSearchTerm1)}` : UNSPLASH_IMAGES[0];
+export const ABOUT_IMAGE_2 = dynamic?.imageSearchTerm2 ? `https://source.unsplash.com/featured/?${encodeURIComponent(dynamic.imageSearchTerm2)}` : UNSPLASH_IMAGES[1];
 
 function getSafeImage(url: string | null | undefined, seed: string): string {
   if (!url || url.includes('loremflickr.com')) {
@@ -115,8 +123,8 @@ export async function getLiveArticles(): Promise<Article[]> {
       description: a.excerpt,
       content: a.content,
       category: a.category,
-      author: 'Redazione',
-      authorRole: BRAND_AUTHOR_ROLE,
+      author: a.author || 'Redazione',
+      authorRole: a.author_role || BRAND_AUTHOR_ROLE,
       date: new Date(a.published_at).toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' }),
       image: getSafeImage(a.image_url, a.slug || a.title),
       alt: a.title,

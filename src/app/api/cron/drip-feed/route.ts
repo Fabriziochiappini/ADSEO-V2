@@ -81,6 +81,8 @@ export async function GET(req: Request) {
                     tags: article.tags,
                     image_url: seoImage.url,
                     alt_tag: seoImage.alt,
+                    author: article.author,
+                    author_role: article.authorRole,
                     published_at: new Date().toISOString()
                 });
 

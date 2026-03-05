@@ -152,6 +152,8 @@ export async function POST(req: Request) {
                         tags: article.tags,
                         image_url: seoImage.url,
                         alt_tag: seoImage.alt,
+                        author: article.author,
+                        author_role: article.authorRole,
                         published_at: new Date().toISOString()
                     });
                     pillarIdx++;
@@ -167,13 +169,24 @@ export async function POST(req: Request) {
                     }
                 }
 
-                // 7. Queue 25 Articles (Drip Feed)
-                const queueToInsert = articleQueue.map((kw, index) => ({
-                    campaign_id: campaignId,
-                    keyword: kw.keyword,
-                    scheduled_at: new Date(Date.now() + (index + 1) * intervalMs).toISOString(),
-                    status: 'pending'
-                }));
+                // 7. Queue 25 Articles (Drip Feed) with randomized jitter to break rhythmic footprints
+                const queueToInsert = articleQueue.map((kw, index) => {
+                    const baseDelay = (index + 1) * intervalMs;
+                    // Add a random jitter of +/- 24 hours (48h total window)
+                    const jitter = Math.floor(Math.random() * 48 * 60 * 60 * 1000) - (24 * 60 * 60 * 1000);
+                    let scheduledTime = Date.now() + baseDelay + jitter;
+
+                    // Safety: ensure scheduling is at least 30 minutes in the future
+                    const minFuture = Date.now() + 30 * 60 * 1000;
+                    if (scheduledTime < minFuture) scheduledTime = minFuture;
+
+                    return {
+                        campaign_id: campaignId,
+                        keyword: kw.keyword,
+                        scheduled_at: new Date(scheduledTime).toISOString(),
+                        status: 'pending'
+                    };
+                });
 
                 if (queueToInsert.length > 0) {
                     await supabase.from('article_queue').insert(queueToInsert);

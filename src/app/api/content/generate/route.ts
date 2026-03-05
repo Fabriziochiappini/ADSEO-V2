@@ -24,17 +24,20 @@ export async function POST(req: Request) {
             aiService.generateGuidePageContent(domain, keyword)
         ]);
 
-        // Use AI brand if it returned one, otherwise use derived
         const finalBrand = landingContent.brandName?.toLowerCase() === 'sitoweb' || !landingContent.brandName
             ? derivedBrand
             : landingContent.brandName;
 
-        const servicesPageContent = await aiService.generateServicesPageContent(domain, keyword, finalBrand);
+        const [servicesPageContent, aboutPageContent] = await Promise.all([
+            aiService.generateServicesPageContent(domain, keyword, finalBrand),
+            aiService.generateAboutPageContent(domain, keyword, finalBrand)
+        ]);
 
         const content = {
             ...landingContent,
             ...guideContent,
             ...servicesPageContent,
+            ...aboutPageContent,
             brandName: finalBrand
         };
 

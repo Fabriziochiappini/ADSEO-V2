@@ -95,17 +95,40 @@ export class KnowledgeService {
         }
     }
 
-    async fetchAllContext(keyword: string): Promise<ContextSource[]> {
-        console.log(`[KnowledgeEngine] Launching data probes for: ${keyword}...`);
+    async getExpertContext(keyword: string): Promise<ContextSource[]> {
+        try {
+            // This probe targets expert analysis, blogs and platforms (Medium, Substack, LinkedIn-style content)
+            const query = encodeURIComponent(`${keyword} expert analysis industry trends 2026`);
+            const url = `https://news.google.com/rss/search?q=${query}&hl=it&gl=IT&ceid=IT:it`;
+            const response = await fetch(url);
+            const xmlData = await response.text();
+            const jsonObj = this.xmlParser.parse(xmlData);
+            const items = jsonObj.rss?.channel?.item;
+            const itemsArray = Array.isArray(items) ? items : items ? [items] : [];
 
-        const [wiki, news, reddit] = await Promise.all([
+            return itemsArray.slice(0, 2).map((item: any) => ({
+                type: 'news' as const, // Treat as expert news/article
+                title: item.title,
+                summary: `Expert Insight: ${item.description || 'Analisi tecnica di settore.'}`,
+                link: item.link
+            }));
+        } catch (e) {
+            return [];
+        }
+    }
+
+    async fetchAllContext(keyword: string): Promise<ContextSource[]> {
+        console.log(`[KnowledgeEngine] Launching deep data probes (Wiki, News, Reddit, Expert) for: ${keyword}...`);
+
+        const [wiki, news, reddit, expert] = await Promise.all([
             this.getWikipediaContext(keyword),
             this.getNewsContext(keyword),
-            this.getRedditContext(keyword)
+            this.getRedditContext(keyword),
+            this.getExpertContext(keyword)
         ]);
 
-        const all = [...wiki, ...news, ...reddit];
-        console.log(`[KnowledgeEngine] Captured ${all.length} context shards.`);
+        const all = [...wiki, ...news, ...reddit, ...expert];
+        console.log(`[KnowledgeEngine] Captured ${all.length} authoritative context shards.`);
         return all;
     }
 
