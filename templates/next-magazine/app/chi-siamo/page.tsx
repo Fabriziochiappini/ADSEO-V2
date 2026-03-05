@@ -26,7 +26,7 @@ export default function AboutPage() {
     return (
         <div className="min-h-screen bg-white">
             <div className="max-w-7xl mx-auto px-6 py-12">
-                <Breadcrumbs />
+                <Breadcrumbs items={[]} />
 
                 <header className="mb-20 mt-12">
                     <h1 className="text-5xl md:text-7xl font-serif font-bold tracking-tight mb-8 leading-[1.1]">

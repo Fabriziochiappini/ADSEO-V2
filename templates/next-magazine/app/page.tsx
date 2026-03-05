@@ -9,7 +9,6 @@ import {
   getLiveArticles,
   DOMAIN,
   BRAND_NAME,
-  BRAND_TAGLINE,
   SITE_TITLE,
   META_DESCRIPTION,
   SERVICES_TITLE,

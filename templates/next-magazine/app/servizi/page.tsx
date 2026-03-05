@@ -60,10 +60,10 @@ export default function ServicesPage() {
             <section className="py-24 bg-white relative z-20 -mt-10 rounded-t-[3rem]">
                 <div className="max-w-7xl mx-auto px-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-                        {servicesList.map((service: any, idx: number) => (
+                        {servicesList.map((service: { title: string, description: string, icon?: string }, idx: number) => (
                             <div key={idx} className="group p-10 rounded-[2.5rem] bg-zinc-50 border border-zinc-100 hover:bg-white hover:border-brand-500/20 hover:shadow-2xl hover:shadow-brand-500/10 transition-all duration-500">
                                 <div className="w-16 h-16 bg-brand-600/10 text-brand-500 rounded-2xl flex items-center justify-center mb-10 group-hover:bg-brand-600 group-hover:text-white transition-all duration-500 font-serif font-black text-xl">
-                                    {service.icon?.length > 10 ? (
+                                    {(service.icon?.length || 0) > 10 ? (
                                         <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={service.icon} />
                                         </svg>
@@ -97,7 +97,7 @@ export default function ServicesPage() {
                                 {WHY_CHOOSE_US_SUBTITLE}
                             </p>
                             <div className="space-y-6">
-                                {pointsList.map((item: any, i: number) => (
+                                {pointsList.map((item: { title: string, description: string }, i: number) => (
                                     <div key={i} className="flex gap-6">
                                         <div className="w-12 h-12 bg-white rounded-xl shadow-lg flex items-center justify-center text-2xl font-bold text-brand-600 shrink-0">
                                             {i + 1}
@@ -130,7 +130,7 @@ export default function ServicesPage() {
                 <div className="max-w-4xl mx-auto px-6">
                     <div className="w-12 h-0.5 bg-brand-500 mx-auto mb-12 opacity-30" />
                     <p className="text-2xl md:text-3xl font-serif italic text-zinc-500 leading-relaxed font-light">
-                        "{SERVICES_FOOTER_QUOTE}"
+                        &quot;{SERVICES_FOOTER_QUOTE}&quot;
                     </p>
                 </div>
             </section>

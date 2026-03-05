@@ -4,7 +4,7 @@ import JsonLd from '@/components/JsonLd';
 import Breadcrumbs from '@/components/Breadcrumbs';
 import ArticleGrid from '@/components/ArticleGrid';
 import { getLiveArticles, DOMAIN, BRAND_NAME } from '@/lib/constants';
-import type { Metadata, ResolvingMetadata } from 'next';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 
 interface ArticlePageProps {
@@ -12,8 +12,7 @@ interface ArticlePageProps {
 }
 
 export async function generateMetadata(
-    { params }: ArticlePageProps,
-    parent: ResolvingMetadata
+    { params }: ArticlePageProps
 ): Promise<Metadata> {
     const { slug } = await params;
     const articles = await getLiveArticles();
@@ -66,7 +65,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     }
 
     const otherArticles = articles.filter(a => a.slug !== slug);
-    const randomRelated = otherArticles.length > 0 ? otherArticles[Math.floor(Math.random() * otherArticles.length)] : null;
+    const randomRelated = otherArticles.length > 0 ? otherArticles[0] : null;
 
     // Content Injection Logic: Inserimento "Scopri anche" a metà articolo
     const injectInternalLink = (html: string) => {
@@ -170,7 +169,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                     </Link>
                 </div>
                 <ArticleGrid
-                    articles={otherArticles.sort(() => 0.5 - Math.random()).slice(0, 3)}
+                    articles={otherArticles.slice(0, 3)}
                 />
             </section>
 

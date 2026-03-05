@@ -32,7 +32,7 @@ export default function GuidePage() {
             </header>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mb-24">
-                {GUIDES.map((guide: any, idx: number) => {
+                {GUIDES.map((guide: { title: string, description: string, steps: string[] }, idx: number) => {
                     // Ciclare tra diversi stili
                     const styles = [
                         "bg-white border-zinc-100 shadow-sm", // Standard
