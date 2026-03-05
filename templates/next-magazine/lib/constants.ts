@@ -82,6 +82,7 @@ const supabase = createClient(
 export const ABOUT_TITLE = dynamic?.aboutTitle || `Chi Siamo | ${BRAND_NAME}`;
 export const ABOUT_INTRO = dynamic?.aboutIntro || `<p>Siamo esperti nel settore di ${BRAND_TAGLINE}. La nostra missione è fornire soluzioni di alta qualità ai nostri clienti.</p>`;
 export const ABOUT_TEAM = dynamic?.aboutTeam || `<p>Il nostro team è composto da professionisti con anni di esperienza, dedicati all'eccellenza e alla soddisfazione del cliente.</p>`;
+export const ABOUT_CONCLUSION = dynamic?.aboutConclusion || `<p>Contattaci per saperne di più su come possiamo aiutarti a raggiungere i tuoi obiettivi con professionalità e trasparenza.</p>`;
 export const ABOUT_META_DESCRIPTION = dynamic?.aboutExcerpt || `Scopri chi siamo e la nostra missione in ${BRAND_NAME}. Esperti al tuo servizio.`;
 export const ABOUT_IMAGE_1 = dynamic?.imageSearchTerm1 ? `https://source.unsplash.com/featured/?${encodeURIComponent(dynamic.imageSearchTerm1)}` : UNSPLASH_IMAGES[0];
 export const ABOUT_IMAGE_2 = dynamic?.imageSearchTerm2 ? `https://source.unsplash.com/featured/?${encodeURIComponent(dynamic.imageSearchTerm2)}` : UNSPLASH_IMAGES[1];

@@ -101,7 +101,15 @@ export async function POST(req: Request) {
                     servicesCtaTitle: site.servicesCtaTitle,
                     servicesCtaSubtitle: site.servicesCtaSubtitle,
                     servicesCtaText: site.servicesCtaText,
-                    servicesFooterQuote: site.servicesFooterQuote
+                    servicesFooterQuote: site.servicesFooterQuote,
+                    // About Us Content
+                    aboutTitle: site.aboutTitle,
+                    aboutIntro: site.aboutIntro,
+                    aboutTeam: site.aboutTeam,
+                    aboutConclusion: site.aboutConclusion,
+                    aboutExcerpt: site.aboutExcerpt,
+                    imageSearchTerm1: site.imageSearchTerm1,
+                    imageSearchTerm2: site.imageSearchTerm2
                 });
 
                 // 3. Create NEW REPO for this site (Cloning Template)

@@ -6,6 +6,7 @@ import {
     ABOUT_TITLE,
     ABOUT_INTRO,
     ABOUT_TEAM,
+    ABOUT_CONCLUSION,
     ABOUT_META_DESCRIPTION,
     ABOUT_IMAGE_1,
     ABOUT_IMAGE_2,
@@ -56,13 +57,10 @@ export default function AboutPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
                     <div className="order-2 md:order-1">
-                        <h2 className="text-3xl font-serif font-bold mb-6">Il Nostro Impegno H24</h2>
-                        <p className="text-lg text-zinc-600 leading-relaxed mb-6">
-                            In un mondo dominato dagli algoritmi, noi puntiamo sulla reciproca fiducia. Ogni progetto che gestiamo, che sia un sito web o uno sgombero urgente, viene trattato con la massima cura e professionalità.
-                        </p>
-                        <p className="text-lg text-zinc-600 leading-relaxed">
-                            Utilizziamo le tecnologie più avanzate del 2026 per ottimizzare i nostri processi, ma la decisione finale e il controllo della qualità rimangono sempre nelle mani dei nostri esperti locali.
-                        </p>
+                        <div
+                            className="text-lg text-zinc-600 leading-relaxed prose prose-zinc max-w-none"
+                            dangerouslySetInnerHTML={{ __html: ABOUT_CONCLUSION }}
+                        />
                     </div>
                     <div className="order-1 md:order-2 relative aspect-video rounded-3xl overflow-hidden shadow-xl">
                         <Image

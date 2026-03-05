@@ -431,23 +431,24 @@ Restituisci SOLO un JSON array di ESATTAMENTE 30 oggetti:
     Produce a highly creative, unique Title (H1) and Excerpt. DO NOT use generic phrases like "Guida Completa per..." or "Tutto quello che devi sapere su...". Differentiate!
     
     HUMAN TOUCH & REAL-WORLD CONTEXT:
-    ${context ? `Ecco alcune informazioni/notizie provenienti da diverse fonti reali (Wikipedia, News, Reddit ecc.) legate all'argomento:\n${context}\n\nISTRUZIONI CRITICHE PER L'OLIMPO ADSEO (DOTTORE SEO):
-    1. CITAZIONE ESPLICITA: DEVI citare le fonti per nome (es: "Secondo Wikipedia...", "In una recente notizia su...", "Una discussione su Reddit evidenzia che...").
-    2. VIRGOLETTATI REALI: Prendi almeno una frase significativa dalle fonti fornite e inseriscila tra virgolette, commentandola poi con la tua competenza esperta.
+    ${context ? `Ecco alcune informazioni/notizie provenienti da diverse fonti reali (Wikipedia, News, Reddit ecc.) legate all'argomento:\n${context}\n\nISTRUZIONI CRITICHE PER L'OLIMPO ADSEO (IL CITAZIONE ENGINE):
+    1. CITAZIONE ESPLICITA IN BOX: DEVI inserire esattamente 2 o 3 citazioni testuali prese dalle fonti fornite. Ogni citazione deve essere di 2-3 righe e racchiusa tra <blockquote class=\"cite-box\">[Testo Citazione]</blockquote>.
+    2. COMMENTO POST-CITAZIONE: Sotto ogni box di citazione, DEVI commentare e integrare la notizia con la tua competenza esperta del settore (niente toni da bot).
     3. ANTI-BOT / ANTI-SLOP: VIETATO usare frasi fatte da AI come: "Evita sorprese!", "Non farti fregare!", "Parti col piede giusto!", "Un preventivo dettagliato è fondamentale", "Valuta attentamente". Se le usi, l'articolo verrà penalizzato.
-    4. EXPERTISE LOCALE & NUMERICA (E-E-A-T): Inserisci dati concreti simulati basati sul mercato 2026. Esempio: "A Bologna i prezzi variano tra 900€ e 2800€ per una vetrina media", oppure cita casi studio realistici (senza fare nomi di competitor reali).
-    5. COMMENTO ESPERTO: Non limitarti a riassumere. Agisci come un Dottore SEO che "diagnostica" il problema dell'utente e dà la cura definitiva.
-    6. FILTRO BRAND: SE NEL CONTESTO APPAIONO NOMI DI AZIENDE SPECIFICHE O COMPETITOR, DEVI ignorare il nome e parlare solo del servizio.` : "Agisci come un esperto 'Dottore del settore' che fornisce consigli pratici, dati numerici realistici del mercato 2026 (es. range di prezzi in euro) e citazioni di buon senso, evitando toni enciclopedici o frasi fatte da bot."}
+    4. EXPERTISE LOCALE & NUMERICA (E-E-A-T): Inserisci dati concreti simulati basati sul mercato 2026 specifico per la nicchia e la città. Se parli di palestre a Roma, usa range di prezzi reali o tendenze locali 2026.
+    5. PERSONA EXPERT: Agisci come un esperto senior del settore (es: Personal Trainer se parli di sport, Architetto se parli di case, ecc.). Non menzionare "Dottore SEO" a meno che il tema non sia il SEO.
+    6. FILTRO BRAND: SE NEL CONTESTO APPAIONO NOMI DI AZIENDE SPECIFICHE O COMPETITOR, DEVI ignorare il nome e parlare solo del servizio.` : "Agisci come un esperto senior del settore che fornisce consigli pratici, dati numerici realistici del mercato 2026, evitando toni enciclopedici o frasi fatte da bot."}
 
     Structure:
     - Highly creative and catchy title (H1) incorporating the keyword naturally. CRITICAL INSTRUCTION: STRICT MAXIMUM 55 CHARACTERS! If longer, it fails SEO. Short, punchy.
     - Detailed excerpt (meta description style, 140-155 chars) - make it unique!
-    - Introduction: Break the Fourth Wall of AI slop. Start with an expert observation, a quote or a specific local context (Wikipedia/Reddit amalgamation).
+    - Introduction: Start with a punchy, expert observation or a direct reference to a trend found in the context (No introductions like "In questo articolo vedremo...").
     - At least 5 sections with descriptive H2 titles.
-    - CRITICAL: Use the citation engine. Each section should feel like it was written by an expert citing real-world trends (Semantic Scholar, News, etc.).
-    - ABSOLUTELY MANDATORY: You MUST include exactly 3 internal <a href="[DOMAIN_LINK_ID]/article/relevant-slug">anchor links</a>.
-    - ABSOLUTELY MANDATORY: You MUST include at least 1 external link to an authoritative source relevant to the niche.
-    - Conclusion: Final "Doctor's Prescription" (CTA).
+    - CONTENT: Distribute the 2-3 mandatory <blockquote class=\"cite-box\"> citations inside relevant sections. 
+    - MANDATORY: Each citation must be followed by a paragraph of expert commentary.
+    - ABSOLUTELY MANDATORY: You MUST include exactly 3 internal <a href=\"[DOMAIN_LINK_ID]/article/relevant-slug\">anchor links</a>.
+    - ABSOLUTELY MANDATORY: You MUST include at least 1 external link.
+    - Conclusion: Final "Expert Prescription" or strategic advice tailored to the topic. (Do not call it "Ricetta del Dottore SEO" if the niche is gym/law/etc).
     
     Avoid keyword stuffing. Target a high E-E-A-T score.
     
@@ -456,8 +457,8 @@ Restituisci SOLO un JSON array di ESATTAMENTE 30 oggetti:
       "title": "Article Title",
       "slug": "url-friendly-slug",
       "excerpt": "Short summary for cards",
-      "content": "Full HTML-formatted content. IMPORTANT: You MUST include the 3 mandatory anchors inside <p> tags.",
-      "category": "One of: Strategia, Tecnologia, Design, Business",
+      "content": "Full HTML-formatted content. Use <p>, <h2>, <ul>, <blockquote class=\"cite-box\">.",
+      "category": "A logical category based on the niche (e.g. Salute, Sport, Tecnologia, Attualità, Business)",
       "tags": ["tag1", "tag2", "tag3"],
       "imageSearchTerm": "English term for a relevant Unsplash image",
       "author": "A realistic Italian full name (e.g. Marco Rossi, Elena Bianchi)",
@@ -498,6 +499,7 @@ Restituisci SOLO un JSON array di ESATTAMENTE 30 oggetti:
        - Intro (150 words): Professional background, years in the industry (e.g., since 2018), and mission.
        - The Team & Expertise (250 words): Details about the number of local projects handled, expertise (e.g., local logistics, web design trends 2026), and the human "why".
        - Trust factors: Mentions of transparency, clear pricing, and respect for the client.
+       - Conclusion (100 words): A professional sign-off or "Expert Promise" tailored to the niche.
     
     4. IMAGE SEARCH TERMS: Provide 2 specific English terms for Unsplash images that perfectly match the niche (e.g., "moving truck" for movers, "modern office laptops" for agencies).
     
@@ -506,6 +508,7 @@ Restituisci SOLO un JSON array di ESATTAMENTE 30 oggetti:
       "aboutTitle": "H1 for the page",
       "aboutIntro": "Full intro text with HTML <p> tags",
       "aboutTeam": "Full team/expertise section with HTML <p> and <ul> tags",
+      "aboutConclusion": "Conclusion text with HTML <p> tags",
       "aboutExcerpt": "Meta description (140-155 chars)",
       "imageSearchTerm1": "First Unsplash term",
       "imageSearchTerm2": "Second Unsplash term"

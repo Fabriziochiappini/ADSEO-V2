@@ -17,3 +17,16 @@ body {
 .font-serif {
   font-family: 'Playfair Display', serif;
 }
+
+.cite-box {
+  @apply bg-zinc-50 border-l-4 border-zinc-900 px-8 py-6 my-10 relative italic text-lg text-zinc-700 leading-relaxed;
+}
+
+.cite-box::before {
+  content: '“';
+  @apply absolute -top-4 left-4 text-7xl text-zinc-200/50 font-serif leading-none select-none;
+}
+
+.prose blockquote.cite-box {
+  @apply not-italic border-l-4 border-zinc-900 bg-zinc-50 rounded-r-2xl shadow-sm pr-6;
+}

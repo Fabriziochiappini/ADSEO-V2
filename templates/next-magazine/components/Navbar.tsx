@@ -40,12 +40,6 @@ export default function Navbar({ brandName, brandTagline }: NavbarProps) {
                             {link.label}
                         </Link>
                     ))}
-                    <Link
-                        href="/#contatti"
-                        className="bg-zinc-900 text-white px-6 py-2.5 rounded-full hover:bg-zinc-800 hover:shadow-lg transition-all"
-                    >
-                        Consulenza
-                    </Link>
                 </div>
 
                 {/* Mobile Menu Button */}
@@ -74,13 +68,6 @@ export default function Navbar({ brandName, brandTagline }: NavbarProps) {
                             {link.label}
                         </Link>
                     ))}
-                    <Link
-                        href="/#contatti"
-                        className="bg-zinc-900 text-white px-8 py-4 rounded-2xl text-center shadow-xl active:scale-95 transition-all"
-                        onClick={() => setIsOpen(false)}
-                    >
-                        Consulenza Gratuita
-                    </Link>
                 </div>
             </div>
         </nav>
