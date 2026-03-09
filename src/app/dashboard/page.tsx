@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { 
-  Zap, 
-  Search, 
-  Loader2, 
-  Clock, 
-  Calendar, 
+import {
+  Zap,
+  Search,
+  Loader2,
+  Clock,
+  Calendar,
   ArrowRight,
   Database,
   Layout,
@@ -20,6 +20,7 @@ interface Campaign {
   description: string;
   created_at: string;
   app_id: string;
+  domain?: string | null;
 }
 
 export default function DashboardPage() {
@@ -75,7 +76,7 @@ export default function DashboardPage() {
             <h1 className="text-3xl font-bold text-white mb-2">Campaign Dashboard</h1>
             <p className="text-zinc-400">Manage your SEO campaigns and monitor performance.</p>
           </div>
-          <Link 
+          <Link
             href="/"
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-semibold transition-all shadow-lg shadow-blue-900/20"
           >
@@ -92,7 +93,7 @@ export default function DashboardPage() {
         ) : error ? (
           <div className="bg-red-950/20 border border-red-900/30 rounded-2xl p-8 text-center">
             <p className="text-red-400 mb-4">Error loading campaigns: {error}</p>
-            <button 
+            <button
               onClick={() => window.location.reload()}
               className="text-white bg-red-600/20 hover:bg-red-600/30 px-4 py-2 rounded-lg transition-colors"
             >
@@ -108,7 +109,7 @@ export default function DashboardPage() {
             <p className="text-zinc-500 max-w-md mb-8">
               Start by analyzing a keyword to create your first SEO campaign.
             </p>
-            <Link 
+            <Link
               href="/"
               className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-white px-6 py-3 rounded-xl font-medium transition-all"
             >
@@ -118,42 +119,78 @@ export default function DashboardPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {campaigns.map((campaign) => (
-              <Link 
-                key={campaign.id} 
-                href={`/dashboard/${campaign.id}`}
-                className="group block bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6 hover:bg-zinc-800/50 hover:border-zinc-700 transition-all hover:shadow-xl hover:shadow-black/20"
+              <div
+                key={campaign.id}
+                onClick={() => window.location.href = `/dashboard/${campaign.id}`}
+                className="group cursor-pointer block bg-zinc-900/50 border border-zinc-800 rounded-3xl p-7 hover:bg-zinc-800/50 hover:border-zinc-700 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/5 relative overflow-hidden"
               >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center group-hover:bg-blue-500/20 transition-colors">
-                    <Layout className="w-5 h-5 text-blue-400" />
+                {/* Background Accent */}
+                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 blur-3xl -mr-16 -mt-16 group-hover:bg-blue-500/10 transition-all duration-500" />
+
+                <div className="flex items-start justify-between mb-6">
+                  <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center group-hover:bg-blue-500/20 transition-all duration-300">
+                    <Layout className="w-6 h-6 text-blue-400" />
                   </div>
-                  <span className="text-xs font-mono text-zinc-500 flex items-center gap-1 bg-zinc-900 px-2 py-1 rounded-md border border-zinc-800">
-                    <Clock className="w-3 h-3" />
-                    {new Date(campaign.created_at).toLocaleDateString()}
-                  </span>
+                  <div className="flex flex-col items-end gap-2">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 bg-zinc-900/80 px-2.5 py-1 rounded-full border border-zinc-800/50">
+                      ID: {campaign.id.slice(0, 8)}
+                    </span>
+                    <span className="text-[10px] font-medium text-zinc-500 flex items-center gap-1.5">
+                      <Clock className="w-3 h-3" />
+                      {new Date(campaign.created_at).toLocaleDateString()}
+                    </span>
+                  </div>
                 </div>
-                
-                <h3 className="text-lg font-bold text-white mb-2 line-clamp-1 group-hover:text-blue-400 transition-colors">
+
+                <h3 className="text-xl font-bold text-white mb-3 line-clamp-1 group-hover:text-blue-400 transition-colors">
                   {campaign.topic}
                 </h3>
-                <p className="text-sm text-zinc-400 line-clamp-2 mb-6 h-10">
+                <p className="text-sm text-zinc-400 line-clamp-2 mb-8 leading-relaxed h-10">
                   {campaign.description}
                 </p>
-                
-                <div className="flex items-center justify-between pt-4 border-t border-zinc-800/50">
-                  <div className="flex items-center gap-4 text-xs text-zinc-500">
-                    <span className="flex items-center gap-1">
-                      <FileText className="w-3 h-3" /> Articles
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Calendar className="w-3 h-3" /> Schedule
-                    </span>
+
+                {campaign.domain && (
+                  <div
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      window.open(`https://${campaign.domain}`, '_blank');
+                    }}
+                    className="flex items-center justify-between mb-8 p-4 bg-blue-500/5 border border-blue-500/10 rounded-2xl hover:bg-blue-500/10 hover:border-blue-500/30 transition-all duration-300 group/domain"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-xl bg-blue-500/20 flex items-center justify-center">
+                        <Zap className="w-4 h-4 text-blue-400" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[10px] font-bold text-blue-400/60 uppercase tracking-tighter">Domain</span>
+                        <span className="text-sm font-bold text-blue-100 truncate max-w-[150px]">
+                          {campaign.domain}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center bg-zinc-900 border border-zinc-800 group-hover/domain:border-blue-500/50 transition-all">
+                      <ArrowRight className="w-4 h-4 text-zinc-500 group-hover/domain:text-blue-400 group-hover/domain:translate-x-0.5 transition-all" />
+                    </div>
                   </div>
-                  <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                    <ArrowRight className="w-4 h-4" />
+                )}
+
+                <div className="flex items-center justify-between pt-5 border-t border-zinc-800/50 text-zinc-500">
+                  <div className="flex items-center gap-5">
+                    <div className="flex items-center gap-1.5 hover:text-zinc-300 transition-colors">
+                      <FileText className="w-4 h-4" />
+                      <span className="text-xs font-medium">Articles</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 hover:text-zinc-300 transition-colors">
+                      <Calendar className="w-4 h-4" />
+                      <span className="text-xs font-medium">Schedule</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 text-zinc-400 group-hover:text-blue-400 transition-colors">
+                    <span className="text-xs font-bold uppercase tracking-tighter">Details</span>
+                    <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         )}

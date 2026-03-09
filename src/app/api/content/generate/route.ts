@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { AiService } from '@/lib/api/gemini';
+import { ImageService } from '@/lib/api/images';
 import { prettifyDomainToBrand } from '@/lib/utils/branding-utils';
 
 // Extend Vercel serverless function timeout (default is 10s on Hobby, this needs Pro for >10s)
@@ -17,6 +18,7 @@ export async function POST(req: Request) {
         }
 
         const aiService = new AiService(geminiKey);
+        const imageService = new ImageService(geminiKey);
         const derivedBrand = prettifyDomainToBrand(domain);
 
         const [landingContent, guideContent] = await Promise.all([
@@ -33,11 +35,28 @@ export async function POST(req: Request) {
             aiService.generateAboutPageContent(domain, keyword, finalBrand)
         ]);
 
+        // Generate optimized images for Chi Siamo using the "optimized system"
+        const domainSlug = domain.replace(/\./g, '-');
+        const [aboutImage1, aboutImage2] = await Promise.all([
+            imageService.processAndUploadImage(
+                `${keyword} ${aboutPageContent.imageSearchTerm1 || 'team workspace'}`,
+                `${domainSlug}-chi-siamo-team`,
+                `${finalBrand} - Il nostro Team di Esperti`
+            ),
+            imageService.processAndUploadImage(
+                `${keyword} ${aboutPageContent.imageSearchTerm2 || 'local office facade'}`,
+                `${domainSlug}-chi-siamo-sede`,
+                `${finalBrand} - Presenza sul Territorio`
+            )
+        ]);
+
         const content = {
             ...landingContent,
             ...guideContent,
             ...servicesPageContent,
             ...aboutPageContent,
+            aboutImageUrl1: aboutImage1.url,
+            aboutImageUrl2: aboutImage2.url,
             brandName: finalBrand
         };
 

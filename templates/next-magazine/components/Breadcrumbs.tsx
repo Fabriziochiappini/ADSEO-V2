@@ -8,10 +8,10 @@ interface Crumb {
 }
 
 interface BreadcrumbsProps {
-  items: Crumb[];
+  items?: Crumb[];
 }
 
-const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ items }) => {
+const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ items = [] }) => {
   const schemaList = [
     {
       "@type": "ListItem",
