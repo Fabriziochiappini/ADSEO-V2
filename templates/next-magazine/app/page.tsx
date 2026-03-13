@@ -18,6 +18,9 @@ import {
 } from '@/lib/constants';
 import { Metadata } from 'next';
 
+// Revalidate ogni ora: i nuovi articoli appaiono senza re-deploy
+export const revalidate = 3600;
+
 export const metadata: Metadata = {
   title: SITE_TITLE,
   description: META_DESCRIPTION,
@@ -33,7 +36,7 @@ export const metadata: Metadata = {
     locale: 'it-IT',
     images: [
       {
-        url: `${DOMAIN}/api/og`, // Custom generic OG image, or we will just use the first article later.
+        url: `${DOMAIN}/api/og`,
         width: 1200,
         height: 630,
         alt: BRAND_NAME,
@@ -55,7 +58,7 @@ export default async function Home() {
     "address": {
       "@type": "PostalAddress",
       "addressCountry": "IT",
-      "addressLocality": "Roma",  // Placeholder that will generic, or we can leave it empty if we have no real data, but audit complain.
+      "addressLocality": "Roma",
       "streetAddress": "Via Roma 1",
       "postalCode": "00100"
     },
