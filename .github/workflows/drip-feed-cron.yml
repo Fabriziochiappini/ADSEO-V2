@@ -1,0 +1,35 @@
+name: ADSEO Drip Feed Cron
+
+on:
+  schedule:
+    # Ogni ora (GitHub Actions supporta frequenza oraria, gratis)
+    - cron: '0 * * * *'
+  workflow_dispatch:  # Permette trigger manuale dalla UI di GitHub
+
+jobs:
+  trigger-drip-feed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - name: Trigger ADSEO Drip Feed
+        run: |
+          echo "🚀 Triggering ADSEO drip feed at $(date -u)"
+          
+          RESPONSE=$(curl -s -w "\n%{http_code}" \
+            -X GET "https://adseo-v2.vercel.app/api/cron/drip-feed" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            --max-time 300)
+          
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | head -n1)
+          
+          echo "Response: $BODY"
+          echo "HTTP Status: $HTTP_CODE"
+          
+          if [ "$HTTP_CODE" = "200" ]; then
+            echo "✅ Drip feed completato con successo"
+          else
+            echo "❌ Errore drip feed: HTTP $HTTP_CODE"
+            exit 1
+          fi
