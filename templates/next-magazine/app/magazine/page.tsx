@@ -4,6 +4,9 @@ import ArticleGrid from '@/components/ArticleGrid';
 import { getLiveArticles, BRAND_NAME } from '@/lib/constants';
 import { Metadata } from 'next';
 
+// Revalidate ogni ora: i nuovi articoli appaiono senza re-deploy
+export const revalidate = 3600;
+
 export const metadata: Metadata = {
     title: `Magazine | Tutte le ultime notizie di ${BRAND_NAME}`,
     description: `Esplora il nostro magazine con approfondimenti, guide e novità dal settore.`,
