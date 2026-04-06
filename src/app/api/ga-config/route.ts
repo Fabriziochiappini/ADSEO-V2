@@ -26,14 +26,16 @@ export async function GET(req: NextRequest) {
         .ilike('domain', normalizedDomain)
         .maybeSingle();
 
+    // Define caching headers
+    const cacheHeaders = {
+        'Access-Control-Allow-Origin': '*',
+        'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400'
+    };
+
     if (error || !data) {
         // Return empty — site just won't have GA tracking
-        return NextResponse.json({ ga_id: null }, {
-            headers: { 'Access-Control-Allow-Origin': '*' }
-        });
+        return NextResponse.json({ ga_id: null }, { headers: cacheHeaders });
     }
 
-    return NextResponse.json({ ga_id: data.ga_id || null }, {
-        headers: { 'Access-Control-Allow-Origin': '*' }
-    });
+    return NextResponse.json({ ga_id: data.ga_id || null }, { headers: cacheHeaders });
 }
