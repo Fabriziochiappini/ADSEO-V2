@@ -1,9 +1,12 @@
-name: ADSEO Drip Feed Cron
+name: ADSEO Drip Feed Cron (DISABLED)
+
+# ⚠️ DISABILITATO il 2026-05-09
+# Motivo: progetto spubblicato da Vercel, l'endpoint non esiste più.
+# Per riattivare: rimuovere il commento dal blocco "schedule" sotto.
 
 on:
-  schedule:
-    # Ogni ora (GitHub Actions supporta frequenza oraria, gratis)
-    - cron: '0 * * * *'
+  # schedule:
+  #   - cron: '0 * * * *'
   workflow_dispatch:  # Permette trigger manuale dalla UI di GitHub
 
 jobs:
